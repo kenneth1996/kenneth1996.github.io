@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="UTF-8">
+
+    
+
+    
+
+    <title>MySQL主从同步排错思路 | SRE</title>
+    <meta name="author" content="John Doe">
+    <meta name="version" content="1.0.0">
+    <meta name="keywords" content="">
+    <meta name="description" content="一、权限层slave是通过MySQL连接登录到master上来读取二进制日志，因此需要在master上给slave配置权限，最常见的就是误操作配置错误，修改正确即可1mysql &amp;gt; grant replication slave on *.* to &amp;apos;slave1&amp;apos;@&amp;apos;192.168.2.106&amp;apos;identified by &amp;apos;123456&amp;apos;;二、服务层server-id是标记一个数据库的标识，如果重复了就会报错，修改一下...">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+
+    
+    <link rel="alternate" href="/atom.xml" title="SRE" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/images/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+    <main class="app">
+        <header class="header clearfix">
+    <div id="nav" class="nav">
+    <div class="nav-mobile">
+        <button id="open-panel" class="open-panel nav-mobile-item"><i class="icon-documents"></i></button>
+        <h1 class="nav-mobile-title nav-mobile-item">SRE</h1>
+        <button id="open-menus" class="open-panel nav-mobile-item"><i class="icon-library"></i></button>
+    </div>
+
+    <nav id="nav-inner" class="nav-inner">
+        
+            <a class="nav-item" href="/">
+                <span class="nav-text">首页</span>
+            </a>
+        
+            <a class="nav-item" href="/categories/front-end">
+                <span class="nav-text">Linux</span>
+            </a>
+        
+            <a class="nav-item" href="/categories/back-end">
+                <span class="nav-text">Python</span>
+            </a>
+        
+            <a class="nav-item" href="/tags">
+                <span class="nav-text">标签</span>
+            </a>
+        
+            <a class="nav-item" href="/archives">
+                <span class="nav-text">归档</span>
+            </a>
+        
+            <a class="nav-item" href="/about">
+                <span class="nav-text">关于</span>
+            </a>
+        
+    </nav>
+</div>
+
+    <aside id="aside" class="aside">
+    <div id="aside-mask" class="aside-mask"></div>
+    <div id="aside-inner" class="aside-inner">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit"><i class="icon-search-stroke"></i></button><input type="hidden" name="sitesearch" value="http://kenneth96.coding.me"></form>
+
+        
+        
+        
+        
+
+        
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#一、权限层"><span class="toc-number">1.</span> <span class="toc-text">一、权限层</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#二、服务层"><span class="toc-number">2.</span> <span class="toc-text">二、服务层</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#三、日志层"><span class="toc-number">3.</span> <span class="toc-text">三、日志层</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#四、数据层"><span class="toc-number">4.</span> <span class="toc-text">四、数据层</span></a></li></ol>
+        
+    </div>
+</aside>
+
+</header>
+
+        <div id="content" class="content"><article class="article" itemscope="" itemprop="blogPost">
+    
+    <header class="article-header">
+        
+        <h1 itemprop="name">
+            MySQL主从同步排错思路
+        </h1>
+        
+        <div class="article-meta clearfix">
+            <a class="article-date" href="http://kenneth96.coding.me/2018/07/09/MySQL主从同步排错思路“‘/index.html">
+    
+    <i class="icon-calendar"></i>
+    
+    <time datetime="2018-07-09T13:13:21.000Z" itemprop="datePublished">2018-07-09</time>
+</a>
+
+            
+<div class="article-tag-list">
+    <i class="icon-tag"></i>
+    <a class="article-tag-link" href="/tags/MySQL/">MySQL</a>
+</div>
+
+
+        </div>
+    </header>
+    
+    <section class="article-body markdown-body">
+        
+        <h4 id="一、权限层"><a href="#一、权限层" class="headerlink" title="一、权限层"></a>一、权限层</h4><p>slave是通过MySQL连接登录到master上来读取二进制日志，因此需要在<br>master上给slave配置权限，最常见的就是误操作配置错误，修改正确即可</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql &gt; grant replication slave on *.* to &apos;slave1&apos;@&apos;192.168.2.106&apos;identified by &apos;123456&apos;;</span><br></pre></td></tr></table></figure>
+<h4 id="二、服务层"><a href="#二、服务层" class="headerlink" title="二、服务层"></a>二、服务层</h4><p>server-id是标记一个数据库的标识，如果重复了就会报错，修改一下即可<br><a id="more"></a><br><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/Snipaste_2018-06-08_20-14-49.png?x-oss-process=style/myblog" alt="mysql"></p>
+<h4 id="三、日志层"><a href="#三、日志层" class="headerlink" title="三、日志层"></a>三、日志层</h4><p>主从复制就是master将数据库的改变写入bin-log二进制日志，slave同步这些二进制<br>日志，并根据这些二进制日志进行数据操作</p>
+<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/Snipaste_2018-06-08_20-16-41.png?x-oss-process=style/myblog" alt="mysql2"><br>1, 在主库上把数据更改（DDL  DML  DCL）记录到二进制日志（Binary Log）中</p>
+<p>2, 备库I/O线程将主库上的日志复制到自己的中继日志（Relay Log）中</p>
+<p>3, 备库SQL线程读取中继日志中的事件，将其重放到备库数据库之上</p>
+<p>   查看master上的bin-log及其position位置</p>
+<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/Snipaste_2018-06-08_20-18-20.png?x-oss-process=style/myblog" alt="mysql3"></p>
+<p>   配置slave replication<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; stop slave;</span><br><span class="line">Query OK, 0 rows affected (0.01 sec)</span><br><span class="line">mysql&gt;  change master to master_host=&apos;192.168.17.101&apos;,master_user=&apos;slave1&apos;,master_password=&apos;123456&apos;,master_log_file=&apos;mysql-bin.000002&apos;,master_log_pos=333;</span><br><span class="line">mysql&gt; start slave;</span><br></pre></td></tr></table></figure></p>
+<h4 id="四、数据层"><a href="#四、数据层" class="headerlink" title="四、数据层"></a>四、数据层</h4><p>因为master跟slave数据不一致，master上操作的数据在从库不存在，slave操作不了导致服务中断，只有解决掉错误操作才能继续主从同步，因为不知道到底缺了哪些数据，只能备份master数据，恢复到slave才行。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">master：mysqldump -uroot -p&apos;123456&apos; --all-databases &gt; /root/mysql.sql</span><br><span class="line">master：scp /root/mysql root@slave的ip：/tmp</span><br><span class="line">slave： mysql -uroot -p&apos;123456&apos; &lt; /tmp/mysql.sql</span><br></pre></td></tr></table></figure></p>
+
+        
+    </section>
+</article>
+
+
+
+<div class="comments">
+    <div id="comments"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+    new Gitalk({
+        clientID: "7fbe80427f54741e289f",
+        clientSecret: "f34ed5fd92e54c9000bd37ba951948cb939deff5",
+        repo: "sanonz.github.io",
+        owner: "sanonz",
+        admin: ["kenneth"],
+        id: "2018/07/09/MySQL主从同步排错思路“‘",
+        distractionFreeMode: true,
+        title: "MySQL主从同步排错思路",
+        body: "http://kenneth96.coding.me/2018/07/09/MySQL主从同步排错思路“‘/",
+        labels: ["MySQL"]
+    }).render('comments');
+    </script>
+</div>
+
+</div>
+        <footer class="footer">
+    Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+
+    
+        &ensp;
+        <span id="cnzz_stat_icon_1234567890" class="vm"></span>
+        <script src="//s13.cnzz.com/stat.php?id=1234567890&show=pic" type="text/javascript"></script>
+    
+</footer>
+
+    </main>
+
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/1.9.0/jquery.min.js"></script>
+    <script type="text/javascript">
+    $(function() {
+        var nodes = {
+            nav: $('#nav'),
+            aside: $('#aside'),
+            asideInner: $('#aside-inner'),
+            navInner: $('#nav-inner')
+        };
+
+        var doing = false;
+        nodes.asideInner.on('webkitAnimationEnd mozAnimationEnd oAnimationEnd oanimationend animationend', function() {
+            if (nodes.aside.hasClass('mobile-open')) {
+                nodes.aside.removeClass('mobile-open');
+            } else {
+                nodes.aside.removeClass('mobile-close panel-show');
+            }
+            doing = false;
+        });
+        $('#open-panel, #aside-mask').on('click', function() {
+            if (doing) {
+                return;
+            }
+            
+            if (nodes.aside.hasClass('panel-show')) {
+                nodes.aside.addClass('mobile-close');
+            } else {
+                nodes.aside.addClass('mobile-open panel-show');
+            }
+        });
+        $('#open-menus').on('click', function() {
+            nodes.navInner.slideToggle();
+        });
+
+        if (window.innerWidth <= 960) {
+            setTimeout(function() {
+                nodes.navInner.slideUp();
+            }, 3000);
+        }
+    });
+    </script>
+    
+        <script type="text/javascript" src="/js/scrollspy.min.js"></script>
+        <script type="text/javascript">
+        $(document.body).scrollspy({target: '#aside-inner'});
+        </script>
+    
+
+</body>
+</html>

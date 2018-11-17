@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="UTF-8">
+
+    
+
+    
+
+    <title>运维标准化 | SRE</title>
+    <meta name="author" content="John Doe">
+    <meta name="version" content="1.0.0">
+    <meta name="keywords" content="">
+    <meta name="description" content="一、运维标准化1、什么是标准化标准化是指在特定领域的管理实践中，对重复性的事物和概念，通过制定、发布和实施标准达到统一，以获得最佳秩序和效益。通过运维的标准化，可以实现对“运维最佳实践”的归纳和总结，从而实现对“运维最佳实践”的统一规范和执行。所以标准化是提高团队效率的重要方式，是梳理运维杂乱问题的重要依据。 2、标准化定义标准化是指在特定领域的管理实践中，对重复性的事物和概念，通过制定、发布和实施标准达到统一，以获得最佳秩序和效益。而运维的管理实践中充斥着大量重复性事物，并且是批...">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+
+    
+    <link rel="alternate" href="/atom.xml" title="SRE" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/images/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+    <main class="app">
+        <header class="header clearfix">
+    <div id="nav" class="nav">
+    <div class="nav-mobile">
+        <button id="open-panel" class="open-panel nav-mobile-item"><i class="icon-documents"></i></button>
+        <h1 class="nav-mobile-title nav-mobile-item">SRE</h1>
+        <button id="open-menus" class="open-panel nav-mobile-item"><i class="icon-library"></i></button>
+    </div>
+
+    <nav id="nav-inner" class="nav-inner">
+        
+            <a class="nav-item" href="/">
+                <span class="nav-text">首页</span>
+            </a>
+        
+            <a class="nav-item" href="/categories/front-end">
+                <span class="nav-text">Linux</span>
+            </a>
+        
+            <a class="nav-item" href="/categories/back-end">
+                <span class="nav-text">Python</span>
+            </a>
+        
+            <a class="nav-item" href="/tags">
+                <span class="nav-text">标签</span>
+            </a>
+        
+            <a class="nav-item" href="/archives">
+                <span class="nav-text">归档</span>
+            </a>
+        
+            <a class="nav-item" href="/about">
+                <span class="nav-text">关于</span>
+            </a>
+        
+    </nav>
+</div>
+
+    <aside id="aside" class="aside">
+    <div id="aside-mask" class="aside-mask"></div>
+    <div id="aside-inner" class="aside-inner">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit"><i class="icon-search-stroke"></i></button><input type="hidden" name="sitesearch" value="http://kenneth96.coding.me"></form>
+
+        
+        
+        
+        
+
+        
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#一、运维标准化"><span class="toc-number">1.</span> <span class="toc-text">一、运维标准化</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1、什么是标准化"><span class="toc-number">1.1.</span> <span class="toc-text">1、什么是标准化</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2、标准化定义"><span class="toc-number">1.2.</span> <span class="toc-text">2、标准化定义</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3、为什么要做标准化"><span class="toc-number">1.3.</span> <span class="toc-text">3、为什么要做标准化</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#二、运维标准化核心原则"><span class="toc-number">2.</span> <span class="toc-text">二、运维标准化核心原则</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1、最佳实践原则"><span class="toc-number">2.1.</span> <span class="toc-text">1、最佳实践原则</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2、模块化原则"><span class="toc-number">2.2.</span> <span class="toc-text">2、模块化原则</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3、简约化原则"><span class="toc-number">2.3.</span> <span class="toc-text">3、简约化原则</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#三、标准化的执行"><span class="toc-number">3.</span> <span class="toc-text">三、标准化的执行</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1、操作系统层面"><span class="toc-number">3.1.</span> <span class="toc-text">1、操作系统层面</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2、应用服务层面"><span class="toc-number">3.2.</span> <span class="toc-text">2、应用服务层面</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3、运维操作层面"><span class="toc-number">3.3.</span> <span class="toc-text">3、运维操作层面</span></a></li></ol></li></ol>
+        
+    </div>
+</aside>
+
+</header>
+
+        <div id="content" class="content"><article class="article" itemscope="" itemprop="blogPost">
+    
+    <header class="article-header">
+        
+        <h1 itemprop="name">
+            运维标准化
+        </h1>
+        
+        <div class="article-meta clearfix">
+            <a class="article-date" href="http://kenneth96.coding.me/2018/09/06/运维标准化/index.html">
+    
+    <i class="icon-calendar"></i>
+    
+    <time datetime="2018-09-06T15:37:42.000Z" itemprop="datePublished">2018-09-06</time>
+</a>
+
+            
+<div class="article-tag-list">
+    <i class="icon-tag"></i>
+    <a class="article-tag-link" href="/tags/标准化/">标准化</a>
+</div>
+
+
+        </div>
+    </header>
+    
+    <section class="article-body markdown-body">
+        
+        <h3 id="一、运维标准化"><a href="#一、运维标准化" class="headerlink" title="一、运维标准化"></a>一、运维标准化</h3><h4 id="1、什么是标准化"><a href="#1、什么是标准化" class="headerlink" title="1、什么是标准化"></a>1、什么是标准化</h4><p>标准化是指在特定领域的管理实践中，对重复性的事物和概念，通过制定、发布和实施标准达到统一，以获得最佳秩序和效益。通过运维的标准化，可以实现对“运维最佳实践”的归纳和总结，从而实现对“运维最佳实践”的统一规范和执行。所以标准化是提高团队效率的重要方式，是梳理运维杂乱问题的重要依据。 </p>
+<h4 id="2、标准化定义"><a href="#2、标准化定义" class="headerlink" title="2、标准化定义"></a>2、标准化定义</h4><blockquote>
+<p>标准化是指在特定领域的管理实践中，对重复性的事物和概念，通过制定、发布和实施标准达到统一，以获得最佳秩序和效益。</p>
+</blockquote>
+<p>而运维的管理实践中充斥着大量重复性事物，并且是批量级别的运维任务，在这种情况下运维的标准化就工作就显得至关重要了。<br><a id="more"></a></p>
+<blockquote>
+<p>通过运维的标准化，可以实现对“运维最佳实践”的归纳和总结，从而实现对“运维最佳实践”的统一规范和执行。</p>
+</blockquote>
+<p>所以标准化是提高团队效率的重要方式，是梳理运维杂乱问题的重要依据。</p>
+<h4 id="3、为什么要做标准化"><a href="#3、为什么要做标准化" class="headerlink" title="3、为什么要做标准化"></a>3、为什么要做标准化</h4><p>标准化的过程实际上就是对运维对象的识别和建模过程。形成统一的对象模型后，各方在统一的认识下展开有效协作，然后针对不同的运维对象，再抽取出它们所对应的运维场景，接下来才是运维场景的自动化实现。</p>
+<p>这有点像面向对象编程的思想，其实我们就是需要遵循这样一个思路，我们面对的就是一个个实体和逻辑运维对象。</p>
+<p>在标准化的过程中，先识别出各个运维对象，然后我们日常做的所有运维工作，都应该是针对这些对象的运维。如果运维操作脱离了对象，那就没有任何意义。同样，没有理清楚对象，运维自然不得章法。</p>
+<p>比如说扩容，那就要先确定这里到底是服务器的扩容，还是应用的扩容，还是其它对象的扩容。你会发现，对象不同，扩容这个场景所实施的动作是完全不一样的。</p>
+<p>如果把服务器的扩容套用到应用的扩容上去，必然会导致流程错乱。同时对于对象理解上的不一致，也会徒增无谓的沟通成本，造成效率低下。自然地，这种情况下的运维自动化不但不能提升效率，还会越自动越混乱。</p>
+<p>这就是一切“标准先行”的原因。虽然这个事情比较枯燥和繁琐，但是于纷繁复杂中抽象出标准规范的东西，是我们后续一系列自动化和稳定性保障的基础</p>
+<h3 id="二、运维标准化核心原则"><a href="#二、运维标准化核心原则" class="headerlink" title="二、运维标准化核心原则"></a>二、运维标准化核心原则</h3><h4 id="1、最佳实践原则"><a href="#1、最佳实践原则" class="headerlink" title="1、最佳实践原则"></a>1、最佳实践原则</h4><p>当我们对一切都没有思绪的时候，想要在杂乱的管理事务中理清思绪，找到问题的突破口，最好的方式就是寻找最佳实践。在运维的管理领域中寻找最佳实践，拿出来进行整理，形成标准的规范和步骤流程。</p>
+<p>需要注意的是，最佳实践不一定是最高效的，但一定是最贴合实际的，最佳实践理应是在企业组织中施行的、最没有痛点的一种方式。举个例子：</p>
+<p>很多公司现在还没有实现自动化运维，依靠人力+工具的方式维护着系统，效率还不低。对于他们来说这就是最佳实践。</p>
+<p>但随着时间的推移，人员的更替，最佳实践的表现方式会被打破。新的成熟的技术可能会被尝试和使用，比如puppet配置系统的引入，最佳实践也会有更新。</p>
+<p>所以标准化文档的拟定会是长期的不断迭代的过程。</p>
+<h4 id="2、模块化原则"><a href="#2、模块化原则" class="headerlink" title="2、模块化原则"></a>2、模块化原则</h4><p>运维工作在不同的公司定位不一，所涉及到的内容也不同，管理的内容多且繁杂，很难梳理出一个整体的脉络。</p>
+<p>那么我们应该怎么来处理呢?</p>
+<p>建议多使用思维导图工具。通过思维导图工具，我们能构建一个清晰的树状图：</p>
+<p>简单来说，我们可以通过树状图造篮子，树状图完成后，就可以很简单地把我们最经常处理的问题，提炼出来放进篮子里，从而实现细微到小处的最佳实践。</p>
+<p>写标准文档是件很痛苦的事情，因为每个人写的标准文档都是从自身的角度出发，在日常的工作协同中，很难让每个人认同你的处理方式，那么标准化就会形同虚设。</p>
+<p>面对这样的问题，我认为最好的方法是：</p>
+<p>从大家的实践经验中来整理标准，到每个人手里去寻找最佳实践，汇集整理起来，让每一个人都有机会绽放他们的光彩。</p>
+<p>这样做大家都容易接受，同时也解决了只有一个人写标准文档很痛苦的问题。</p>
+<p>但新的问题产生了，大家的标准化文档风格各异，到最后很难整合起来。怎么办?</p>
+<p>这样说来，标准化文档需要有标准化的组织方式，保障行文的统一。</p>
+<p>建议在标准的前言里就把标准化的组织方式写入进去，对全文进行约束，由专人审核评估，这样标准的标准化文档就能在团队中协同来编写，使得运维体系修订的更加完善。</p>
+<p>而且假设日后团队中的人员更替一新，有规范的标准化文档保留下来，也能够保障运维工作的继续进行。</p>
+<h4 id="3、简约化原则"><a href="#3、简约化原则" class="headerlink" title="3、简约化原则"></a>3、简约化原则</h4><p>标准化文档能被有效率地执行，需要达到两个要求：</p>
+<ul>
+<li><strong>简单清晰</strong>，让人一看就能明白在说什么，一看就能记住是怎么做的;</li>
+<li><strong>方便评估</strong>，知道执行的效果是怎么样的。</li>
+</ul>
+<p>要做到简单清晰，有个非常实用的工具——二维表格，通过二维表格能简明扼要地表达我们想要的，而通过表格的最后一列留空，可以方便我们做评估参照。</p>
+<p>但是光靠表格并不能将事物说清楚，细化的工作就必须通过配图来处理了，通过图文并茂的方式将最佳实践的内容说明清楚。</p>
+<p>所以我在每一个章节中加入了步骤总结和示例说明，用来详细说明和执行操作方式方法。这些可以理解为我们平时整理记录博客文章的一些方式方法。</p>
+<h3 id="三、标准化的执行"><a href="#三、标准化的执行" class="headerlink" title="三、标准化的执行"></a>三、标准化的执行</h3><h4 id="1、操作系统层面"><a href="#1、操作系统层面" class="headerlink" title="1、操作系统层面"></a>1、操作系统层面</h4><ol>
+<li>操作系统版本</li>
+<li>系统初始化（DNS，NTP，内核参数调优，rsyslog，主机名规范）</li>
+<li>基础Agent配置（Zabbix Agent，Logstash Agent，Saltstack minion）</li>
+<li>系统监控标准（CPU，内存，硬盘，网络，进程）</li>
+</ol>
+<h4 id="2、应用服务层面"><a href="#2、应用服务层面" class="headerlink" title="2、应用服务层面"></a>2、应用服务层面</h4><ol>
+<li>web服务器选型（Apache，Nginx）</li>
+<li>进程启动用户、端口监听规范、日志收集规范（访问日志，错误日志，运行日志）</li>
+<li>配置管理（配置文件规范，脚本规范）</li>
+<li>架构规范（Nginx+keepalived，lvs+keepalived等等）</li>
+<li>部署规范（位置，包命名等）</li>
+</ol>
+<h4 id="3、运维操作层面"><a href="#3、运维操作层面" class="headerlink" title="3、运维操作层面"></a>3、运维操作层面</h4><ol>
+<li>机房巡检流程（周期，内容，报修流程）</li>
+<li>业务部署流程（先测试，后生产，回滚）</li>
+<li>故障处理流程（紧急处理，故障升级，重大故障处理）</li>
+<li>工作日志标准（编写工作日志）</li>
+<li>业务上线流程（1.项目发起 2.系统安装 3.部署nginx 4.解析域名 5.测试 6.加监控 7.备份）</li>
+<li>业务下线流程（谁发起，数据如何处理）</li>
+<li>运维安全规范（密码复杂度，更改周期，VPN使用规范，服务登陆规范）</li>
+</ol>
+
+        
+    </section>
+</article>
+
+
+
+<div class="comments">
+    <div id="comments"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+    new Gitalk({
+        clientID: "7fbe80427f54741e289f",
+        clientSecret: "f34ed5fd92e54c9000bd37ba951948cb939deff5",
+        repo: "sanonz.github.io",
+        owner: "sanonz",
+        admin: ["kenneth"],
+        id: "2018/09/06/运维标准化",
+        distractionFreeMode: true,
+        title: "运维标准化",
+        body: "http://kenneth96.coding.me/2018/09/06/运维标准化/",
+        labels: ["标准化"]
+    }).render('comments');
+    </script>
+</div>
+
+</div>
+        <footer class="footer">
+    Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+
+    
+        &ensp;
+        <span id="cnzz_stat_icon_1234567890" class="vm"></span>
+        <script src="//s13.cnzz.com/stat.php?id=1234567890&show=pic" type="text/javascript"></script>
+    
+</footer>
+
+    </main>
+
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/1.9.0/jquery.min.js"></script>
+    <script type="text/javascript">
+    $(function() {
+        var nodes = {
+            nav: $('#nav'),
+            aside: $('#aside'),
+            asideInner: $('#aside-inner'),
+            navInner: $('#nav-inner')
+        };
+
+        var doing = false;
+        nodes.asideInner.on('webkitAnimationEnd mozAnimationEnd oAnimationEnd oanimationend animationend', function() {
+            if (nodes.aside.hasClass('mobile-open')) {
+                nodes.aside.removeClass('mobile-open');
+            } else {
+                nodes.aside.removeClass('mobile-close panel-show');
+            }
+            doing = false;
+        });
+        $('#open-panel, #aside-mask').on('click', function() {
+            if (doing) {
+                return;
+            }
+            
+            if (nodes.aside.hasClass('panel-show')) {
+                nodes.aside.addClass('mobile-close');
+            } else {
+                nodes.aside.addClass('mobile-open panel-show');
+            }
+        });
+        $('#open-menus').on('click', function() {
+            nodes.navInner.slideToggle();
+        });
+
+        if (window.innerWidth <= 960) {
+            setTimeout(function() {
+                nodes.navInner.slideUp();
+            }, 3000);
+        }
+    });
+    </script>
+    
+        <script type="text/javascript" src="/js/scrollspy.min.js"></script>
+        <script type="text/javascript">
+        $(document.body).scrollspy({target: '#aside-inner'});
+        </script>
+    
+
+</body>
+</html>

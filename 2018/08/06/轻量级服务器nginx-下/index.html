@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="UTF-8">
+
+    
+
+    
+
+    <title>轻量级服务器Nginx（下） | SRE</title>
+    <meta name="author" content="John Doe">
+    <meta name="version" content="1.0.0">
+    <meta name="keywords" content="">
+    <meta name="description" content="一、访问限制配置1、基于ip的访问限制基于ngx_http_access_module模块，默认可使用 语法deny ip  禁止ip访问allow ip  允许访问默认是允许所有访问的配置：123456789101112server &amp;#123;    listen       80;    server_name  localhost;    #charset koi8-r;    #access_log  logs/host.access.log  main;    d...">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+
+    
+    <link rel="alternate" href="/atom.xml" title="SRE" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/images/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+    <main class="app">
+        <header class="header clearfix">
+    <div id="nav" class="nav">
+    <div class="nav-mobile">
+        <button id="open-panel" class="open-panel nav-mobile-item"><i class="icon-documents"></i></button>
+        <h1 class="nav-mobile-title nav-mobile-item">SRE</h1>
+        <button id="open-menus" class="open-panel nav-mobile-item"><i class="icon-library"></i></button>
+    </div>
+
+    <nav id="nav-inner" class="nav-inner">
+        
+            <a class="nav-item" href="/">
+                <span class="nav-text">首页</span>
+            </a>
+        
+            <a class="nav-item" href="/categories/front-end">
+                <span class="nav-text">Linux</span>
+            </a>
+        
+            <a class="nav-item" href="/categories/back-end">
+                <span class="nav-text">Python</span>
+            </a>
+        
+            <a class="nav-item" href="/tags">
+                <span class="nav-text">标签</span>
+            </a>
+        
+            <a class="nav-item" href="/archives">
+                <span class="nav-text">归档</span>
+            </a>
+        
+            <a class="nav-item" href="/about">
+                <span class="nav-text">关于</span>
+            </a>
+        
+    </nav>
+</div>
+
+    <aside id="aside" class="aside">
+    <div id="aside-mask" class="aside-mask"></div>
+    <div id="aside-inner" class="aside-inner">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit"><i class="icon-search-stroke"></i></button><input type="hidden" name="sitesearch" value="http://kenneth96.coding.me"></form>
+
+        
+        
+        
+        
+
+        
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#一、访问限制配置"><span class="toc-number">1.</span> <span class="toc-text">一、访问限制配置</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1、基于ip的访问限制"><span class="toc-number">1.1.</span> <span class="toc-text">1、基于ip的访问限制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2、基于用户的访问限制"><span class="toc-number">1.2.</span> <span class="toc-text">2、基于用户的访问限制</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#二、重装和升级"><span class="toc-number">2.</span> <span class="toc-text">二、重装和升级</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1、重新安装"><span class="toc-number">2.1.</span> <span class="toc-text">1、重新安装</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2、平滑升级"><span class="toc-number">2.2.</span> <span class="toc-text">2、平滑升级</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#三、第三方模块的使用"><span class="toc-number">3.</span> <span class="toc-text">三、第三方模块的使用</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1、OpenResty"><span class="toc-number">3.1.</span> <span class="toc-text">1、OpenResty</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2、Tengine"><span class="toc-number">3.2.</span> <span class="toc-text">2、Tengine</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#四、防盗链案例"><span class="toc-number">4.</span> <span class="toc-text">四、防盗链案例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1、rewrite重写"><span class="toc-number">4.1.</span> <span class="toc-text">1、rewrite重写</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#①location-配置语法"><span class="toc-number">4.1.1.</span> <span class="toc-text">①location  配置语法</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#②return-语法"><span class="toc-number">4.1.2.</span> <span class="toc-text">②return 语法</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#③rewrite语法"><span class="toc-number">4.1.3.</span> <span class="toc-text">③rewrite语法</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2、防盗链原理和实现"><span class="toc-number">4.2.</span> <span class="toc-text">2、防盗链原理和实现</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#五、安全"><span class="toc-number">5.</span> <span class="toc-text">五、安全</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1、反向代理"><span class="toc-number">5.1.</span> <span class="toc-text">1、反向代理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2、隐藏版本号的安全性和方法"><span class="toc-number">5.2.</span> <span class="toc-text">2、隐藏版本号的安全性和方法</span></a></li></ol></li></ol>
+        
+    </div>
+</aside>
+
+</header>
+
+        <div id="content" class="content"><article class="article" itemscope="" itemprop="blogPost">
+    
+    <header class="article-header">
+        
+        <h1 itemprop="name">
+            轻量级服务器Nginx（下）
+        </h1>
+        
+        <div class="article-meta clearfix">
+            <a class="article-date" href="http://kenneth96.coding.me/2018/08/06/轻量级服务器nginx-下/index.html">
+    
+    <i class="icon-calendar"></i>
+    
+    <time datetime="2018-08-06T11:57:52.000Z" itemprop="datePublished">2018-08-06</time>
+</a>
+
+            
+<div class="article-tag-list">
+    <i class="icon-tag"></i>
+    <a class="article-tag-link" href="/tags/Nginx/">Nginx</a>
+</div>
+
+
+        </div>
+    </header>
+    
+    <section class="article-body markdown-body">
+        
+        <h3 id="一、访问限制配置"><a href="#一、访问限制配置" class="headerlink" title="一、访问限制配置"></a>一、访问限制配置</h3><h4 id="1、基于ip的访问限制"><a href="#1、基于ip的访问限制" class="headerlink" title="1、基于ip的访问限制"></a>1、基于ip的访问限制</h4><p>基于ngx_http_access_module模块，默认可使用 </p>
+<blockquote>
+<p>语法</p>
+</blockquote>
+<p>deny ip  禁止ip访问</p>
+<p>allow ip  允许访问</p>
+<p>默认是允许所有访问的</p>
+<p>配置：<br><a id="more"></a><br><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    listen       <span class="number">80</span>;</span><br><span class="line">    server_name  localhost;</span><br><span class="line"></span><br><span class="line">    <span class="comment">#charset koi8-r;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">#access_log  logs/host.access.log  main;</span></span><br><span class="line">    deny <span class="number">192.168</span>.<span class="number">2.101</span>; //禁止ip</span><br><span class="line">    location / &#123;</span><br><span class="line">        <span class="comment">#root   html;</span></span><br><span class="line">        index  index.html index.htm;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<h4 id="2、基于用户的访问限制"><a href="#2、基于用户的访问限制" class="headerlink" title="2、基于用户的访问限制"></a>2、基于用户的访问限制</h4><p>基于ngx_http_auth_basic_module模块，默认可用 </p>
+<blockquote>
+<p>语法</p>
+</blockquote>
+<p>加密文本: 由htpasswd命令实现</p>
+<p>htpasswd  httpd里的一个工具  如果没有 可以通过yum install httpd-tool</p>
+<p>创建密码文件：htpasswd  -c 生成到的路径  用户名</p>
+<p>-c 创建新文件，如果再次添加用户去掉-c参数，否则会被删除覆盖原来的</p>
+<p>auth_basic “提示信息”</p>
+<p>auth_basic_user_file  /etc/nginx/htpasswd;</p>
+<p>配置实现：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[root@zabbix conf]<span class="comment"># cd /usr/local/nginx/conf</span></span><br><span class="line">[root@zabbix conf]<span class="comment"># htpasswd -c passwd.db devops</span></span><br><span class="line">New password: </span><br><span class="line">Re-type new password:  //两次输入确认密码</span><br><span class="line">Adding password <span class="keyword">for</span> user devops</span><br><span class="line">[root@zabbix conf]<span class="comment"># cat passwd.db </span></span><br><span class="line">devops:<span class="variable">$apr1</span><span class="variable">$7k6pXEaR</span><span class="variable">$RALh69GkX6eGb</span>/DJLVjBg0 //密文输入的密码</span><br></pre></td></tr></table></figure>
+<p>配置文件修改：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">location / &#123;</span><br><span class="line">    <span class="comment">#root   html;</span></span><br><span class="line">    index  index;</span><br><span class="line">    auth_basic <span class="string">"admin control"</span></span><br><span class="line">    auth_basic_user_file /usr/local/nginx/conf/passwd.db;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="二、重装和升级"><a href="#二、重装和升级" class="headerlink" title="二、重装和升级"></a>二、重装和升级</h3><p>在生产业务场景中，需要使用软件新版本的功能、特性。 t</p>
+<h4 id="1、重新安装"><a href="#1、重新安装" class="headerlink" title="1、重新安装"></a>1、重新安装</h4><p>①停止掉服务，删除编译的安装的软件包和源码包</p>
+<p>②重新解压编译安装即可</p>
+<h4 id="2、平滑升级"><a href="#2、平滑升级" class="headerlink" title="2、平滑升级"></a>2、平滑升级</h4><p>升级软件版本之后，需要启动新的版本，启动不了，端口已经被占用</p>
+<p>如果直接把旧版本的服务停止掉，会影响线上业务的使用</p>
+<p>最佳解决办法：</p>
+<p>①旧的不先停掉</p>
+<p>②新的又可以起来</p>
+<p>③旧的和新的同时提供服务，旧的请求完成之后，就停掉旧进程</p>
+<p>-USR2  平滑启动一个进程（平滑升级）</p>
+<p>-WINCH  优雅的关闭子进程 </p>
+<p><strong>①编译安装新版本</strong></p>
+<p>shell &gt; tar xvf nginx-1.14.0.tar.gz </p>
+<p>shell &gt; cd nginx-1.14.0</p>
+<p>shell &gt; ./configure –prefix=/usr/local/nginx –with-http_ssl_module</p>
+<p>shell &gt; make &amp;&amp; make install</p>
+<p>以上操作完成之后，会把原来的旧版本备份为nginx.old</p>
+<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/nginx%E6%96%B0%E6%97%A7%E7%89%88%E6%9C%AC1.jpg?x-oss-process=style/myblog" alt="nginx覆盖编译"></p>
+<p><strong>②新旧版本同时运行</strong> </p>
+<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/nginx%E6%96%B0%E6%97%A7%E7%89%88%E6%9C%AC2.jpg?x-oss-process=style/myblog" alt="nginx新旧进程"></p>
+<p><strong>③停止掉旧进程</strong></p>
+<p>查看旧的主进程号，并使用kill -WINCH 优雅的关闭的子进程</p>
+<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/nginx%E6%96%B0%E6%97%A7%E7%89%88%E6%9C%AC3.jpg?x-oss-process=style/myblog" alt="进程"></p>
+<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/nginx%E6%96%B0%E6%97%A7%E7%89%88%E6%9C%AC3.jpg?x-oss-process=style/myblog" alt=""></p>
+<h3 id="三、第三方模块的使用"><a href="#三、第三方模块的使用" class="headerlink" title="三、第三方模块的使用"></a>三、第三方模块的使用</h3><p>nginx本身官方没有的功能，一些开源开发者定制开发了，把代码公布出来，可以通过加载第三方模块的方式，使用新的功能 </p>
+<h4 id="1、OpenResty"><a href="#1、OpenResty" class="headerlink" title="1、OpenResty"></a>1、OpenResty</h4><p>openresty  在nginx的基础上，集合lua脚本实现高并发等web平台。</p>
+<p><a href="http://openresty.org/cn/" target="_blank" rel="noopener">http://openresty.org/cn/</a></p>
+<p>安装步骤：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">shell &gt; tar xvf openresty-<span class="number">1.13</span>.<span class="number">6.2</span>.tar.gz</span><br><span class="line"></span><br><span class="line">shell &gt; cd openresty-<span class="number">1.13</span>.<span class="number">6.2</span></span><br><span class="line"></span><br><span class="line">shell &gt; ./configure --prefix=/usr/local/openresty</span><br><span class="line"></span><br><span class="line">shell &gt; make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+<h4 id="2、Tengine"><a href="#2、Tengine" class="headerlink" title="2、Tengine"></a>2、Tengine</h4><p>tengine是alibaba公司，在nginx的基础上，开发定制，更加服务自己业务的服务器软件，后来进行开源。</p>
+<p>现在很多公司都用Tengine，以为阿里的都是好的，实际上在服务器选型上最适合自己业务场景的才是最好的，而不是盲从。</p>
+<p><a href="http://tengine.taobao.org/" target="_blank" rel="noopener">http://tengine.taobao.org/</a></p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">shell &gt; tar xvf tengine-<span class="number">2.2</span>.<span class="number">2</span>.tar.gz </span><br><span class="line">shell &gt; cd tengine-<span class="number">2.2</span>.<span class="number">2</span></span><br><span class="line">shell &gt; ./configure --prefix=/usr/local/tengine</span><br><span class="line">shell &gt; make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+<p>查看软件参数和加载的模块 </p>
+<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/tengine.jpg?x-oss-process=style/myblog" alt="tengine"></p>
+<p>因为Tengine是基于很老的nginx版本，所以配置语法还是使用旧语法</p>
+<h3 id="四、防盗链案例"><a href="#四、防盗链案例" class="headerlink" title="四、防盗链案例"></a>四、防盗链案例</h3><h4 id="1、rewrite重写"><a href="#1、rewrite重写" class="headerlink" title="1、rewrite重写"></a>1、rewrite重写</h4><p>一般重写的作用</p>
+<p>(1) ⼀些动态URL地址须要伪装成静态HTML,便于搜索引擎抓取,需要Rewrite来</p>
+<p>处理</p>
+<p>例如:是a.html  真是其实访问的是a.php 把动态的伪装成为静态</p>
+<p>(2) ⼀些由于⽬录结构,域名变化的旧URL,须要跳转到新的URL上,可以通过</p>
+<p>rewrite来处理</p>
+<p>例如:目录或者域名的变化，需要跳转</p>
+<p>xiaomi.com  之前的域名   用户访问全部跳转到新域名</p>
+<p>mi.com  新域名</p>
+<p>rewire需要pcre才能开启此模块</p>
+<p>语法：</p>
+<h5 id="①location-配置语法"><a href="#①location-配置语法" class="headerlink" title="①location  配置语法"></a>①location  配置语法</h5><p>1、location [ = | ~ | ~* | ^~ ] uri { … }</p>
+<p>前缀+url（字符串/正则表达式）</p>
+<p>2、location @name { … }  </p>
+<p>@+name</p>
+<p>前缀的含义：</p>
+<p> =  ：精确匹配（必须全部相等）</p>
+<p> ~  ：大小写敏感</p>
+<p> ~* ：忽略大小写</p>
+<p> ^~ ：只需匹配uri部分</p>
+<p> @  ：内部服务跳转</p>
+<p>案列：</p>
+<p><strong>1&gt;</strong> <strong>精确匹配</strong></p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">location = / &#123;</span><br><span class="line">            <span class="comment">#规则</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment"># 则匹配到 http://www<span class="doctag">.example</span>.com/ 这种请求。</span></span><br></pre></td></tr></table></figure>
+<p><strong>2&gt;</strong> <strong>大小写敏感</strong></p>
+ <figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">location ~ /Example/ &#123;</span><br><span class="line">           <span class="comment">#规则</span></span><br><span class="line">   &#125;</span><br><span class="line">   <span class="comment">#请求示例</span></span><br><span class="line">   <span class="comment">#http://www<span class="doctag">.example</span>.com/Example/  [成功]</span></span><br><span class="line">   <span class="comment">#http://www<span class="doctag">.example</span>.com/example/  [失败]</span></span><br></pre></td></tr></table></figure>
+<p><strong>3&gt;</strong> <strong>大小写忽略</strong></p>
+ <figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">location ~* /Example/ &#123;</span><br><span class="line">            <span class="comment">#规则</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment"># 则会忽略 uri 部分的大小写</span></span><br><span class="line"><span class="comment">#http://www<span class="doctag">.example</span>.com/Example/  [成功]</span></span><br><span class="line"><span class="comment">#http://www<span class="doctag">.example</span>.com/example/  [成功]</span></span><br></pre></td></tr></table></figure>
+<p><strong>4&gt; </strong> <strong>只匹配以 uri 开头</strong></p>
+ <figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">location ^~ /img/ &#123;</span><br><span class="line">        <span class="comment">#规则</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">#以 /img/ 开头的请求，都会匹配上</span></span><br><span class="line"><span class="comment">#http://www<span class="doctag">.example</span>.com/img/a.jpg   [成功]</span></span><br><span class="line"><span class="comment">#http://www<span class="doctag">.example</span>.com/img/b.mp4 [成功]</span></span><br></pre></td></tr></table></figure>
+<p><strong>5&gt;</strong> <strong>nginx内部跳转</strong></p>
+ <figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">  location /img/ &#123;</span><br><span class="line">        error_page <span class="number">404</span> @img_err;</span><br><span class="line">    &#125;</span><br><span class="line">    location @img_err &#123;</span><br><span class="line">        <span class="comment"># 规则</span></span><br><span class="line">    &#125;</span><br><span class="line"><span class="comment">#以 /img/ 开头的请求，如果链接的状态为 404。则会匹配到 @img_err 这条规则上。</span></span><br></pre></td></tr></table></figure>
+<h5 id="②return-语法"><a href="#②return-语法" class="headerlink" title="②return 语法"></a>②return 语法</h5><p>该指令⽤于结束规则的执⾏并返回状态码给客户端.状态码可以使⽤这些</p>
+<p>值:204,400,402-406,408,410,413,416，及500-504.⾮标准状态码,444将以不</p>
+<p>发送任何Header头的⽅式结束连接.</p>
+<p>403 Forbidden.服务器已经理解请求,但是拒绝执⾏它.</p>
+<p>404 Not Found.请求失败,请求所希望得到的资源未在服务器上发现.404这个</p>
+<p>状态码被⼴泛应⽤于当服务器不想揭示为何请求被拒绝,或者没有其他适合的响应</p>
+<p>可⽤的情况下.</p>
+<p>500 Internal Server Error.服务器遇到⼀个未曾预料的状况,导致它⽆法完成对</p>
+<p>请求的处理.⼀般来说,这个问题都会在服务器的程序码出错时出现.</p>
+<p>502 Bad Gateway.作为⽹关或代理⼯作的服务器尝试执⾏请求时,从上游服务</p>
+<p>器接收到⽆效的响应.</p>
+<p>503 Service Unavailable.由于临时的服务器维护或过载,服务器当前⽆法处理</p>
+<p>请求.这个状况是临时的,并且将在⼀段时间以后恢复.503状态码的存在并不意味着</p>
+<p>服务器在过载的时候必须使⽤它.某些服务器只不过是希望拒绝客户端的连接.</p>
+<p>504 Gateway Timeout作为⽹关或代理⼯作的服务器尝试执⾏请求时,未能及时</p>
+<p>从上游服务器(URI标识出的服务器,例如HTTP,FTP,LDAP)或辅助服务器(例如DNS)</p>
+<p>收到响应。</p>
+<blockquote>
+<p>案列：</p>
+</blockquote>
+<p>把匹配到的web1（大小写不敏感），返回一个500状态值</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">location ~* /web1 &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">500</span>;</span><br><span class="line">    <span class="comment">#root   html;</span></span><br><span class="line">    <span class="comment">#index  index.html index.htm;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="③rewrite语法"><a href="#③rewrite语法" class="headerlink" title="③rewrite语法"></a>③rewrite语法</h5><p>匹配到，替换为其他内容</p>
+<p>语法  rewrite 匹配内容 替代内容  标记</p>
+<p>flag标记说明：</p>
+<p>last  #本条规则匹配完成后，继续向下匹配新的location URI规则</p>
+<p>break  #本条规则匹配完成即终止，不再匹配后面的任何规则</p>
+<p>redirect  #返回302临时重定向，浏览器地址会显示跳转后的URL地址</p>
+<p>permanent  #返回301永久重定向，浏览器地址栏会显示跳转后的URL地址</p>
+<blockquote>
+<p>案列</p>
+</blockquote>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">location / &#123;</span><br><span class="line">                root html;</span><br><span class="line">                index index.html index.htm;</span><br><span class="line">            rewrite /sss /index.html <span class="keyword">break</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>①把不存在的资源，定位到存在的资源</strong></p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">location / &#123;</span><br><span class="line">          rewirte /index.jsp /index.html <span class="keyword">break</span>; //把不存在的jsp页面定向到html页面</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>②更换新域名进行跳转</strong> </p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">location / &#123;</span><br><span class="line">          rewirte /sss http://www.baidu.com permanent;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="2、防盗链原理和实现"><a href="#2、防盗链原理和实现" class="headerlink" title="2、防盗链原理和实现"></a>2、防盗链原理和实现</h4><p>需求：</p>
+<p>a服务器上有一些图片</p>
+<p>b服务器经常连接显示a服务器图片</p>
+<p>用户经常访问b服务器的图片，以为是b自己的，结果a每次耗费很多流量。</p>
+<p>解决方案：</p>
+<p>a服务器想要，不让b直接引用到自己的图片，通过判断referer的方式。</p>
+<p>referer  本次请求的上次连接是什么  上次的来源</p>
+<p>语法：</p>
+<p>valid_referers none blocked servername</p>
+<p>none blocked  没有referfer的情况，直接访问资源的情况</p>
+<p>if ($invalid_referer) {}</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">     listen       <span class="number">80</span>;</span><br><span class="line">     server_name  localhost;</span><br><span class="line">     root html/web1;</span><br><span class="line">     location ~ \.(jpg|jpeg|png)$ &#123;</span><br><span class="line">         valid_referers web1.devops.com;</span><br><span class="line">         <span class="keyword">if</span> (<span class="variable">$invalid_referer</span>) &#123;</span><br><span class="line">         <span class="keyword">return</span> <span class="number">404</span>;</span><br><span class="line">         &#125;</span><br><span class="line">     &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="五、安全"><a href="#五、安全" class="headerlink" title="五、安全"></a>五、安全</h3><h4 id="1、反向代理"><a href="#1、反向代理" class="headerlink" title="1、反向代理"></a>1、反向代理</h4><p>实现隐藏真实服务的操作，起到一定安全作用 </p>
+<h4 id="2、隐藏版本号的安全性和方法"><a href="#2、隐藏版本号的安全性和方法" class="headerlink" title="2、隐藏版本号的安全性和方法"></a>2、隐藏版本号的安全性和方法</h4><p>官方说法：nginx服务器旧版本有安全性漏洞，为了避免hack通过旧版本漏洞进行攻击，要么升级最新版本，要么隐藏版本号</p>
+<p>现实：由运维将安全规则跟防火墙全部部署在前端，再进行严格的权限控制，在OSI七层模型里堪称下四层无敌，上三层全是业务逻辑代码，能利用漏洞进行攻击的hack本身必须有一定的技术水准，通过隐藏版本号避免攻击堪称可笑</p>
+<p>技术实现：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">http &#123;</span><br><span class="line">    include       mime.types;</span><br><span class="line">    default_type  application/octet-stream;</span><br><span class="line"></span><br><span class="line">    log_format  main  <span class="string">'$remote_addr - $remote_user [$time_local] "$request" '</span></span><br><span class="line">                      <span class="string">'$status $body_bytes_sent "$http_referer" '</span></span><br><span class="line">                      <span class="string">'"$http_user_agent" "$http_x_forwarded_for"'</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">#access_log  logs/access.log  main;</span></span><br><span class="line"></span><br><span class="line">    sendfile        on;</span><br><span class="line">    <span class="comment">#tcp_nopush     on;</span></span><br><span class="line">    server_tokens off; //隐藏nginx版本号</span><br><span class="line">    <span class="comment">#keepalive_timeout  0;</span></span><br><span class="line">    keepalive_timeout  <span class="number">65</span>;</span><br><span class="line">    <span class="comment">#开启Gzip</span></span><br><span class="line">    gzip  on;</span><br><span class="line">    <span class="comment">#http协议版本</span></span><br><span class="line">    gzip_http_version <span class="number">1.0</span>;</span><br><span class="line">    <span class="comment">#禁止IE 6以下使用</span></span><br><span class="line">    gzip_disable <span class="string">'MSIE [1-6]'</span>;</span><br><span class="line">    gzip_types image/jpeg image/jpg;</span><br></pre></td></tr></table></figure>
+
+        
+    </section>
+</article>
+
+
+
+<div class="comments">
+    <div id="comments"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+    new Gitalk({
+        clientID: "7fbe80427f54741e289f",
+        clientSecret: "f34ed5fd92e54c9000bd37ba951948cb939deff5",
+        repo: "sanonz.github.io",
+        owner: "sanonz",
+        admin: ["kenneth"],
+        id: "2018/08/06/轻量级服务器nginx-下",
+        distractionFreeMode: true,
+        title: "轻量级服务器Nginx（下）",
+        body: "http://kenneth96.coding.me/2018/08/06/轻量级服务器nginx-下/",
+        labels: ["Nginx"]
+    }).render('comments');
+    </script>
+</div>
+
+</div>
+        <footer class="footer">
+    Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+
+    
+        &ensp;
+        <span id="cnzz_stat_icon_1234567890" class="vm"></span>
+        <script src="//s13.cnzz.com/stat.php?id=1234567890&show=pic" type="text/javascript"></script>
+    
+</footer>
+
+    </main>
+
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/1.9.0/jquery.min.js"></script>
+    <script type="text/javascript">
+    $(function() {
+        var nodes = {
+            nav: $('#nav'),
+            aside: $('#aside'),
+            asideInner: $('#aside-inner'),
+            navInner: $('#nav-inner')
+        };
+
+        var doing = false;
+        nodes.asideInner.on('webkitAnimationEnd mozAnimationEnd oAnimationEnd oanimationend animationend', function() {
+            if (nodes.aside.hasClass('mobile-open')) {
+                nodes.aside.removeClass('mobile-open');
+            } else {
+                nodes.aside.removeClass('mobile-close panel-show');
+            }
+            doing = false;
+        });
+        $('#open-panel, #aside-mask').on('click', function() {
+            if (doing) {
+                return;
+            }
+            
+            if (nodes.aside.hasClass('panel-show')) {
+                nodes.aside.addClass('mobile-close');
+            } else {
+                nodes.aside.addClass('mobile-open panel-show');
+            }
+        });
+        $('#open-menus').on('click', function() {
+            nodes.navInner.slideToggle();
+        });
+
+        if (window.innerWidth <= 960) {
+            setTimeout(function() {
+                nodes.navInner.slideUp();
+            }, 3000);
+        }
+    });
+    </script>
+    
+        <script type="text/javascript" src="/js/scrollspy.min.js"></script>
+        <script type="text/javascript">
+        $(document.body).scrollspy({target: '#aside-inner'});
+        </script>
+    
+
+</body>
+</html>

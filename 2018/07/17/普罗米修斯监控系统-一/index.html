@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="UTF-8">
+
+    
+
+    
+
+    <title>普罗米修斯监控系统(上) | SRE</title>
+    <meta name="author" content="John Doe">
+    <meta name="version" content="1.0.0">
+    <meta name="keywords" content="">
+    <meta name="description" content="一、什么是prometheusprometheus 是一个开源系统监控和报警的工具集合，由SoundCloud创建（http://soundcloud.[com/](http://soundcloud.com/) ），自从2012诞生之后，至今已经有许多公司和组织开始使用它了，这个开源项目拥有大量的积极参与开发和建设的研发人员以及社区用户. 目前已经是一个独立运行的开源的由各公司自行维护的监控项目。为了让项目更充实更清晰，2016年 prometheus加入了 Cloud Native ...">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+
+    
+    <link rel="alternate" href="/atom.xml" title="SRE" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/images/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+    <main class="app">
+        <header class="header clearfix">
+    <div id="nav" class="nav">
+    <div class="nav-mobile">
+        <button id="open-panel" class="open-panel nav-mobile-item"><i class="icon-documents"></i></button>
+        <h1 class="nav-mobile-title nav-mobile-item">SRE</h1>
+        <button id="open-menus" class="open-panel nav-mobile-item"><i class="icon-library"></i></button>
+    </div>
+
+    <nav id="nav-inner" class="nav-inner">
+        
+            <a class="nav-item" href="/">
+                <span class="nav-text">首页</span>
+            </a>
+        
+            <a class="nav-item" href="/categories/front-end">
+                <span class="nav-text">Linux</span>
+            </a>
+        
+            <a class="nav-item" href="/categories/back-end">
+                <span class="nav-text">Python</span>
+            </a>
+        
+            <a class="nav-item" href="/tags">
+                <span class="nav-text">标签</span>
+            </a>
+        
+            <a class="nav-item" href="/archives">
+                <span class="nav-text">归档</span>
+            </a>
+        
+            <a class="nav-item" href="/about">
+                <span class="nav-text">关于</span>
+            </a>
+        
+    </nav>
+</div>
+
+    <aside id="aside" class="aside">
+    <div id="aside-mask" class="aside-mask"></div>
+    <div id="aside-inner" class="aside-inner">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit"><i class="icon-search-stroke"></i></button><input type="hidden" name="sitesearch" value="http://kenneth96.coding.me"></form>
+
+        
+        
+        
+        
+
+        
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#一、什么是prometheus"><span class="toc-number">1.</span> <span class="toc-text">一、什么是prometheus</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#二、为什么是prometheus"><span class="toc-number">2.</span> <span class="toc-text">二、为什么是prometheus</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1、普罗米修斯的主要特点"><span class="toc-number">2.1.</span> <span class="toc-text">1、普罗米修斯的主要特点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2、普罗米修斯优缺点"><span class="toc-number">2.2.</span> <span class="toc-text">2、普罗米修斯优缺点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3、应用场景"><span class="toc-number">2.3.</span> <span class="toc-text">3、应用场景</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#三、部署安装"><span class="toc-number">3.</span> <span class="toc-text">三、部署安装</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1、环境准备"><span class="toc-number">3.1.</span> <span class="toc-text">1、环境准备</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2、版本控制"><span class="toc-number">3.2.</span> <span class="toc-text">2、版本控制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3、安装"><span class="toc-number">3.3.</span> <span class="toc-text">3、安装</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#四、调试"><span class="toc-number">4.</span> <span class="toc-text">四、调试</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1、监控端部署"><span class="toc-number">4.1.</span> <span class="toc-text">1、监控端部署</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2、配置参数"><span class="toc-number">4.2.</span> <span class="toc-text">2、配置参数</span></a></li></ol></li></ol>
+        
+    </div>
+</aside>
+
+</header>
+
+        <div id="content" class="content"><article class="article" itemscope="" itemprop="blogPost">
+    
+    <header class="article-header">
+        
+        <h1 itemprop="name">
+            普罗米修斯监控系统(上)
+        </h1>
+        
+        <div class="article-meta clearfix">
+            <a class="article-date" href="http://kenneth96.coding.me/2018/07/17/普罗米修斯监控系统-一/index.html">
+    
+    <i class="icon-calendar"></i>
+    
+    <time datetime="2018-07-17T11:23:33.000Z" itemprop="datePublished">2018-07-17</time>
+</a>
+
+            
+<div class="article-tag-list">
+    <i class="icon-tag"></i>
+    <a class="article-tag-link" href="/tags/prometheus/">prometheus</a>
+</div>
+
+
+        </div>
+    </header>
+    
+    <section class="article-body markdown-body">
+        
+        <h3 id="一、什么是prometheus"><a href="#一、什么是prometheus" class="headerlink" title="一、什么是prometheus"></a>一、什么是prometheus</h3><p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/prometheus1.png" alt="logo"></p>
+<p>prometheus 是一个开源系统监控和报警的工具集合，由SoundCloud创建（<a href="http://soundcloud.[com/](http://soundcloud.com/)" target="_blank" rel="noopener">http://soundcloud.[com/](http://soundcloud.com/)</a> ），自从2012诞生之后，至今已经有许多公司和组织开始使用它了，这个开源项目拥有大量的积极参与开发和建设的研发人员以及社区用户. 目前已经是一个独立运行的开源的由各公司自行维护的监控项目。为了让项目更充实更清晰，2016年 prometheus加入了 Cloud Native Computing Fondation（CNCF）， 并且成为继Kubernets(结合 容器/docker)之后，第二个加入该组织的成员。<br><a id="more"></a></p>
+<ul>
+<li>Prometheus框架</li>
+</ul>
+<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/prometheus2.jpg?x-oss-process=style/myblog" alt="prometheus框架"></p>
+<h3 id="二、为什么是prometheus"><a href="#二、为什么是prometheus" class="headerlink" title="二、为什么是prometheus"></a>二、为什么是prometheus</h3><h4 id="1、普罗米修斯的主要特点"><a href="#1、普罗米修斯的主要特点" class="headerlink" title="1、普罗米修斯的主要特点"></a>1、普罗米修斯的主要特点</h4><ul>
+<li>一个多维数据模型，具有由度量名称和键/值对标识的时间序列数据</li>
+<li>一种灵活的查询语言 来利用这种维度</li>
+<li>不依赖分布式存储; 单个服务器节点是自治的</li>
+<li>时间序列收集通过HTTP上的拉式模型进行</li>
+<li>推送时间序列通过中间网关支持</li>
+<li>通过服务发现或静态配置来发现目标</li>
+<li>多种模式的图形和仪表盘支持</li>
+</ul>
+<h4 id="2、普罗米修斯优缺点"><a href="#2、普罗米修斯优缺点" class="headerlink" title="2、普罗米修斯优缺点"></a>2、普罗米修斯优缺点</h4><blockquote>
+<p>优点</p>
+</blockquote>
+<ul>
+<li>监控数据的精细程度绝对的第一 ，可以精确到1s</li>
+<li>集群部署的速度 监控脚本的制作 （指的是熟练之后） 非常快速 大大缩短监控的搭建时间成本</li>
+<li>周边插件很丰富 exporter、pushgateway 大多数都不需要自己开发了</li>
+<li>本身基于数学计算模型，大量的实用函数,可以实现很复杂规则的业务逻辑监控</li>
+<li>可以嵌入很多开源工具的内部进行监控，数据更准时、 更可信</li>
+<li>本身是开源的，更新速度快，bug修复快。</li>
+<li>支持N多种语言做本身和插件的二次开发</li>
+<li>跟Grafana的结合图形很高大上，很美观</li>
+</ul>
+<blockquote>
+<p>缺点</p>
+</blockquote>
+<ul>
+<li>因其数据采集的精度，如果集群数量太大，那么单点的监控有性<br>能瓶颈，目前尚不支持集群，只能workaround</li>
+<li>学习成本太大，尤其是其独有的数学命令行，非常强大的同时<br>又极其难学，中文资料极少，本身的各种数学模型的概念很复杂</li>
+<li>对磁盘资源也是耗费的较大，这个具体要看监控的集群量和<br>监控项的多少、保存时间的长短</li>
+<li>本身的使用需要使用者的数学不能太差，要有一定的数学头脑</li>
+</ul>
+<h4 id="3、应用场景"><a href="#3、应用场景" class="headerlink" title="3、应用场景"></a>3、应用场景</h4><ul>
+<li>用户正常访问这种业务级别的监控（时间=钱）</li>
+<li>数据库监控</li>
+<li>装逼</li>
+<li>忽悠客户</li>
+</ul>
+<h3 id="三、部署安装"><a href="#三、部署安装" class="headerlink" title="三、部署安装"></a>三、部署安装</h3><h4 id="1、环境准备"><a href="#1、环境准备" class="headerlink" title="1、环境准备"></a>1、环境准备</h4><table>
+<thead>
+<tr>
+<th>server端</th>
+<th>192.168.2.100(node1)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>client端</td>
+<td>192.168.2.106(node2)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="2、版本控制"><a href="#2、版本控制" class="headerlink" title="2、版本控制"></a>2、版本控制</h4><p>CentOS6.X操作系统</p>
+<p>prometheus-2.3.0.linux-amd64.tar</p>
+<p>node_exporter-0.16.0.linux-amd64.tar</p>
+<h4 id="3、安装"><a href="#3、安装" class="headerlink" title="3、安装"></a>3、安装</h4><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 soft]<span class="comment"># tar xvf prometheus-2.3.0.linux-amd64.tar.gz</span></span><br><span class="line">[root@node1 soft]<span class="comment"># cd prometheus-2.3.0.linux-amd64</span></span><br><span class="line">[root@node1 prometheus-<span class="number">2.3</span>.<span class="number">0</span>.linux-amd64]<span class="comment"># ./prometheus</span></span><br></pre></td></tr></table></figure>
+<p>这就已经安装完成了，因为prometheus是用go语言开发，解压后./就能执行，安装是异常的简单，此时，浏览器访问ip：9090就可以看到prometheus的界面了</p>
+<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/prometheus3.png?x-oss-process=style/myblog" alt="prometheus界面"></p>
+<h3 id="四、调试"><a href="#四、调试" class="headerlink" title="四、调试"></a>四、调试</h3><h4 id="1、监控端部署"><a href="#1、监控端部署" class="headerlink" title="1、监控端部署"></a>1、监控端部署</h4><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@node2 soft]<span class="comment"># tar xvf node_exporter-0.16.0.linux-amd64.tar.gz</span></span><br><span class="line">[root@node2 soft]<span class="comment"># cd node_exporter-0.16.0.linux-amd64</span></span><br><span class="line">[root@node2 node_exporter-<span class="number">0.16</span>.<span class="number">0</span>.linux-amd64]<span class="comment"># screen -S node</span></span><br><span class="line">[root@node2 node_exporter-<span class="number">0.16</span>.<span class="number">0</span>.linux-amd64]<span class="comment"># ./node_exporter</span></span><br></pre></td></tr></table></figure>
+<h4 id="2、配置参数"><a href="#2、配置参数" class="headerlink" title="2、配置参数"></a>2、配置参数</h4><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">(<span class="number">1</span>- (sum(rate(node_cpu_seconds_total&#123;mode=<span class="string">"idle"</span>&#125;[<span class="number">1</span>m]))  / sum(rate(node_cpu_seconds_total[<span class="number">1</span>m]))))*<span class="number">100</span></span><br><span class="line">采集cpu使用率</span><br><span class="line">(sum(rate(node_cpu_seconds_total&#123;mode=<span class="string">"user"</span>&#125;[<span class="number">1</span>m]))  / sum(rate(node_cpu_seconds_total[<span class="number">1</span>m])))*<span class="number">100</span></span><br><span class="line">cpu用户态使用率</span><br><span class="line">(sum(rate(node_cpu_seconds_total&#123;mode=<span class="string">"system"</span>&#125;[<span class="number">1</span>m]))  / sum(rate(node_cpu_seconds_total[<span class="number">1</span>m])))*<span class="number">100</span></span><br><span class="line">cpu内核太使用率</span><br><span class="line">(node_memory_Buffers_bytes+node_memory_Cached_bytes+node_memory_MemFree_bytes)/node_memory_MemTotal_bytes</span><br><span class="line">内存空闲的百分比</span><br><span class="line">(rate(node_disk_io_time_seconds_total[<span class="number">1</span>m])/<span class="number">60</span>)*<span class="number">100</span></span><br><span class="line">硬盘IO使用</span><br><span class="line">rate(node_network_receive_bytes_total[<span class="number">1</span>m])/<span class="number">1024</span></span><br><span class="line">网络每秒传输/Kb</span><br></pre></td></tr></table></figure>
+
+        
+    </section>
+</article>
+
+
+
+<div class="comments">
+    <div id="comments"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+    new Gitalk({
+        clientID: "7fbe80427f54741e289f",
+        clientSecret: "f34ed5fd92e54c9000bd37ba951948cb939deff5",
+        repo: "sanonz.github.io",
+        owner: "sanonz",
+        admin: ["kenneth"],
+        id: "2018/07/17/普罗米修斯监控系统-一",
+        distractionFreeMode: true,
+        title: "普罗米修斯监控系统(上)",
+        body: "http://kenneth96.coding.me/2018/07/17/普罗米修斯监控系统-一/",
+        labels: ["prometheus"]
+    }).render('comments');
+    </script>
+</div>
+
+</div>
+        <footer class="footer">
+    Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+
+    
+        &ensp;
+        <span id="cnzz_stat_icon_1234567890" class="vm"></span>
+        <script src="//s13.cnzz.com/stat.php?id=1234567890&show=pic" type="text/javascript"></script>
+    
+</footer>
+
+    </main>
+
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/1.9.0/jquery.min.js"></script>
+    <script type="text/javascript">
+    $(function() {
+        var nodes = {
+            nav: $('#nav'),
+            aside: $('#aside'),
+            asideInner: $('#aside-inner'),
+            navInner: $('#nav-inner')
+        };
+
+        var doing = false;
+        nodes.asideInner.on('webkitAnimationEnd mozAnimationEnd oAnimationEnd oanimationend animationend', function() {
+            if (nodes.aside.hasClass('mobile-open')) {
+                nodes.aside.removeClass('mobile-open');
+            } else {
+                nodes.aside.removeClass('mobile-close panel-show');
+            }
+            doing = false;
+        });
+        $('#open-panel, #aside-mask').on('click', function() {
+            if (doing) {
+                return;
+            }
+            
+            if (nodes.aside.hasClass('panel-show')) {
+                nodes.aside.addClass('mobile-close');
+            } else {
+                nodes.aside.addClass('mobile-open panel-show');
+            }
+        });
+        $('#open-menus').on('click', function() {
+            nodes.navInner.slideToggle();
+        });
+
+        if (window.innerWidth <= 960) {
+            setTimeout(function() {
+                nodes.navInner.slideUp();
+            }, 3000);
+        }
+    });
+    </script>
+    
+        <script type="text/javascript" src="/js/scrollspy.min.js"></script>
+        <script type="text/javascript">
+        $(document.body).scrollspy({target: '#aside-inner'});
+        </script>
+    
+
+</body>
+</html>

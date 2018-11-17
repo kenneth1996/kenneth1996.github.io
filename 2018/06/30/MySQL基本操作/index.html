@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="UTF-8">
+
+    
+
+    
+
+    <title>MySQL基本操作 | SRE</title>
+    <meta name="author" content="John Doe">
+    <meta name="version" content="1.0.0">
+    <meta name="keywords" content="">
+    <meta name="description" content="一、MySQL的基本操作1、名词介绍以Excel文件举例：数据库：可以看作是整个excel文件。数据表：可以看作是一个excel文件中的工作表。行（记录）：可以看作是一个工作表中的一行列（字段）：可以看作是一个工作表总的一列2、库操作以下命令在MySQL终端命令行中执行（大小写均可）：1234SHOW DATABASES;				显示当前MySQL中全部的数据库CREATE DATABASE 库名;		   创建数据库DROP DATABASE 库名;		   删除数据库USE...">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+
+    
+    <link rel="alternate" href="/atom.xml" title="SRE" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/images/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+    <main class="app">
+        <header class="header clearfix">
+    <div id="nav" class="nav">
+    <div class="nav-mobile">
+        <button id="open-panel" class="open-panel nav-mobile-item"><i class="icon-documents"></i></button>
+        <h1 class="nav-mobile-title nav-mobile-item">SRE</h1>
+        <button id="open-menus" class="open-panel nav-mobile-item"><i class="icon-library"></i></button>
+    </div>
+
+    <nav id="nav-inner" class="nav-inner">
+        
+            <a class="nav-item" href="/">
+                <span class="nav-text">首页</span>
+            </a>
+        
+            <a class="nav-item" href="/categories/front-end">
+                <span class="nav-text">Linux</span>
+            </a>
+        
+            <a class="nav-item" href="/categories/back-end">
+                <span class="nav-text">Python</span>
+            </a>
+        
+            <a class="nav-item" href="/tags">
+                <span class="nav-text">标签</span>
+            </a>
+        
+            <a class="nav-item" href="/archives">
+                <span class="nav-text">归档</span>
+            </a>
+        
+            <a class="nav-item" href="/about">
+                <span class="nav-text">关于</span>
+            </a>
+        
+    </nav>
+</div>
+
+    <aside id="aside" class="aside">
+    <div id="aside-mask" class="aside-mask"></div>
+    <div id="aside-inner" class="aside-inner">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit"><i class="icon-search-stroke"></i></button><input type="hidden" name="sitesearch" value="http://kenneth96.coding.me"></form>
+
+        
+        
+        
+        
+
+        
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#一、MySQL的基本操作"><span class="toc-number">1.</span> <span class="toc-text">一、MySQL的基本操作</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1、名词介绍"><span class="toc-number">1.1.</span> <span class="toc-text">1、名词介绍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2、库操作"><span class="toc-number">1.2.</span> <span class="toc-text">2、库操作</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3、表操作"><span class="toc-number">1.3.</span> <span class="toc-text">3、表操作</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#二、MySQL的相关命令"><span class="toc-number">2.</span> <span class="toc-text">二、MySQL的相关命令</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1、增"><span class="toc-number">2.1.</span> <span class="toc-text">1、增</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2、删"><span class="toc-number">2.2.</span> <span class="toc-text">2、删</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3、改"><span class="toc-number">2.3.</span> <span class="toc-text">3、改</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4、查"><span class="toc-number">2.4.</span> <span class="toc-text">4、查</span></a></li></ol></li></ol>
+        
+    </div>
+</aside>
+
+</header>
+
+        <div id="content" class="content"><article class="article" itemscope="" itemprop="blogPost">
+    
+    <header class="article-header">
+        
+        <h1 itemprop="name">
+            MySQL基本操作
+        </h1>
+        
+        <div class="article-meta clearfix">
+            <a class="article-date" href="http://kenneth96.coding.me/2018/06/30/MySQL基本操作/index.html">
+    
+    <i class="icon-calendar"></i>
+    
+    <time datetime="2018-06-30T11:42:02.000Z" itemprop="datePublished">2018-06-30</time>
+</a>
+
+            
+<div class="article-tag-list">
+    <i class="icon-tag"></i>
+    <a class="article-tag-link" href="/tags/MySQL/">MySQL</a>
+</div>
+
+
+        </div>
+    </header>
+    
+    <section class="article-body markdown-body">
+        
+        <h3 id="一、MySQL的基本操作"><a href="#一、MySQL的基本操作" class="headerlink" title="一、MySQL的基本操作"></a>一、MySQL的基本操作</h3><h4 id="1、名词介绍"><a href="#1、名词介绍" class="headerlink" title="1、名词介绍"></a>1、名词介绍</h4><p>以Excel文件举例：</p>
+<p><strong>数据库</strong>：可以看作是整个excel文件。</p>
+<p><strong>数据表</strong>：可以看作是一个excel文件中的工作表。</p>
+<p>行（<strong>记录</strong>）：可以看作是一个工作表中的一行</p>
+<p>列（<strong>字段</strong>）：可以看作是一个工作表总的一列<br><a id="more"></a></p>
+<h4 id="2、库操作"><a href="#2、库操作" class="headerlink" title="2、库操作"></a>2、库操作</h4><p>以下命令在MySQL终端命令行中执行（大小写均可）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">SHOW DATABASES;				显示当前MySQL中全部的数据库</span><br><span class="line">CREATE DATABASE 库名;		   创建数据库</span><br><span class="line">DROP DATABASE 库名;		   删除数据库</span><br><span class="line">USE 库名;					  切换数据库</span><br></pre></td></tr></table></figure>
+<h4 id="3、表操作"><a href="#3、表操作" class="headerlink" title="3、表操作"></a>3、表操作</h4><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">SHOW TABLES;				显示当前数据库中所有的表名（必须先use数据库）	</span><br><span class="line">CREATE TABLE 表名称				在当前数据库下创建数据表</span><br><span class="line">(</span><br><span class="line">列名称<span class="number">1</span> 数据类型 [NOT NULL AUTO_INCREMENT],</span><br><span class="line">列名称<span class="number">2</span> 数据类型,</span><br><span class="line">列名称<span class="number">3</span> 数据类型,</span><br><span class="line">....,</span><br><span class="line">PRIMARY KEY(主键字段名)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<p>DESC 表名;                                    描述一个数据表（查看表结构）</p>
+<p>DROP TABLE [IF EXISTS] 表名;            删除一个数据表</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">例子：要求表名xg，有字段如下：</span><br><span class="line">	Id字段，<span class="number">11</span>位整型，不为空，自增，主键</span><br><span class="line">	Username字段，varchar类型，<span class="number">20</span>长度</span><br><span class="line">	Password字段，char类型，<span class="number">32</span>长度</span><br><span class="line">SQL（standard query language）语句：</span><br><span class="line">Create table xg(</span><br><span class="line">	Id int(<span class="number">11</span>) not null auto_increment,</span><br><span class="line">Username varchar(<span class="number">20</span>),</span><br><span class="line">Password char(<span class="number">32</span>),</span><br><span class="line">Primary key(id)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<p>列类型（字段）</p>
+<p>数字类型：</p>
+<p>​        整数类型            TINYINT SMALLINT MEDIUMINT INT BIGINT                </p>
+<p>​        浮点数类型           FLOAT DOUBLE </p>
+<p>​        定点数类型        DECIMAL</p>
+<p>​        位类型           BIT</p>
+<p>文本类型：</p>
+<p>​            CHAR系列         CHAR  VARCHAR</p>
+<p>​            TEXT系列              TINYTEXT TEXT MEDIUMTEXT LONGTEXT</p>
+<p>​             BLOB(binary large object) 系列        TINYBLOB BLOB MEDIUMBLOB LONGBLOB </p>
+<p>​             BINARY系列    BINARY VARBINARY </p>
+<p>​             枚举类型：      ENUM [单选]</p>
+<p>​             集合类型：      SET [多选，复选]</p>
+<p>​             时间和日期类型：     DATE TIME DATETIME（Y-M-D H:i:s） TIMESTAMP YEAR</p>
+<p>不同的存储引擎，数据的存储方式和功能都不同，合理选择对应的存储引擎，是数据库设计和优化中，重要的部分。</p>
+<p>常用存储引擎：</p>
+<p>​              MyISAM   一般的是默认的</p>
+<p>​              InnoDB   并发写入更好一些，可以进行行级别锁</p>
+<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/%E5%BB%BA%E8%A1%A8.jpg?x-oss-process=style/myblog" alt=""></p>
+<h3 id="二、MySQL的相关命令"><a href="#二、MySQL的相关命令" class="headerlink" title="二、MySQL的相关命令"></a>二、MySQL的相关命令</h3><h4 id="1、增"><a href="#1、增" class="headerlink" title="1、增"></a>1、增</h4><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">语法<span class="number">1</span>：INSERT INTO 表名称 VALUES (值<span class="number">1</span>, 值<span class="number">2</span>,....);</span><br><span class="line">语法<span class="number">2</span>：INSERT INTO 表名称 (列<span class="number">1</span>, 列<span class="number">2</span>,...) VALUES (值<span class="number">1</span>, 值<span class="number">2</span>,....);</span><br></pre></td></tr></table></figure>
+<p>案例：往数据表xg表中新增一个记录username为zhangsan，password为123456（加密结果E10ADC3949BA59ABBE56E057F20F883E）</p>
+<p>Sql语句：insert into xg (username,password) values (‘zhangsan’,’E10ADC3949BA59ABBE56E057F20F883E’);</p>
+<h4 id="2、删"><a href="#2、删" class="headerlink" title="2、删"></a>2、删</h4><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DELETE FROM 表名称 WHERE 列名称 = 值;</span><br></pre></td></tr></table></figure>
+<p>案例：删除id为2的记录</p>
+<p>Delete from xg where id = 2;</p>
+<blockquote>
+<p>基本上实际业务环境下不会使用,不管是修改还是删除语句，最好在where条件判断之后加上一个limit 1，这样即使条件出现的了错误，也只会影响一条。</p>
+</blockquote>
+<h4 id="3、改"><a href="#3、改" class="headerlink" title="3、改"></a>3、改</h4><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">语法：UPDATE 表名称 SET 列名称<span class="number">1</span> = 新值<span class="number">1</span>,列名称<span class="number">2</span> = 新值<span class="number">2</span>… WHERE 列名称 = 某值;</span><br></pre></td></tr></table></figure>
+<p>案例：使用更新语句更新<strong>id大于等于2</strong>的记录，将其密码改为：25F9E794323B453885F5181F1B624D0B</p>
+<p>SQL语句：</p>
+<p>Update xg set password = ‘25F9E794323B453885F5181F1B624D0B’ where id &gt;= 2;</p>
+<blockquote>
+<p>注意！在执行影响行数的sql操作的时候一定需要注意条件是否写错或者漏写！</p>
+</blockquote>
+<h4 id="4、查"><a href="#4、查" class="headerlink" title="4、查"></a>4、查</h4><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">SELECT 列名称<span class="number">1</span>,列名称<span class="number">2</span>… FROM 表名称 WHERE 条件;</span><br><span class="line">SELECT * FROM 表名称 WHERE 条件;</span><br></pre></td></tr></table></figure>
+<p>案例：查询刚才新增的记录</p>
+<p>只查询用户名和密码，并且是id=2的：</p>
+<p>select username,password from xg where id = 2;</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">select name,introduce from stduent;  //限制显示的列</span><br><span class="line">select name from student where id = <span class="string">'2'</span>;  //where条件查询</span><br><span class="line">select id,name from student where id = <span class="string">'2'</span> or id = <span class="string">'3'</span>;  //or语法，多个条件满足其一即可</span><br><span class="line">select id,name from student where id <span class="keyword">in</span>(<span class="number">2</span>,<span class="number">3</span>);  //结果在<span class="keyword">in</span>的条件里</span><br><span class="line">select id,name from student where id &gt;<span class="number">1</span>;</span><br><span class="line">select id,name from student where id &gt;=<span class="number">2</span>;  //条件范围查询</span><br><span class="line">select * from student limit <span class="number">1</span>;  //limit语法取出一条数据</span><br><span class="line">select * from student limit <span class="number">1</span>,<span class="number">1</span>;  //limit(跳过几个，取几个)</span><br><span class="line">select * from student order by id desc limit1;  //order by 语法进行某个多个字段的排序操作，默认是asc顺序，desc倒序</span><br></pre></td></tr></table></figure>
+<p>like模糊查询：<br>语法：like introduce ‘%查询字段%’；</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">select * from student where introduce like <span class="string">"%服务器%"</span>;  //like语法模糊查询，两边不固定</span><br><span class="line">select * from student where introduce like <span class="string">'%服务器'</span>;  //右固定</span><br><span class="line">select * from student where introduce like <span class="string">'服务器%'</span>;  //左固定</span><br></pre></td></tr></table></figure>
+<p>查看数据库版本：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select version();</span><br></pre></td></tr></table></figure>
+<p>查看当前登录用户：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select user();</span><br></pre></td></tr></table></figure>
+<p>查看数据库运行时间:</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">show global status like <span class="string">'uptime'</span>;</span><br></pre></td></tr></table></figure>
+<p>查询数据库链接数:</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">show processlist;</span><br></pre></td></tr></table></figure>
+
+        
+    </section>
+</article>
+
+
+
+<div class="comments">
+    <div id="comments"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+    new Gitalk({
+        clientID: "7fbe80427f54741e289f",
+        clientSecret: "f34ed5fd92e54c9000bd37ba951948cb939deff5",
+        repo: "sanonz.github.io",
+        owner: "sanonz",
+        admin: ["kenneth"],
+        id: "2018/06/30/MySQL基本操作",
+        distractionFreeMode: true,
+        title: "MySQL基本操作",
+        body: "http://kenneth96.coding.me/2018/06/30/MySQL基本操作/",
+        labels: ["MySQL"]
+    }).render('comments');
+    </script>
+</div>
+
+</div>
+        <footer class="footer">
+    Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+
+    
+        &ensp;
+        <span id="cnzz_stat_icon_1234567890" class="vm"></span>
+        <script src="//s13.cnzz.com/stat.php?id=1234567890&show=pic" type="text/javascript"></script>
+    
+</footer>
+
+    </main>
+
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/1.9.0/jquery.min.js"></script>
+    <script type="text/javascript">
+    $(function() {
+        var nodes = {
+            nav: $('#nav'),
+            aside: $('#aside'),
+            asideInner: $('#aside-inner'),
+            navInner: $('#nav-inner')
+        };
+
+        var doing = false;
+        nodes.asideInner.on('webkitAnimationEnd mozAnimationEnd oAnimationEnd oanimationend animationend', function() {
+            if (nodes.aside.hasClass('mobile-open')) {
+                nodes.aside.removeClass('mobile-open');
+            } else {
+                nodes.aside.removeClass('mobile-close panel-show');
+            }
+            doing = false;
+        });
+        $('#open-panel, #aside-mask').on('click', function() {
+            if (doing) {
+                return;
+            }
+            
+            if (nodes.aside.hasClass('panel-show')) {
+                nodes.aside.addClass('mobile-close');
+            } else {
+                nodes.aside.addClass('mobile-open panel-show');
+            }
+        });
+        $('#open-menus').on('click', function() {
+            nodes.navInner.slideToggle();
+        });
+
+        if (window.innerWidth <= 960) {
+            setTimeout(function() {
+                nodes.navInner.slideUp();
+            }, 3000);
+        }
+    });
+    </script>
+    
+        <script type="text/javascript" src="/js/scrollspy.min.js"></script>
+        <script type="text/javascript">
+        $(document.body).scrollspy({target: '#aside-inner'});
+        </script>
+    
+
+</body>
+</html>

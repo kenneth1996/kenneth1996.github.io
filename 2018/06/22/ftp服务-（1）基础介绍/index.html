@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="UTF-8">
+
+    
+
+    
+
+    <title>ftp服务-（1）基础介绍 | SRE</title>
+    <meta name="author" content="John Doe">
+    <meta name="version" content="1.0.0">
+    <meta name="keywords" content="">
+    <meta name="description" content="一、FTP服务介绍FTP（File Transfer Protocol）是一种应用非常广泛并且古老的一个互联网文件传输协议。档案的传输使用 FTP 是非常方便的，这个古老的协议使用的是明码传输方式，使用ftp来传输是具有一定程度危险性的!主要用于互联网中文件的双向传输（上传/下载）、文件共享跨平台   Linux、WindowsFTP是C/S架构，拥有一个客户端和服务端，使用TCP协议作为底层传输协议，提供可靠的数据传输FTP的默认端口 21号（命令端口）    20号（数据端...">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+
+    
+    <link rel="alternate" href="/atom.xml" title="SRE" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/images/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+    <main class="app">
+        <header class="header clearfix">
+    <div id="nav" class="nav">
+    <div class="nav-mobile">
+        <button id="open-panel" class="open-panel nav-mobile-item"><i class="icon-documents"></i></button>
+        <h1 class="nav-mobile-title nav-mobile-item">SRE</h1>
+        <button id="open-menus" class="open-panel nav-mobile-item"><i class="icon-library"></i></button>
+    </div>
+
+    <nav id="nav-inner" class="nav-inner">
+        
+            <a class="nav-item" href="/">
+                <span class="nav-text">首页</span>
+            </a>
+        
+            <a class="nav-item" href="/categories/front-end">
+                <span class="nav-text">Linux</span>
+            </a>
+        
+            <a class="nav-item" href="/categories/back-end">
+                <span class="nav-text">Python</span>
+            </a>
+        
+            <a class="nav-item" href="/tags">
+                <span class="nav-text">标签</span>
+            </a>
+        
+            <a class="nav-item" href="/archives">
+                <span class="nav-text">归档</span>
+            </a>
+        
+            <a class="nav-item" href="/about">
+                <span class="nav-text">关于</span>
+            </a>
+        
+    </nav>
+</div>
+
+    <aside id="aside" class="aside">
+    <div id="aside-mask" class="aside-mask"></div>
+    <div id="aside-inner" class="aside-inner">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit"><i class="icon-search-stroke"></i></button><input type="hidden" name="sitesearch" value="http://kenneth96.coding.me"></form>
+
+        
+        
+        
+        
+
+        
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#一、FTP服务介绍"><span class="toc-number">1.</span> <span class="toc-text">一、FTP服务介绍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#二、搭建简易ftp服务器"><span class="toc-number">2.</span> <span class="toc-text">二、搭建简易ftp服务器</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1、环境"><span class="toc-number">2.1.</span> <span class="toc-text">1、环境</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2、下载安装"><span class="toc-number">2.2.</span> <span class="toc-text">2、下载安装</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#三、FTP服务的客户端工具"><span class="toc-number">3.</span> <span class="toc-text">三、FTP服务的客户端工具</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#四、FTP服务的两种工作模式"><span class="toc-number">4.</span> <span class="toc-text">四、FTP服务的两种工作模式</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1、主动模式"><span class="toc-number">4.1.</span> <span class="toc-text">1、主动模式</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2、被动模式"><span class="toc-number">4.2.</span> <span class="toc-text">2、被动模式</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#五、FTP服务的基本配置"><span class="toc-number">5.</span> <span class="toc-text">五、FTP服务的基本配置</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1、软件带来的配置列表"><span class="toc-number">5.1.</span> <span class="toc-text">1、软件带来的配置列表</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2、主配置文件"><span class="toc-number">5.2.</span> <span class="toc-text">2、主配置文件</span></a></li></ol></li></ol>
+        
+    </div>
+</aside>
+
+</header>
+
+        <div id="content" class="content"><article class="article" itemscope="" itemprop="blogPost">
+    
+    <header class="article-header">
+        
+        <h1 itemprop="name">
+            ftp服务-（1）基础介绍
+        </h1>
+        
+        <div class="article-meta clearfix">
+            <a class="article-date" href="http://kenneth96.coding.me/2018/06/22/ftp服务-（1）基础介绍/index.html">
+    
+    <i class="icon-calendar"></i>
+    
+    <time datetime="2018-06-22T13:17:57.000Z" itemprop="datePublished">2018-06-22</time>
+</a>
+
+            
+<div class="article-tag-list">
+    <i class="icon-tag"></i>
+    <a class="article-tag-link" href="/tags/ftp/">ftp</a>
+</div>
+
+
+        </div>
+    </header>
+    
+    <section class="article-body markdown-body">
+        
+        <h4 id="一、FTP服务介绍"><a href="#一、FTP服务介绍" class="headerlink" title="一、FTP服务介绍"></a>一、FTP服务介绍</h4><p>FTP（File Transfer Protocol）是一种应用非常广泛并且古老的一个互联网文件传输协议。</p>
+<p>档案的传输使用 FTP 是非常方便的，这个古老的协议使用的是明码传输方式，使用ftp来传输是具有一定程度危险性的!<br><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/ftp.png?x-oss-process=style/myblog" alt="ftp"><br><a id="more"></a></p>
+<ul>
+<li>主要用于互联网中文件的双向传输（上传/下载）、文件共享</li>
+<li>跨平台   Linux、Windows</li>
+<li>FTP是C/S架构，拥有一个客户端和服务端，使用TCP协议作为底层传输协议，提供可靠的数据传输</li>
+<li>FTP的默认端口 21号（命令端口）    20号（数据端口） 默认被动模式下</li>
+<li>FTP程序（软件）vsftpd</li>
+</ul>
+<h4 id="二、搭建简易ftp服务器"><a href="#二、搭建简易ftp服务器" class="headerlink" title="二、搭建简易ftp服务器"></a>二、搭建简易ftp服务器</h4><h5 id="1、环境"><a href="#1、环境" class="headerlink" title="1、环境"></a>1、环境</h5><p>系统：CentOS6.5</p>
+<p>yum源：本地源</p>
+<p>ftp-server：192.168.2.101</p>
+<p>client:</p>
+<h5 id="2、下载安装"><a href="#2、下载安装" class="headerlink" title="2、下载安装"></a>2、下载安装</h5><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@ftp-server ~]<span class="comment"># yum install vsftpd</span></span><br><span class="line">[root@ftp-server ~]<span class="comment"># service vsftpd start</span></span><br><span class="line">为 vsftpd 启动 vsftpd：                                    [确定]</span><br></pre></td></tr></table></figure>
+<p>接下来，在浏览器输入<a href="ftp://192.168.2.101就能看到ftp的web页面" target="_blank" rel="noopener">ftp://192.168.2.101就能看到ftp的web页面</a></p>
+<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/ftp%E7%BD%91%E9%A1%B5.png?x-oss-process=style/myblog" alt="ftp网页"></p>
+<p>在windows系统我的电脑输入<a href="ftp://192.168.2.101也可以显示" target="_blank" rel="noopener">ftp://192.168.2.101也可以显示</a></p>
+<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/ftp%E5%9C%A8windows%E7%9A%84%E6%98%BE%E7%A4%BA%E6%96%B9%E5%BC%8F.png?x-oss-process=style/myblog" alt="ftp在windows的显示方式"></p>
+<p>在没有进行配置的情况下只能下载不能上传。</p>
+<h4 id="三、FTP服务的客户端工具"><a href="#三、FTP服务的客户端工具" class="headerlink" title="三、FTP服务的客户端工具"></a>三、FTP服务的客户端工具</h4><blockquote>
+<p>Linux：ftp、lftp（客户端程序）</p>
+</blockquote>
+<blockquote>
+<p>Windows：FileZilla、IE、Chrome、Firefox</p>
+</blockquote>
+<p>lftp和ftp工具区别：</p>
+<p>1:lftp可以批量并且下载目录</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">lftp localhost:~&gt; mirror remote local  下载整个目录到本地</span><br><span class="line">lftp localhost:~&gt; mirror -R local remote  rename 上传整个目录到远程同时可以重命名</span><br></pre></td></tr></table></figure>
+<p>2: ftp 默认使用用户名和密码登录<br>3：lftp 默认使用的匿名用户登录，lftp user@ip 进行用户名密码登录     </p>
+<h4 id="四、FTP服务的两种工作模式"><a href="#四、FTP服务的两种工作模式" class="headerlink" title="四、FTP服务的两种工作模式"></a>四、FTP服务的两种工作模式</h4><h5 id="1、主动模式"><a href="#1、主动模式" class="headerlink" title="1、主动模式"></a>1、主动模式</h5><p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/%E4%B8%BB%E5%8A%A8%E6%A8%A1%E5%BC%8F.png?x-oss-process=style/myblog" alt="主动模式"></p>
+<ol>
+<li>客户端打开大于1023的随机命令端口和大于1023的随机数据端口向服务的的21号端口发起请求</li>
+<li>服务端的21号命令端口响应客户端的随机命令端口</li>
+<li>服务端的20号端口主动请求连接客户端的随机数据端口</li>
+<li>客户端的随机数据端口进行确认</li>
+</ol>
+<h5 id="2、被动模式"><a href="#2、被动模式" class="headerlink" title="2、被动模式"></a>2、被动模式</h5><p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/%E8%A2%AB%E5%8A%A8%E6%A8%A1%E5%BC%8F.png?x-oss-process=style/myblog" alt="被动模式"></p>
+<ol>
+<li><p>客户端打开大于1023的随机命令端口和大于1023的随机数据端口向服务的的21号端口发起请求</p>
+</li>
+<li><p>服务端的21号命令端口响应客户端的随机命令端口</p>
+</li>
+<li><p>客户端主动连接服务端打开的大于1023的随机端口</p>
+</li>
+<li><p>服务端进行确认saf</p>
+</li>
+</ol>
+<h4 id="五、FTP服务的基本配置"><a href="#五、FTP服务的基本配置" class="headerlink" title="五、FTP服务的基本配置"></a>五、FTP服务的基本配置</h4><h5 id="1、软件带来的配置列表"><a href="#1、软件带来的配置列表" class="headerlink" title="1、软件带来的配置列表"></a>1、软件带来的配置列表</h5><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">/etc/logrotate.d/vsftpd			//日志轮转的文件</span><br><span class="line">/etc/pam.d/vsftpd				//安全认证</span><br><span class="line">/etc/rc.d/init.d/vsftpd			//启动脚本</span><br><span class="line">/etc/vsftpd						//配置文件的主目录</span><br><span class="line">/etc/vsftpd/ftpusers			//用户列表（黑名单）</span><br><span class="line">/etc/vsftpd/user_list			//用户列表（默认黑名单|可黑可白）</span><br><span class="line">/etc/vsftpd/vsftpd.conf			//主配置文件</span><br><span class="line">/usr/sbin/vsftpd			//二进制命令</span><br><span class="line">/usr/share/doc/vsftpd-<span class="number">2.2</span>.<span class="number">2</span>/EXAMPLE/VIRTUAL_HOSTS</span><br><span class="line">/usr/share/doc/vsftpd-<span class="number">2.2</span>.<span class="number">2</span>/EXAMPLE/VIRTUAL_HOSTS/README	//虚拟主机</span><br><span class="line">/usr/share/doc/vsftpd-<span class="number">2.2</span>.<span class="number">2</span>/EXAMPLE/VIRTUAL_USERS	</span><br><span class="line">/usr/share/doc/vsftpd-<span class="number">2.2</span>.<span class="number">2</span>/EXAMPLE/VIRTUAL_USERS/README	//虚拟用户</span><br><span class="line">/usr/share/man/man5/vsftpd.conf.<span class="number">5</span>.gz			//man文档</span><br><span class="line">/var/ftp			//匿名用户的默认数据的根目录</span><br><span class="line">/var/ftp/pub		//匿名用户的默认数据目录的扩展目录</span><br></pre></td></tr></table></figure>
+<h5 id="2、主配置文件"><a href="#2、主配置文件" class="headerlink" title="2、主配置文件"></a>2、主配置文件</h5><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">[root@ftp-server ~]<span class="comment"># grep -v ^# /etc/vsftpd/vsftpd.conf </span></span><br><span class="line">anonymous_enable=YES	//支持匿名用户访问	</span><br><span class="line">local_enable=YES		//非匿名用户</span><br><span class="line">write_enable=YES		//写总开关</span><br><span class="line">local_umask=<span class="number">022</span>			//反掩码  file:<span class="number">644</span>  dir:<span class="number">755</span></span><br><span class="line">dirmessage_enable=YES	//启用消息功能</span><br><span class="line">xferlog_enable=YES		//开启或启用xferlog日志</span><br><span class="line">connect_from_port_20=YES	//支持主动模式（默认被动模式）</span><br><span class="line">xferlog_std_format=YES		//xferlog日志格式</span><br><span class="line">listen=YES					//ftp服务独立模式下的监听</span><br><span class="line"></span><br><span class="line">pam_service_name=vsftpd	//指定认证文件</span><br><span class="line">userlist_enable=YES		//启用用户列表</span><br><span class="line">tcp_wrappers=YES		//支持tcp_wrappers功能</span><br></pre></td></tr></table></figure>
+<p>需要详细了解配置参数请直接查看man文档</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@ftp-server ~]<span class="comment"># man 5 vsftpd.conf</span></span><br></pre></td></tr></table></figure>
+
+        
+    </section>
+</article>
+
+
+
+<div class="comments">
+    <div id="comments"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+    new Gitalk({
+        clientID: "7fbe80427f54741e289f",
+        clientSecret: "f34ed5fd92e54c9000bd37ba951948cb939deff5",
+        repo: "sanonz.github.io",
+        owner: "sanonz",
+        admin: ["kenneth"],
+        id: "2018/06/22/ftp服务-（1）基础介绍",
+        distractionFreeMode: true,
+        title: "ftp服务-（1）基础介绍",
+        body: "http://kenneth96.coding.me/2018/06/22/ftp服务-（1）基础介绍/",
+        labels: ["ftp"]
+    }).render('comments');
+    </script>
+</div>
+
+</div>
+        <footer class="footer">
+    Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+
+    
+        &ensp;
+        <span id="cnzz_stat_icon_1234567890" class="vm"></span>
+        <script src="//s13.cnzz.com/stat.php?id=1234567890&show=pic" type="text/javascript"></script>
+    
+</footer>
+
+    </main>
+
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/1.9.0/jquery.min.js"></script>
+    <script type="text/javascript">
+    $(function() {
+        var nodes = {
+            nav: $('#nav'),
+            aside: $('#aside'),
+            asideInner: $('#aside-inner'),
+            navInner: $('#nav-inner')
+        };
+
+        var doing = false;
+        nodes.asideInner.on('webkitAnimationEnd mozAnimationEnd oAnimationEnd oanimationend animationend', function() {
+            if (nodes.aside.hasClass('mobile-open')) {
+                nodes.aside.removeClass('mobile-open');
+            } else {
+                nodes.aside.removeClass('mobile-close panel-show');
+            }
+            doing = false;
+        });
+        $('#open-panel, #aside-mask').on('click', function() {
+            if (doing) {
+                return;
+            }
+            
+            if (nodes.aside.hasClass('panel-show')) {
+                nodes.aside.addClass('mobile-close');
+            } else {
+                nodes.aside.addClass('mobile-open panel-show');
+            }
+        });
+        $('#open-menus').on('click', function() {
+            nodes.navInner.slideToggle();
+        });
+
+        if (window.innerWidth <= 960) {
+            setTimeout(function() {
+                nodes.navInner.slideUp();
+            }, 3000);
+        }
+    });
+    </script>
+    
+        <script type="text/javascript" src="/js/scrollspy.min.js"></script>
+        <script type="text/javascript">
+        $(document.body).scrollspy({target: '#aside-inner'});
+        </script>
+    
+
+</body>
+</html>

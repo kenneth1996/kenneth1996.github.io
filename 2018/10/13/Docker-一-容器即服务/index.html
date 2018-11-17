@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="UTF-8">
+
+    
+
+    
+
+    <title>Docker(一):容器即服务 | SRE</title>
+    <meta name="author" content="John Doe">
+    <meta name="version" content="1.0.0">
+    <meta name="keywords" content="">
+    <meta name="description" content="导论“以运维为主导的容器即服务架构将大大简化容器在生产环境的部署和使用，这种架构专注于让IT部门能够解构整体式应用程序架构，改而支持微服务。”—— Docker,Inc. 2016CaaS（容器即服务）——相对于IaaS和PaaS服务，CaaS对底层的支持比PaaS更灵活，而对上层应用的操控又比IaaS更容易。CaaS是以容器为核心的，它介于IaaS和PaaS之间，起到了屏蔽底层系统IaaS，支撑并丰富上层应用平台PaaS的作用。将底层的IaaS封装成一个大的资源池，我们只要把自己的应用...">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+
+    
+    <link rel="alternate" href="/atom.xml" title="SRE" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/images/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+    <main class="app">
+        <header class="header clearfix">
+    <div id="nav" class="nav">
+    <div class="nav-mobile">
+        <button id="open-panel" class="open-panel nav-mobile-item"><i class="icon-documents"></i></button>
+        <h1 class="nav-mobile-title nav-mobile-item">SRE</h1>
+        <button id="open-menus" class="open-panel nav-mobile-item"><i class="icon-library"></i></button>
+    </div>
+
+    <nav id="nav-inner" class="nav-inner">
+        
+            <a class="nav-item" href="/">
+                <span class="nav-text">首页</span>
+            </a>
+        
+            <a class="nav-item" href="/categories/front-end">
+                <span class="nav-text">Linux</span>
+            </a>
+        
+            <a class="nav-item" href="/categories/back-end">
+                <span class="nav-text">Python</span>
+            </a>
+        
+            <a class="nav-item" href="/tags">
+                <span class="nav-text">标签</span>
+            </a>
+        
+            <a class="nav-item" href="/archives">
+                <span class="nav-text">归档</span>
+            </a>
+        
+            <a class="nav-item" href="/about">
+                <span class="nav-text">关于</span>
+            </a>
+        
+    </nav>
+</div>
+
+    <aside id="aside" class="aside">
+    <div id="aside-mask" class="aside-mask"></div>
+    <div id="aside-inner" class="aside-inner">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit"><i class="icon-search-stroke"></i></button><input type="hidden" name="sitesearch" value="http://kenneth96.coding.me"></form>
+
+        
+        
+        
+        
+
+        
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#导论"><span class="toc-number">1.</span> <span class="toc-text">导论</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#一、虚拟化，容器化，云计算"><span class="toc-number">2.</span> <span class="toc-text">一、虚拟化，容器化，云计算</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1、虚拟化"><span class="toc-number">2.1.</span> <span class="toc-text">1、虚拟化</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#①全虚拟化"><span class="toc-number">2.1.1.</span> <span class="toc-text">①全虚拟化</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#②半虚拟化"><span class="toc-number">2.1.2.</span> <span class="toc-text">②半虚拟化</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#③硬件辅助虚拟化"><span class="toc-number">2.1.3.</span> <span class="toc-text">③硬件辅助虚拟化</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2、容器化"><span class="toc-number">2.2.</span> <span class="toc-text">2、容器化</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#①容器是什么"><span class="toc-number">2.2.1.</span> <span class="toc-text">①容器是什么</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#②容器的特点"><span class="toc-number">2.2.2.</span> <span class="toc-text">②容器的特点</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#③常见的容器技术"><span class="toc-number">2.2.3.</span> <span class="toc-text">③常见的容器技术</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3、云计算"><span class="toc-number">2.3.</span> <span class="toc-text">3、云计算</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#①云计算是什么"><span class="toc-number">2.3.1.</span> <span class="toc-text">①云计算是什么</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#②云计算的特点"><span class="toc-number">2.3.2.</span> <span class="toc-text">②云计算的特点</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#③常见云计算技术"><span class="toc-number">2.3.3.</span> <span class="toc-text">③常见云计算技术</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4、三者区别"><span class="toc-number">2.4.</span> <span class="toc-text">4、三者区别</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#二、Docker基础"><span class="toc-number">3.</span> <span class="toc-text">二、Docker基础</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1、Docker是什么"><span class="toc-number">3.1.</span> <span class="toc-text">1、Docker是什么</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2、Docker特点"><span class="toc-number">3.2.</span> <span class="toc-text">2、Docker特点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3、Docker原理详解"><span class="toc-number">3.3.</span> <span class="toc-text">3、Docker原理详解</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#①-Docker架构"><span class="toc-number">3.3.1.</span> <span class="toc-text">① Docker架构</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#②-nameserver-amp-CGroup"><span class="toc-number">3.3.2.</span> <span class="toc-text">② nameserver &amp; CGroup</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#③-镜像-amp-容器"><span class="toc-number">3.3.3.</span> <span class="toc-text">③ 镜像 &amp; 容器</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#三、Docker入门"><span class="toc-number">4.</span> <span class="toc-text">三、Docker入门</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1、部署Docker"><span class="toc-number">4.1.</span> <span class="toc-text">1、部署Docker</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#①网络环境："><span class="toc-number">4.1.1.</span> <span class="toc-text">①网络环境：</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#②安全配置"><span class="toc-number">4.1.2.</span> <span class="toc-text">②安全配置</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#③环境主机名规划："><span class="toc-number">4.1.3.</span> <span class="toc-text">③环境主机名规划：</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#④基础软件安装"><span class="toc-number">4.1.4.</span> <span class="toc-text">④基础软件安装</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#⑤docker-软件安装"><span class="toc-number">4.1.5.</span> <span class="toc-text">⑤docker 软件安装</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2、Docker加速器"><span class="toc-number">4.2.</span> <span class="toc-text">2、Docker加速器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3、基础命令"><span class="toc-number">4.3.</span> <span class="toc-text">3、基础命令</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#①docker-服务命令格式："><span class="toc-number">4.3.1.</span> <span class="toc-text">①docker 服务命令格式：</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#②删除docker"><span class="toc-number">4.3.2.</span> <span class="toc-text">②删除docker</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#③基本目录"><span class="toc-number">4.3.3.</span> <span class="toc-text">③基本目录</span></a></li></ol></li></ol></li></ol>
+        
+    </div>
+</aside>
+
+</header>
+
+        <div id="content" class="content"><article class="article" itemscope="" itemprop="blogPost">
+    
+    <header class="article-header">
+        
+        <h1 itemprop="name">
+            Docker(一):容器即服务
+        </h1>
+        
+        <div class="article-meta clearfix">
+            <a class="article-date" href="http://kenneth96.coding.me/2018/10/13/Docker-一-容器即服务/index.html">
+    
+    <i class="icon-calendar"></i>
+    
+    <time datetime="2018-10-13T13:46:27.000Z" itemprop="datePublished">2018-10-13</time>
+</a>
+
+            
+<div class="article-tag-list">
+    <i class="icon-tag"></i>
+    <a class="article-tag-link" href="/tags/容器/">容器</a>
+</div>
+
+
+        </div>
+    </header>
+    
+    <section class="article-body markdown-body">
+        
+        <h3 id="导论"><a href="#导论" class="headerlink" title="导论"></a>导论</h3><p>“以运维为主导的容器即服务架构将大大简化容器在生产环境的部署和使用，这种架构专注于让IT部门能够解构整体式应用程序架构，改而支持微服务。”—— Docker,Inc. 2016</p>
+<p>CaaS（容器即服务）——相对于IaaS和PaaS服务，CaaS对底层的支持比PaaS更灵活，而对上层应用的操控又比IaaS更容易。CaaS是以容器为核心的，它介于IaaS和PaaS之间，起到了屏蔽底层系统IaaS，支撑并丰富上层应用平台PaaS的作用。将底层的IaaS封装成一个大的资源池，我们只要把自己的应用部署到这个资源池中，不再需要关心资源的申请、管理，以及与业务开发无关的事情。</p>
+<h3 id="一、虚拟化，容器化，云计算"><a href="#一、虚拟化，容器化，云计算" class="headerlink" title="一、虚拟化，容器化，云计算"></a>一、虚拟化，容器化，云计算</h3><h4 id="1、虚拟化"><a href="#1、虚拟化" class="headerlink" title="1、虚拟化"></a>1、虚拟化</h4><blockquote>
+<p>虚拟化是什么？</p>
+</blockquote>
+<p>就是本来没有，但是通过某种特殊的手段，让你以为有，而且确信不已。</p>
+<p>这些手段就是虚拟化技术<br><a id="more"></a></p>
+<blockquote>
+<p>虚拟化的目的</p>
+</blockquote>
+<p>在时间上和空间上突破我们工作的限制，提升工作效率。</p>
+<p>时间上：多种工作在一时间段内同时进行</p>
+<p>空间上：在一台物理主机上，虚拟出来多台主机，多台主机共同做一件事情。</p>
+<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/docker1.2.jpg" alt=""></p>
+<p>常见的虚拟化技术：</p>
+<h5 id="①全虚拟化"><a href="#①全虚拟化" class="headerlink" title="①全虚拟化"></a>①全虚拟化</h5><p>使用软件方式，虚拟出一个功能完整的主机，虚拟出来的主机自以为是一个真实的主机<br>常见的技术：kvm<br>最早出现在1966年</p>
+<h5 id="②半虚拟化"><a href="#②半虚拟化" class="headerlink" title="②半虚拟化"></a>②半虚拟化</h5><p>结合软件方式，虚拟出一个部分功能的主机，虚拟出来的主机知道自己是一个傀儡。</p>
+<p>常见的技术：xen</p>
+<h5 id="③硬件辅助虚拟化"><a href="#③硬件辅助虚拟化" class="headerlink" title="③硬件辅助虚拟化"></a>③硬件辅助虚拟化</h5><p>借助主机硬件的功能，虚拟出一个完全功能的主机。他是全虚拟化技术的一个特殊表现形式<br>常见技术：VT-x/EPT或者AMD-v/RVI<br>最早出现在1972年<br>三种虚拟化技术的演变：<br>全虚拟化出来后，因为性能的问题，研究出来了半虚拟化，科技进步太快，硬件虚拟化出来后，性能直接提升。</p>
+<h4 id="2、容器化"><a href="#2、容器化" class="headerlink" title="2、容器化"></a>2、容器化</h4><h5 id="①容器是什么"><a href="#①容器是什么" class="headerlink" title="①容器是什么"></a>①容器是什么</h5><p>容器本质上就是一个应用项目的运行状态，特点是实现了某种特殊业务功能，普遍适用于核心业务之外的其他应用。<br>容器化技术，是虚拟化技术的另外一种实现。</p>
+<h5 id="②容器的特点"><a href="#②容器的特点" class="headerlink" title="②容器的特点"></a>②容器的特点</h5><p>依赖操作系统：借助操作系统实现虚拟功能。<br>资源利用率高：占用资源少，启动删除自由。<br>适用范围广：所有业务都能使用容器来实现。</p>
+<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/docker1.3.jpg" alt=""></p>
+<h5 id="③常见的容器技术"><a href="#③常见的容器技术" class="headerlink" title="③常见的容器技术"></a>③常见的容器技术</h5><p>LXC、Pouch、Docker、Rocket、LXD<br>目前比较流行：虚拟化+容器化</p>
+<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/docker1.4.jpg" alt=""></p>
+<h4 id="3、云计算"><a href="#3、云计算" class="headerlink" title="3、云计算"></a>3、云计算</h4><h5 id="①云计算是什么"><a href="#①云计算是什么" class="headerlink" title="①云计算是什么"></a>①云计算是什么</h5><p>云计算借助于虚拟技术，在物理资源基础上，虚拟出来一个资源池，通过调度资源，大大的提高资源的利用效率。<br>所以说云计算本质上是一种资源使用和交付的模式。</p>
+<h5 id="②云计算的特点"><a href="#②云计算的特点" class="headerlink" title="②云计算的特点"></a>②云计算的特点</h5><p>基于网络、按需使用、弹性计费</p>
+<h5 id="③常见云计算技术"><a href="#③常见云计算技术" class="headerlink" title="③常见云计算技术"></a>③常见云计算技术</h5><p>公有云：<br>定义：其他公司创造的资源池<br>获取方式：阿里云、aws、XX云<br>常见实现技术：openstack<br>私有云：<br>定义：自己公司创造的资源池<br>获取方式：自己公司技术团队<br>场景实现方式：cloudstack,openstack<br>混合云：<br>定义：公有云和私有云的混合使用。</p>
+<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/docker1.5.jpg?x-oss-process=style/myblog" alt=""></p>
+<h4 id="4、三者区别"><a href="#4、三者区别" class="headerlink" title="4、三者区别"></a>4、三者区别</h4><p><strong>虚拟化/容器化 VS  云计算</strong><br>虚拟化和容器化都是一种技术，而云计算是资源交付的模式，他们是两种不相关的事物<br><strong>虚拟化 VS  容器化</strong><br>虚拟化是一种大型的虚拟技术，而容器化是一种轻量级的虚拟技术<br>在某些特定场景，推荐用虚拟化技术实现</p>
+<p>1、涉及到银行支付功能的U盾场景，只能使用虚拟化技术<br>2、投入产出比，不适合的场景，推荐使用虚拟化场景</p>
+<h3 id="二、Docker基础"><a href="#二、Docker基础" class="headerlink" title="二、Docker基础"></a>二、Docker基础</h3><h4 id="1、Docker是什么"><a href="#1、Docker是什么" class="headerlink" title="1、Docker是什么"></a>1、Docker是什么</h4><p>Docker是一个开源的容器引擎，它基于LXC容器技术，使用Go语言开发。<br>源代码托管在Github上，并遵从Apache2.0协议。<br>Docker采用C/S架构，其可以轻松的为任何应用创建一个轻量级的、可移植的、自给自足的容器。</p>
+<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/docker1.1.jpg?x-oss-process=style/myblog" alt=""></p>
+<h4 id="2、Docker特点"><a href="#2、Docker特点" class="headerlink" title="2、Docker特点"></a>2、Docker特点</h4><blockquote>
+<p>优点：</p>
+</blockquote>
+<p>多： 适用场景多<br>快： 环境部署快、更新快<br>好： 好多人在用，东西好<br>省： 省钱省力省人工(123原则)</p>
+<blockquote>
+<p>缺点：</p>
+</blockquote>
+<p>太腻歪人： 依赖操作系统<br>不善于沟通：依赖网络<br>不善理财： 银行U盾等场景不能用</p>
+<h4 id="3、Docker原理详解"><a href="#3、Docker原理详解" class="headerlink" title="3、Docker原理详解"></a>3、Docker原理详解</h4><h5 id="①-Docker架构"><a href="#①-Docker架构" class="headerlink" title="① Docker架构"></a>① Docker架构</h5><p>Docker架构图</p>
+<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/docker1.6.jpg?x-oss-process=style/myblog" alt=""></p>
+<p>Docker流程图</p>
+<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/docker1.7.jpg?x-oss-process=style/myblog" alt=""></p>
+<h5 id="②-nameserver-amp-CGroup"><a href="#②-nameserver-amp-CGroup" class="headerlink" title="② nameserver &amp; CGroup"></a>② nameserver &amp; CGroup</h5><p>Docker是基于LXC的容器技术，Docker主要继承的技术是namespace和CGroup<br>对于容器的资源隔离，LXC给出的方法是container，本质上它是linux系统的namespace。Docker通过linux<br>的 pid、net、ipc、mnt、uts、user这六类的namespace将容器的进程、网络、消息、文件系统、UTS和操作系统资源隔离开。<br>对于容器的资源限制，LXC给出的方法是Cgroup，Cgroup 全称Control group，Docker把它继承过来了。<br>CGroup其实就是通过创建一个虚拟的文件系统交给容器使用，同时还能对容器的容量做出限制。<br>通过CGroup可以实现的功能：</p>
+<p>资源限制、优先级分配、资源统计、任务控制</p>
+<h5 id="③-镜像-amp-容器"><a href="#③-镜像-amp-容器" class="headerlink" title="③ 镜像 &amp; 容器"></a>③ 镜像 &amp; 容器</h5><p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/docker1.8.jpg?x-oss-process=style/myblog" alt=""></p>
+<h3 id="三、Docker入门"><a href="#三、Docker入门" class="headerlink" title="三、Docker入门"></a>三、Docker入门</h3><h4 id="1、部署Docker"><a href="#1、部署Docker" class="headerlink" title="1、部署Docker"></a>1、部署Docker</h4><h5 id="①网络环境："><a href="#①网络环境：" class="headerlink" title="①网络环境："></a>①网络环境：</h5><p>关闭NetworkManager服务</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">systemctl stop NetworkManager</span><br><span class="line">systemctl disable NetworkManager</span><br></pre></td></tr></table></figure>
+<h5 id="②安全配置"><a href="#②安全配置" class="headerlink" title="②安全配置"></a>②安全配置</h5><p>防火墙</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">systemctl stop firewalld</span><br><span class="line">systemctl disable firewalld</span><br><span class="line">检查</span><br><span class="line">firewall-cmd --state</span><br></pre></td></tr></table></figure>
+<p>selinux</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">'s#=enforcing#=disabled#'</span> /etc/selinux/config</span><br><span class="line">检查</span><br><span class="line">grep --color=auto <span class="string">'^SELINUX'</span> /etc/selinux/config</span><br></pre></td></tr></table></figure>
+<h5 id="③环境主机名规划："><a href="#③环境主机名规划：" class="headerlink" title="③环境主机名规划："></a>③环境主机名规划：</h5><p>hosts文件内容</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">192.168</span>.<span class="number">8.14</span> controller.devops.com controller</span><br></pre></td></tr></table></figure>
+<p>主机名设置</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hostnamectl set-hostname controller</span><br></pre></td></tr></table></figure>
+<p>测试效果：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ping -c <span class="number">1</span> controller</span><br></pre></td></tr></table></figure>
+<p>软件源配置<br>安装依赖软件</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y wget yum-plugin-priorities</span><br></pre></td></tr></table></figure>
+<p>安装软件源</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget -O /etc/yum.repos.d/CentOS-Base-ali.repo http://mirrors.aliyun.com/repo/Centos-<span class="number">7</span>.repo</span><br><span class="line">wget -O /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-<span class="number">7</span>.repo</span><br></pre></td></tr></table></figure>
+<p>源优先级配置</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cat /etc/yum/pluginconf.d/priorities.conf</span><br><span class="line">注意：保证 [main] 配置下的 enabled = <span class="number">1</span></span><br><span class="line">然后编辑相应的 repo 文件，在想用的配置文件下增加 priority=<span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>检查</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">yum repolist</span><br><span class="line">yum clean all &amp;&amp; yum makecache fast &amp;&amp; yum update -y</span><br></pre></td></tr></table></figure>
+<p>禁止内核升级</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># vim /etc/yum.conf</span></span><br><span class="line">...</span><br><span class="line">exclude=kernel*</span><br><span class="line">exclude=centos-release*</span><br></pre></td></tr></table></figure>
+<h5 id="④基础软件安装"><a href="#④基础软件安装" class="headerlink" title="④基础软件安装"></a>④基础软件安装</h5><p>安装系统基础软件</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y vim lrzsz telnet curl net-tools tree bash-completion</span><br></pre></td></tr></table></figure>
+<h5 id="⑤docker-软件安装"><a href="#⑤docker-软件安装" class="headerlink" title="⑤docker 软件安装"></a>⑤docker 软件安装</h5><p>官网参考：<a href="https://docs.docker.com/install/linux/docker-ce/centos/" target="_blank" rel="noopener">https://docs.docker.com/install/linux/docker-ce/centos/</a><br>安装基本软件</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y yum-utils device-mapper-persistent-data lvm2</span><br></pre></td></tr></table></figure>
+<p>使用官方推荐源</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo</span><br></pre></td></tr></table></figure>
+<p>使用阿里云的源{推荐}</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo</span><br></pre></td></tr></table></figure>
+<p>安装docker</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install docker-ce -y</span><br></pre></td></tr></table></figure>
+<p>注：<br>     可以指定版本安装docker：<br>               yum install docker-ce=<version> -y<br>启动docker</version></p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">systemctl start docker</span><br><span class="line">systemctl status docker</span><br></pre></td></tr></table></figure>
+<p>测试docker</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker version</span><br></pre></td></tr></table></figure>
+<p>网卡区别：<br>安装前：只有eth0和lo网卡<br>安装后：docker启动后，多出来了docker0网卡，网卡地址172.17.0.1</p>
+<h4 id="2、Docker加速器"><a href="#2、Docker加速器" class="headerlink" title="2、Docker加速器"></a>2、Docker加速器</h4><p>加速器简介<br>在国内使用docker的官方镜像源，会因为网络的原因，造成无法下载，或者一直处于超时。所以我们使用 daoclo<br>ud 的方法进行加速配置。<br>方法:<br>访问 daocloud.io 网站，登录 daocloud 账户</p>
+<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/docker1.9.jpg?x-oss-process=style/myblog" alt=""></p>
+<p>点击右上角的 加速器</p>
+<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/docker2.0.jpg?x-oss-process=style/myblog" alt=""></p>
+<p>在新窗口处会显示一条命令，</p>
+<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/docker2.1.jpg?x-oss-process=style/myblog" alt=""></p>
+<p>我们执行这条命令</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -sSL https://get.daocloud.io/daotools/set_mirror.sh | sh -s http://<span class="number">74</span>f21445.m.daocloud.io</span><br></pre></td></tr></table></figure>
+<p><strong>加速器配置</strong><br>修改daemon.json文件，增加绿色背景字体内容</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># cat /etc/docker/daemon.json</span></span><br><span class="line">&#123;<span class="string">"registry-mirrors"</span>: [<span class="string">"http://74f21445.m.daocloud.io"</span>], <span class="string">"insecure-registries"</span>: []&#125;</span><br></pre></td></tr></table></figure>
+<p>注意：<br>docker cloud加速器的默认内容是少了一条配置，所以我们要编辑文件在后面加上，然后再重启docker</p>
+<p>重启docker</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl restart docker</span><br></pre></td></tr></table></figure>
+<h4 id="3、基础命令"><a href="#3、基础命令" class="headerlink" title="3、基础命令"></a>3、基础命令</h4><h5 id="①docker-服务命令格式："><a href="#①docker-服务命令格式：" class="headerlink" title="①docker 服务命令格式："></a>①docker 服务命令格式：</h5><p>systemctl [参数] docker<br>参数详解：<br>start 开启服务<br>stop 关闭<br>restart 重启<br>status 状态</p>
+<h5 id="②删除docker"><a href="#②删除docker" class="headerlink" title="②删除docker"></a>②删除docker</h5><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">yum remove docker-ce</span><br><span class="line">rm -rf /var/lib/docker/</span><br><span class="line">rm -rf /etc/docker</span><br></pre></td></tr></table></figure>
+<h5 id="③基本目录"><a href="#③基本目录" class="headerlink" title="③基本目录"></a>③基本目录</h5><p>docker基本目录简介<br>/etc/docker/ docker的认证目录<br>/var/lib/docker/ docker的应用目录</p>
+
+        
+    </section>
+</article>
+
+
+
+<div class="comments">
+    <div id="comments"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+    new Gitalk({
+        clientID: "7fbe80427f54741e289f",
+        clientSecret: "f34ed5fd92e54c9000bd37ba951948cb939deff5",
+        repo: "sanonz.github.io",
+        owner: "sanonz",
+        admin: ["kenneth"],
+        id: "2018/10/13/Docker-一-容器即服务",
+        distractionFreeMode: true,
+        title: "Docker(一):容器即服务",
+        body: "http://kenneth96.coding.me/2018/10/13/Docker-一-容器即服务/",
+        labels: ["容器"]
+    }).render('comments');
+    </script>
+</div>
+
+</div>
+        <footer class="footer">
+    Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+
+    
+        &ensp;
+        <span id="cnzz_stat_icon_1234567890" class="vm"></span>
+        <script src="//s13.cnzz.com/stat.php?id=1234567890&show=pic" type="text/javascript"></script>
+    
+</footer>
+
+    </main>
+
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/1.9.0/jquery.min.js"></script>
+    <script type="text/javascript">
+    $(function() {
+        var nodes = {
+            nav: $('#nav'),
+            aside: $('#aside'),
+            asideInner: $('#aside-inner'),
+            navInner: $('#nav-inner')
+        };
+
+        var doing = false;
+        nodes.asideInner.on('webkitAnimationEnd mozAnimationEnd oAnimationEnd oanimationend animationend', function() {
+            if (nodes.aside.hasClass('mobile-open')) {
+                nodes.aside.removeClass('mobile-open');
+            } else {
+                nodes.aside.removeClass('mobile-close panel-show');
+            }
+            doing = false;
+        });
+        $('#open-panel, #aside-mask').on('click', function() {
+            if (doing) {
+                return;
+            }
+            
+            if (nodes.aside.hasClass('panel-show')) {
+                nodes.aside.addClass('mobile-close');
+            } else {
+                nodes.aside.addClass('mobile-open panel-show');
+            }
+        });
+        $('#open-menus').on('click', function() {
+            nodes.navInner.slideToggle();
+        });
+
+        if (window.innerWidth <= 960) {
+            setTimeout(function() {
+                nodes.navInner.slideUp();
+            }, 3000);
+        }
+    });
+    </script>
+    
+        <script type="text/javascript" src="/js/scrollspy.min.js"></script>
+        <script type="text/javascript">
+        $(document.body).scrollspy({target: '#aside-inner'});
+        </script>
+    
+
+</body>
+</html>

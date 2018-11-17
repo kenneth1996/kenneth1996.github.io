@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="UTF-8">
+
+    
+
+    
+
+    <title>NFS服务 | SRE</title>
+    <meta name="author" content="John Doe">
+    <meta name="version" content="1.0.0">
+    <meta name="keywords" content="">
+    <meta name="description" content="一、NFS服务介绍NFS（Network File System）网络文件系统主要用于linux系统上实现文件共享的一种协议，其客户端主要是Linux没有用户认证机制，且数据在网络上传送的时候是明文传送，一般只能在局域网中使用支持多节点同时挂载及并发写入企业应用：为集群中的web server提供后端存储该服务包括的组件：RPC（Remote Procedure Call Protocol）：远程过程调用协议，它是一种通过网络从远程计算机程序上请求服务，不需要了解底层网络技...">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+
+    
+    <link rel="alternate" href="/atom.xml" title="SRE" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/images/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+    <main class="app">
+        <header class="header clearfix">
+    <div id="nav" class="nav">
+    <div class="nav-mobile">
+        <button id="open-panel" class="open-panel nav-mobile-item"><i class="icon-documents"></i></button>
+        <h1 class="nav-mobile-title nav-mobile-item">SRE</h1>
+        <button id="open-menus" class="open-panel nav-mobile-item"><i class="icon-library"></i></button>
+    </div>
+
+    <nav id="nav-inner" class="nav-inner">
+        
+            <a class="nav-item" href="/">
+                <span class="nav-text">首页</span>
+            </a>
+        
+            <a class="nav-item" href="/categories/front-end">
+                <span class="nav-text">Linux</span>
+            </a>
+        
+            <a class="nav-item" href="/categories/back-end">
+                <span class="nav-text">Python</span>
+            </a>
+        
+            <a class="nav-item" href="/tags">
+                <span class="nav-text">标签</span>
+            </a>
+        
+            <a class="nav-item" href="/archives">
+                <span class="nav-text">归档</span>
+            </a>
+        
+            <a class="nav-item" href="/about">
+                <span class="nav-text">关于</span>
+            </a>
+        
+    </nav>
+</div>
+
+    <aside id="aside" class="aside">
+    <div id="aside-mask" class="aside-mask"></div>
+    <div id="aside-inner" class="aside-inner">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit"><i class="icon-search-stroke"></i></button><input type="hidden" name="sitesearch" value="http://kenneth96.coding.me"></form>
+
+        
+        
+        
+        
+
+        
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#一、NFS服务介绍"><span class="toc-number">1.</span> <span class="toc-text">一、NFS服务介绍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#二、NFS服务器搭建"><span class="toc-number">2.</span> <span class="toc-text">二、NFS服务器搭建</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1、配置文件"><span class="toc-number">2.1.</span> <span class="toc-text">1、配置文件</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2、共享本地-share-nfs目录给所有人，以读写方式共享"><span class="toc-number">2.2.</span> <span class="toc-text">2、共享本地/share/nfs目录给所有人，以读写方式共享</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#三、实际应用"><span class="toc-number">3.</span> <span class="toc-text">三、实际应用</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1、NFS自动挂载家目录"><span class="toc-number">3.1.</span> <span class="toc-text">1、NFS自动挂载家目录</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#方法1实现："><span class="toc-number">3.1.1.</span> <span class="toc-text">方法1实现：</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#方法2实现："><span class="toc-number">3.1.2.</span> <span class="toc-text">方法2实现：</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2、实现web集群后端存储"><span class="toc-number">3.2.</span> <span class="toc-text">2、实现web集群后端存储</span></a></li></ol></li></ol>
+        
+    </div>
+</aside>
+
+</header>
+
+        <div id="content" class="content"><article class="article" itemscope="" itemprop="blogPost">
+    
+    <header class="article-header">
+        
+        <h1 itemprop="name">
+            NFS服务
+        </h1>
+        
+        <div class="article-meta clearfix">
+            <a class="article-date" href="http://kenneth96.coding.me/2018/06/25/NFS服务/index.html">
+    
+    <i class="icon-calendar"></i>
+    
+    <time datetime="2018-06-25T08:43:56.000Z" itemprop="datePublished">2018-06-25</time>
+</a>
+
+            
+<div class="article-tag-list">
+    <i class="icon-tag"></i>
+    <a class="article-tag-link" href="/tags/nfs/">nfs</a>
+</div>
+
+
+        </div>
+    </header>
+    
+    <section class="article-body markdown-body">
+        
+        <h4 id="一、NFS服务介绍"><a href="#一、NFS服务介绍" class="headerlink" title="一、NFS服务介绍"></a>一、NFS服务介绍</h4><p>NFS（Network File System）网络文件系统</p>
+<ul>
+<li>主要用于linux系统上实现文件共享的一种协议，其客户端主要是Linux</li>
+<li>没有用户认证机制，且数据在网络上传送的时候是明文传送，一般只能在局域网中使用</li>
+<li>支持多节点同时挂载及并发写入</li>
+</ul>
+<p><strong>企业应用：为集群中的web server提供后端存储</strong></p>
+<p><strong>该服务包括的组件：</strong></p>
+<p>RPC（Remote Procedure Call Protocol）：<br>远程过程调用协议，它是一种通过网络从远程计算机程序上请求服务，不需要了解底层网络技术的协议。</p>
+<p><strong>rpcbind</strong>                     //负责NFS的数据传输，远程过程调用  tcp协议 端口111</p>
+<p><strong>nfs-utils</strong>            //控制共享哪些文件,权限管理<br><a id="more"></a></p>
+<h4 id="二、NFS服务器搭建"><a href="#二、NFS服务器搭建" class="headerlink" title="二、NFS服务器搭建"></a>二、NFS服务器搭建</h4><h5 id="1、配置文件"><a href="#1、配置文件" class="headerlink" title="1、配置文件"></a>1、配置文件</h5><p>nfs-utils-1.2.3-26.el6.x86_64         nfs服务的一个脚本控制工具（服务端与客户端）<br>nfs4-acl-tools-0.3.3-6.el6.x86_64   acl 工具包<br>nfs-utils-lib-1.1.5-4.el6.x86_64       nfs 库文件</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@server ~]<span class="comment"># yum install rpcbind</span></span><br><span class="line">[root@server ~]<span class="comment"># yum install nfs-utils</span></span><br></pre></td></tr></table></figure>
+<p>查阅man文档：man 5 exports</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">共享目录        共享选项</span><br><span class="line">/nfs/share      *(ro,sync)</span><br><span class="line">共享主机：</span><br><span class="line">*   ：代表所有主机</span><br><span class="line"><span class="number">192.168</span>.<span class="number">0.0</span>/<span class="number">24</span>：代表共享给某个网段</span><br><span class="line"><span class="number">192.168</span>.<span class="number">0.0</span>/<span class="number">24</span>(rw) <span class="number">192.168</span>.<span class="number">1.0</span>/<span class="number">24</span>(ro) :代表共享给不同网段</span><br><span class="line"><span class="number">192.168</span>.<span class="number">0.254</span>：共享给某个IP</span><br><span class="line">*.itcast.com:代表共享给某个域下的所有主机</span><br><span class="line">共享选项：</span><br><span class="line">ro：只读</span><br><span class="line">rw：读写</span><br><span class="line">sync：实时同步，直接写入磁盘</span><br><span class="line">async：异步，先缓存在内存再同步磁盘</span><br><span class="line">anonuid：设置访问nfs服务的用户的uid，uid需要在/etc/passwd中存在</span><br><span class="line">anongid：设置访问nfs服务的用户的gid</span><br><span class="line">root_squash ：默认选项 root用户创建的文件的属主和属组都变成nfsnobody,其他人server端是它自己，client端是nobody。</span><br><span class="line">no_root_squash：root用户创建的文件属主和属组还是root，其他人server端是它自己uid，client端是nobody。</span><br><span class="line">all_squash： 不管是root还是其他普通用户创建的文件的属主和属组都是nfsnobody</span><br></pre></td></tr></table></figure>
+<h5 id="2、共享本地-share-nfs目录给所有人，以读写方式共享"><a href="#2、共享本地-share-nfs目录给所有人，以读写方式共享" class="headerlink" title="2、共享本地/share/nfs目录给所有人，以读写方式共享"></a>2、共享本地/share/nfs目录给所有人，以读写方式共享</h5><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">server端：</span><br><span class="line"><span class="number">1</span>. mkdir /share/nfs -p</span><br><span class="line"><span class="number">2</span>. vim /etc/exports</span><br><span class="line">/share/nfs	*(rw)</span><br><span class="line"><span class="number">3</span>. 启动服务</span><br><span class="line">service rpcbind restart</span><br><span class="line">service nfs start</span><br><span class="line"></span><br><span class="line">client端测试：</span><br><span class="line">yum install rpcbind</span><br><span class="line">yum install nfs-utils</span><br><span class="line">mkdir /u01</span><br><span class="line">mount.nfs <span class="number">10.1</span>.<span class="number">1.2</span>:/share/nfs /u01</span><br><span class="line">df -h</span><br><span class="line">...</span><br><span class="line"><span class="number">10.1</span>.<span class="number">1.2</span>:/share/nfs              <span class="number">18</span>G  <span class="number">4.4</span>G   <span class="number">13</span>G  <span class="number">27</span>% /u01	说明挂载成功</span><br><span class="line">测试写入：</span><br><span class="line">[root@client ~]<span class="comment"># cd /u01/</span></span><br><span class="line">[root@client u01]<span class="comment"># ls</span></span><br><span class="line">[root@client u01]<span class="comment"># touch file&#123;1..3&#125;</span></span><br><span class="line">touch: cannot touch `file1<span class="string">': Permission denied</span></span><br><span class="line"><span class="string">touch: cannot touch `file2'</span>: Permission denied</span><br><span class="line">touch: cannot touch `file3<span class="string">': Permission denied</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">原因：server端的共享目录权限不够</span></span><br><span class="line"><span class="string">解决：</span></span><br><span class="line"><span class="string">[root@server ~]# ll -d /share/nfs/</span></span><br><span class="line"><span class="string">drwxr-xr-x 2 root root 4096 6月  26 02:42 /share/nfs/</span></span><br><span class="line"><span class="string">[root@server ~]# chmod o+w /share/nfs/</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">[root@client u01]# touch file&#123;1..3&#125;</span></span><br><span class="line"><span class="string">[root@client u01]# ls</span></span><br><span class="line"><span class="string">file1  file2  file3</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">[root@server ~]# ll /share/nfs/</span></span><br><span class="line"><span class="string">总用量 0</span></span><br><span class="line"><span class="string">-rw-r--r-- 1 nfsnobody nfsnobody 0 6月  26 02:52 file1</span></span><br><span class="line"><span class="string">-rw-r--r-- 1 nfsnobody nfsnobody 0 6月  26 02:52 file2</span></span><br><span class="line"><span class="string">-rw-r--r-- 1 nfsnobody nfsnobody 0 6月  26 02:52 file3</span></span><br></pre></td></tr></table></figure>
+<h4 id="三、实际应用"><a href="#三、实际应用" class="headerlink" title="三、实际应用"></a>三、实际应用</h4><h5 id="1、NFS自动挂载家目录"><a href="#1、NFS自动挂载家目录" class="headerlink" title="1、NFS自动挂载家目录"></a>1、NFS自动挂载家目录</h5><p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/%E5%85%B1%E4%BA%AB%E5%AE%B6%E7%9B%AE%E5%BD%95.png?x-oss-process=style/myblog" alt="nfs"></p>
+<blockquote>
+<p>需求：ftp服务器无法存储太多数据，此时需要nfs服务器转储</p>
+</blockquote>
+<p>思路：<br>A主机上：</p>
+<p>需要创建相应的用户user1~user3   eg:user1——&gt; /user1(挂载点)</p>
+<p>B主机上：</p>
+<p>搭建NFS服务，将/nfs/share共享出来</p>
+<p>A主机上：</p>
+<p>挂载Ｂ主机上的共享目录到指定挂载点上</p>
+<blockquote>
+<p>测试验证：</p>
+</blockquote>
+<p>环境：<br>FTP-server：192.168.2.101<br>NFS-server: 192.168.2.103<br>client:192.168.2.111</p>
+<h6 id="方法1实现："><a href="#方法1实现：" class="headerlink" title="方法1实现："></a>方法1实现：</h6><ol>
+<li><p>FTP-server创建用户并且指定用户的家目录</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[root@ftp-server ~]<span class="comment"># mkdir /rhome</span></span><br><span class="line">[root@ftp-server ~]<span class="comment"># useradd -d /rhome/user01 -M user01</span></span><br><span class="line">[root@ftp-server ~]<span class="comment"># useradd -d /rhome/user02 -M user02</span></span><br><span class="line">[root@ftp-server ~]<span class="comment"># useradd -d /rhome/user03 -M user03</span></span><br><span class="line">[root@ftp-server ~]<span class="comment"># echo 123|passwd --stdin user01</span></span><br><span class="line">[root@ftp-server ~]<span class="comment"># echo 123|passwd --stdin user02</span></span><br><span class="line">[root@ftp-server ~]<span class="comment"># echo 123|passwd --stdin user03</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>NFS-server进行配置</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@nfs-server ~]<span class="comment"># cat /etc/exports </span></span><br><span class="line">/<span class="keyword">data</span>192.<span class="number">168.2</span>.<span class="number">101</span>(rw)</span><br><span class="line">[root@nfs-server ~]<span class="comment"># service nfs restart</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>FTP-server进行挂载</p>
+</li>
+</ol>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[root@ftp-server ~]<span class="comment"># mkdir /rhome/user0&#123;1..3&#125;</span></span><br><span class="line">[root@ftp-server ~]<span class="comment"># mount.nfs 10.1.1.3:/data/user01 /rhome/user01</span></span><br><span class="line">[root@ftp-server ~]<span class="comment"># df -h</span></span><br><span class="line">Filesystem                      Size  Used Avail Use% Mounted on</span><br><span class="line">/dev/mapper/vg_misshou-lv_root   <span class="number">18</span>G  <span class="number">4.4</span>G   <span class="number">13</span>G  <span class="number">27</span>% /</span><br><span class="line">tmpfs                           <span class="number">491</span>M   <span class="number">76</span>K  <span class="number">491</span>M   <span class="number">1</span>% /dev/shm</span><br><span class="line">/dev/sda1                       <span class="number">485</span>M   <span class="number">35</span>M  <span class="number">426</span>M   <span class="number">8</span>% /boot</span><br><span class="line">/dev/sr0                        <span class="number">4.2</span>G  <span class="number">4.2</span>G     <span class="number">0</span> <span class="number">100</span>% /iso</span><br><span class="line">.host:/                         <span class="number">489</span>G   <span class="number">30</span>G  <span class="number">459</span>G   <span class="number">7</span>% /mnt/hgfs</span><br><span class="line"><span class="number">10.1</span>.<span class="number">1.3</span>:/<span class="keyword">data</span>/user01            <span class="number">20</span>G  <span class="number">172</span>M   <span class="number">19</span>G   <span class="number">1</span>% /rhome/user01	//挂载成功</span><br></pre></td></tr></table></figure>
+<p>4.client测试验证</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">[root@server01 ~]<span class="comment"># ftp 192.168.2.101</span></span><br><span class="line">Connected to <span class="number">192.168</span>.<span class="number">2.101</span> (<span class="number">192.168</span>.<span class="number">2.101</span>).</span><br><span class="line"><span class="number">220</span> (vsFTPd <span class="number">2.2</span>.<span class="number">2</span>)</span><br><span class="line">Name (<span class="number">192.168</span>.<span class="number">2.101</span>:root): user01</span><br><span class="line"><span class="number">331</span> Please specify the password.</span><br><span class="line">Password:</span><br><span class="line"><span class="number">230</span> Login successful.</span><br><span class="line">Remote system type is UNIX.</span><br><span class="line">Using binary mode to transfer files.</span><br><span class="line">ftp&gt; put anaconda-ks.cfg </span><br><span class="line">local: anaconda-ks.cfg remote: anaconda-ks.cfg</span><br><span class="line"><span class="number">227</span> Entering Passive Mode (<span class="number">192</span>,<span class="number">168</span>,<span class="number">2</span>,<span class="number">101</span>,<span class="number">116</span>,<span class="number">153</span>).</span><br><span class="line"><span class="number">553</span> Could not create file.</span><br></pre></td></tr></table></figure>
+<p>正常情况下，user01用户只能够访问ftp服务器，但是不能够上传文件，原因是nfs-server的共享目录没有权限<br>解决：NFS-SERVER</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[root@nfs-server user01]<span class="comment"># chmod 1777 /data/ -R</span></span><br><span class="line">[root@nfs-server user01]<span class="comment"># ll</span></span><br><span class="line">total <span class="number">56</span></span><br><span class="line">-rwxrwxrwt <span class="number">1</span> root root    <span class="number">12</span> Apr <span class="number">20</span> <span class="number">14</span>:<span class="number">53</span> file1</span><br><span class="line">-rw-rw-r-- <span class="number">1</span>  <span class="number">503</span>  <span class="number">505</span>     <span class="number">0</span> Apr <span class="number">20</span> <span class="number">14</span>:<span class="number">58</span> file2</span><br><span class="line">客户端验证：</span><br><span class="line">ftp&gt; put install.log</span><br><span class="line">local: install.log remote: install.log</span><br><span class="line"><span class="number">227</span> Entering Passive Mode (<span class="number">10</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">2</span>,<span class="number">143</span>,<span class="number">2</span>).</span><br><span class="line"><span class="number">150</span> Ok to send data.</span><br><span class="line"><span class="number">226</span> Transfer complete.</span><br><span class="line"><span class="number">52124</span> bytes sent <span class="keyword">in</span> <span class="number">0.0968</span> secs (<span class="number">538.39</span> Kbytes/sec)</span><br></pre></td></tr></table></figure>
+<h6 id="方法2实现："><a href="#方法2实现：" class="headerlink" title="方法2实现："></a>方法2实现：</h6><p>步骤：<br>FTP-server操作：</p>
+<ol>
+<li>创建用户<br>useradd uu1    ——&gt;/home/uu1<br>useradd uu2    ——&gt;/home/uu2</li>
+</ol>
+<p>NFS-server操作：</p>
+<ol>
+<li><p>在/data目录里给用户创建相应的目录<br>mkdir /data/uu1<br>mkdir /data/uu1</p>
+</li>
+<li><p>给共享目录设置相应的权限<br>chmod 1777 /data -R</p>
+</li>
+<li><p>发布共享目录<br>vim /etc/exports<br>/data10.1.1.2(rw)</p>
+</li>
+<li><p>重启nfs服务<br>service nfs restart</p>
+</li>
+</ol>
+<p>FTP-server端操作：<br>uu1用户：<br>mount.nfs 10.1.1.3:/data/uu1    /home/uu1</p>
+<h5 id="2、实现web集群后端存储"><a href="#2、实现web集群后端存储" class="headerlink" title="2、实现web集群后端存储"></a>2、实现web集群后端存储</h5><p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/web%E5%90%8E%E7%AB%AF%E5%85%B1%E4%BA%AB%E5%AD%98%E5%82%A8.png?x-oss-process=style/myblog" alt="web集群后端存储"></p>
+<p>NFS-SERVER端：共享目录，并且创建一个首页文件</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mkdir /share/web -p</span><br><span class="line">echo <span class="string">"hello world"</span> &gt; /share/web/index.html</span><br><span class="line">echo <span class="string">"/share/web10.1.1.0/24(ro)"</span> &gt;&gt; /etc/exports</span><br><span class="line">重启服务（nfs）</span><br><span class="line">service nfs restart</span><br><span class="line">或者</span><br><span class="line">[root@nfs-server ~]<span class="comment"># exportfs -rv</span></span><br></pre></td></tr></table></figure>
+<p>WEB1服务端：</p>
+<ol>
+<li>挂载nfs-server端的共享目录到/var/www/html</li>
+<li>启动服务</li>
+</ol>
+<p>[root@web1 ~]# ls /var/www/html/<br>[root@web1 ~]# mount -t nfs 10.1.1.2:/share/web /var/www/html<br>[root@web1 ~]# df -h<br>Filesystem                      Size  Used Avail Use% Mounted on<br>/dev/mapper/vg_misshou-lv_root   18G  4.2G   13G  26% /<br>tmpfs                           491M   76K  491M   1% /dev/shm<br>/dev/sda1                       485M   35M  426M   8% /boot<br>/dev/sr0                        4.2G  4.2G     0 100% /media/CentOS_6.5_Final<br>192.168.2.103:/share/nfs              18G  4.4G   13G  27% /u01<br>192.168.2.103:/share/web              18G  4.4G   13G  27% /var/www/html<br>[root@web1 ~]# ls /var/www/html/<br>index.html<br>[root@web1 ~]# service httpd start<br>Starting httpd: httpd: apr_sockaddr_info_get() failed for web1<br>httpd: Could not reliably determine the server’s fully qualified domain name, using 127.0.0.1 for ServerName</p>
+<p>​                                                                                                                           [  OK  ]</p>
+<p>WEB2服务端：</p>
+<ol>
+<li>挂载nfs-server端的共享目录到/var/www/html</li>
+<li>启动服务</li>
+</ol>
+<p>测试验证：</p>
+<p>windows：<br>IE：<br><a href="http://10.1.1.3" target="_blank" rel="noopener">http://10.1.1.3</a><br><a href="http://10.1.1.3" target="_blank" rel="noopener">http://10.1.1.3</a><br>结果：可以看到相同的页面</p>
+
+        
+    </section>
+</article>
+
+
+
+<div class="comments">
+    <div id="comments"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+    new Gitalk({
+        clientID: "7fbe80427f54741e289f",
+        clientSecret: "f34ed5fd92e54c9000bd37ba951948cb939deff5",
+        repo: "sanonz.github.io",
+        owner: "sanonz",
+        admin: ["kenneth"],
+        id: "2018/06/25/NFS服务",
+        distractionFreeMode: true,
+        title: "NFS服务",
+        body: "http://kenneth96.coding.me/2018/06/25/NFS服务/",
+        labels: ["nfs"]
+    }).render('comments');
+    </script>
+</div>
+
+</div>
+        <footer class="footer">
+    Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+
+    
+        &ensp;
+        <span id="cnzz_stat_icon_1234567890" class="vm"></span>
+        <script src="//s13.cnzz.com/stat.php?id=1234567890&show=pic" type="text/javascript"></script>
+    
+</footer>
+
+    </main>
+
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/1.9.0/jquery.min.js"></script>
+    <script type="text/javascript">
+    $(function() {
+        var nodes = {
+            nav: $('#nav'),
+            aside: $('#aside'),
+            asideInner: $('#aside-inner'),
+            navInner: $('#nav-inner')
+        };
+
+        var doing = false;
+        nodes.asideInner.on('webkitAnimationEnd mozAnimationEnd oAnimationEnd oanimationend animationend', function() {
+            if (nodes.aside.hasClass('mobile-open')) {
+                nodes.aside.removeClass('mobile-open');
+            } else {
+                nodes.aside.removeClass('mobile-close panel-show');
+            }
+            doing = false;
+        });
+        $('#open-panel, #aside-mask').on('click', function() {
+            if (doing) {
+                return;
+            }
+            
+            if (nodes.aside.hasClass('panel-show')) {
+                nodes.aside.addClass('mobile-close');
+            } else {
+                nodes.aside.addClass('mobile-open panel-show');
+            }
+        });
+        $('#open-menus').on('click', function() {
+            nodes.navInner.slideToggle();
+        });
+
+        if (window.innerWidth <= 960) {
+            setTimeout(function() {
+                nodes.navInner.slideUp();
+            }, 3000);
+        }
+    });
+    </script>
+    
+        <script type="text/javascript" src="/js/scrollspy.min.js"></script>
+        <script type="text/javascript">
+        $(document.body).scrollspy({target: '#aside-inner'});
+        </script>
+    
+
+</body>
+</html>

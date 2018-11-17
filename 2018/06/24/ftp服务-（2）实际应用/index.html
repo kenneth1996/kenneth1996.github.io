@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="UTF-8">
+
+    
+
+    
+
+    <title>ftp服务-（2）实际应用 | SRE</title>
+    <meta name="author" content="John Doe">
+    <meta name="version" content="1.0.0">
+    <meta name="keywords" content="">
+    <meta name="description" content="一、ftp的基本应用基本环境：ftp-server：192.168.2.101client：192.168.2.103  1、允许匿名用户上传文件12345678将配置文件中的注释去掉[root@ftp-server ~]# cd /etc/vsftpd/[root@ftp-server vsftpd]# mv vsftpd.conf vsftpd.conf.bck[root@ftp-server vsftpd]# grep -v ^# vsftpd.conf.bck &amp;gt; vs...">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+
+    
+    <link rel="alternate" href="/atom.xml" title="SRE" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/images/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+    <main class="app">
+        <header class="header clearfix">
+    <div id="nav" class="nav">
+    <div class="nav-mobile">
+        <button id="open-panel" class="open-panel nav-mobile-item"><i class="icon-documents"></i></button>
+        <h1 class="nav-mobile-title nav-mobile-item">SRE</h1>
+        <button id="open-menus" class="open-panel nav-mobile-item"><i class="icon-library"></i></button>
+    </div>
+
+    <nav id="nav-inner" class="nav-inner">
+        
+            <a class="nav-item" href="/">
+                <span class="nav-text">首页</span>
+            </a>
+        
+            <a class="nav-item" href="/categories/front-end">
+                <span class="nav-text">Linux</span>
+            </a>
+        
+            <a class="nav-item" href="/categories/back-end">
+                <span class="nav-text">Python</span>
+            </a>
+        
+            <a class="nav-item" href="/tags">
+                <span class="nav-text">标签</span>
+            </a>
+        
+            <a class="nav-item" href="/archives">
+                <span class="nav-text">归档</span>
+            </a>
+        
+            <a class="nav-item" href="/about">
+                <span class="nav-text">关于</span>
+            </a>
+        
+    </nav>
+</div>
+
+    <aside id="aside" class="aside">
+    <div id="aside-mask" class="aside-mask"></div>
+    <div id="aside-inner" class="aside-inner">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit"><i class="icon-search-stroke"></i></button><input type="hidden" name="sitesearch" value="http://kenneth96.coding.me"></form>
+
+        
+        
+        
+        
+
+        
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#一、ftp的基本应用"><span class="toc-number">1.</span> <span class="toc-text">一、ftp的基本应用</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1、允许匿名用户上传文件"><span class="toc-number">1.1.</span> <span class="toc-text">1、允许匿名用户上传文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2、下载其他匿名用户上传的文件"><span class="toc-number">1.2.</span> <span class="toc-text">2、下载其他匿名用户上传的文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3、开启本地用户消息功能"><span class="toc-number">1.3.</span> <span class="toc-text">3、开启本地用户消息功能</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4、禁锢本地用户的家，只能在自己的家目录中活动"><span class="toc-number">1.4.</span> <span class="toc-text">4、禁锢本地用户的家，只能在自己的家目录中活动</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5、指定匿名用户和本地用户上传文件的目录"><span class="toc-number">1.5.</span> <span class="toc-text">5、指定匿名用户和本地用户上传文件的目录</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#二、FTP服务的访问控制"><span class="toc-number">2.</span> <span class="toc-text">二、FTP服务的访问控制</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1、FTP服务的自身访问控制-对象访问控制"><span class="toc-number">2.1.</span> <span class="toc-text">1、FTP服务的自身访问控制(对象访问控制)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2、FTP服务的网络访问控制"><span class="toc-number">2.2.</span> <span class="toc-text">2、FTP服务的网络访问控制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3、应用案例"><span class="toc-number">2.3.</span> <span class="toc-text">3、应用案例</span></a></li></ol></li></ol>
+        
+    </div>
+</aside>
+
+</header>
+
+        <div id="content" class="content"><article class="article" itemscope="" itemprop="blogPost">
+    
+    <header class="article-header">
+        
+        <h1 itemprop="name">
+            ftp服务-（2）实际应用
+        </h1>
+        
+        <div class="article-meta clearfix">
+            <a class="article-date" href="http://kenneth96.coding.me/2018/06/24/ftp服务-（2）实际应用/index.html">
+    
+    <i class="icon-calendar"></i>
+    
+    <time datetime="2018-06-24T13:22:30.000Z" itemprop="datePublished">2018-06-24</time>
+</a>
+
+            
+<div class="article-tag-list">
+    <i class="icon-tag"></i>
+    <a class="article-tag-link" href="/tags/ftp/">ftp</a>
+</div>
+
+
+        </div>
+    </header>
+    
+    <section class="article-body markdown-body">
+        
+        <h3 id="一、ftp的基本应用"><a href="#一、ftp的基本应用" class="headerlink" title="一、ftp的基本应用"></a>一、ftp的基本应用</h3><p>基本环境：</p>
+<p>ftp-server：192.168.2.101</p>
+<p>client：192.168.2.103  </p>
+<h4 id="1、允许匿名用户上传文件"><a href="#1、允许匿名用户上传文件" class="headerlink" title="1、允许匿名用户上传文件"></a>1、允许匿名用户上传文件</h4><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">将配置文件中的注释去掉</span><br><span class="line">[root@ftp-server ~]<span class="comment"># cd /etc/vsftpd/</span></span><br><span class="line">[root@ftp-server vsftpd]<span class="comment"># mv vsftpd.conf vsftpd.conf.bck</span></span><br><span class="line">[root@ftp-server vsftpd]<span class="comment"># grep -v ^# vsftpd.conf.bck &gt; vsftpd.conf </span></span><br><span class="line">在vsftpd.conf中加入以下三行开启匿名用户权限</span><br><span class="line">anon_upload_enable=YES</span><br><span class="line">anon_mkdir_write_enable=YES</span><br><span class="line">anon_other_write_enable=YES</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">在客户端验证:</span><br><span class="line">[root@client ~]<span class="comment"># lftp 192.168.2.101</span></span><br><span class="line">lftp <span class="number">192.168</span>.<span class="number">2.101</span>:/&gt; put install.log</span><br><span class="line">put: Access failed: <span class="number">553</span> Could not create file. (install.log)</span><br><span class="line">原因：匿名用户的默认数据根目录/var/ftp没有写权限</span><br><span class="line">解决：chmod o+w /var/ftp</span><br><span class="line"></span><br><span class="line">解决后遇到另外一个问题：如下</span><br><span class="line">[root@client ~]<span class="comment"># ftp 10.1.1.2</span></span><br><span class="line">Connected to <span class="number">10.1</span>.<span class="number">1.2</span> (<span class="number">10.1</span>.<span class="number">1.2</span>).</span><br><span class="line"><span class="number">220</span> (vsFTPd <span class="number">2.2</span>.<span class="number">2</span>)</span><br><span class="line">Name (<span class="number">10.1</span>.<span class="number">1.2</span>:root): ftp</span><br><span class="line"><span class="number">331</span> Please specify the password.</span><br><span class="line">Password:</span><br><span class="line"><span class="number">500</span> OOPS: vsftpd: refusing to run with writable anonymous root</span><br><span class="line">Login failed.</span><br><span class="line">ftp&gt; <span class="keyword">exit</span></span><br><span class="line">[root@client ~]<span class="comment"># lftp 10.1.1.2</span></span><br><span class="line">lftp <span class="number">10.1</span>.<span class="number">1.2</span>:~&gt; ls</span><br><span class="line">ls: Login failed: <span class="number">500</span> OOPS: vsftpd: refusing to run with writable anonymous root</span><br><span class="line">lftp <span class="number">10.1</span>.<span class="number">1.2</span>:~&gt; <span class="keyword">exit</span></span><br><span class="line"></span><br><span class="line">原因：/var/ftp数据目录权限太大</span><br><span class="line">解决：chmod o-w</span><br></pre></td></tr></table></figure>
+<p>最终想让匿名用户上传文件的解决办法是：<br>  1.在/var/ftp目录里自己创建一个数据目录或者直接将匿名用户的数据上传到pub目录<br>  2.将/var/ftp/pub目录权限给o+w 或者777</p>
+<p>此时匿名用户在pub目录无法进行下载</p>
+<h4 id="2、下载其他匿名用户上传的文件"><a href="#2、下载其他匿名用户上传的文件" class="headerlink" title="2、下载其他匿名用户上传的文件"></a>2、下载其他匿名用户上传的文件</h4><p>为什么匿名用户此时无法在pub目录进行下载呢？因为ftp服务有一个参数，anon_umask，默认值是077，如果你匿名账户上传一个文件，文件权限默认是666-077=600 rw- — — ，文件下默认是777-077=700 rwx — —，所以其他匿名用户没有进行下载的权限。</p>
+<p>只要将anon_umask=022添加到配置文件即可</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@ftp-server ~]<span class="comment"># echo "anon_umask=022" &gt;&gt; /etc/vsftpd/vsftpd.conf</span></span><br><span class="line">[root@ftp-server ~]<span class="comment"># service vsftpd restart</span></span><br></pre></td></tr></table></figure>
+<p>客户端验证：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">lftp <span class="number">192.168</span>.<span class="number">2.101</span>:/pub&gt; put install.log</span><br><span class="line"><span class="number">14197</span> bytes transferred</span><br><span class="line">lftp <span class="number">192.168</span>.<span class="number">2.101</span>:/pub&gt; ls</span><br><span class="line">-rw-------    <span class="number">1</span> <span class="number">14</span>       <span class="number">50</span>          <span class="number">14197</span> Jun <span class="number">24</span> <span class="number">18</span>:<span class="number">54</span> <span class="number">1</span>.txt</span><br><span class="line">-rw-r--r--    <span class="number">1</span> <span class="number">14</span>       <span class="number">50</span>          <span class="number">14197</span> Jun <span class="number">24</span> <span class="number">19</span>:<span class="number">26</span> install.log</span><br><span class="line">更改完anon_umask后，匿名用户上传的文件权限就变成了<span class="number">644</span>，其他人就可以下载文件了</span><br></pre></td></tr></table></figure>
+<h4 id="3、开启本地用户消息功能"><a href="#3、开启本地用户消息功能" class="headerlink" title="3、开启本地用户消息功能"></a>3、开启本地用户消息功能</h4><blockquote>
+<p>本地用户访问——&gt;/home/username</p>
+</blockquote>
+<p>[root@ftp-server ~]# echo “welcome to my home” &gt; /home/stu1/.message</p>
+<blockquote>
+<p>匿名用户访问——&gt;/var/ftp</p>
+</blockquote>
+<p>[root@ftp-server ~]# echo “welcome to anon home” &gt; /var/ftp/.message</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">测试验证：</span><br><span class="line">[root@client ~]<span class="comment"># ftp 192.168.2.101</span></span><br><span class="line">Connected to <span class="number">192.168</span>.<span class="number">2.101</span> (<span class="number">192.168</span>.<span class="number">2.101</span>).</span><br><span class="line"><span class="number">220</span> (vsFTPd <span class="number">2.2</span>.<span class="number">2</span>)</span><br><span class="line">Name (<span class="number">192.168</span>.<span class="number">2.101</span>:root): stu1</span><br><span class="line"><span class="number">331</span> Please specify the password.</span><br><span class="line">Password:</span><br><span class="line"><span class="number">230</span>-welcome to my home</span><br><span class="line"><span class="number">230</span> Login successful.</span><br><span class="line">Remote system type is UNIX.</span><br><span class="line">Using binary mode to transfer files.</span><br><span class="line">ftp&gt; <span class="keyword">exit</span></span><br><span class="line"><span class="number">221</span> Goodbye.</span><br><span class="line">[root@client ~]<span class="comment"># ftp 192.168.2.101</span></span><br><span class="line">Connected to <span class="number">192.168</span>.<span class="number">2.101</span> (<span class="number">192.168</span>.<span class="number">2.101</span>).</span><br><span class="line"><span class="number">220</span> (vsFTPd <span class="number">2.2</span>.<span class="number">2</span>)</span><br><span class="line">Name (<span class="number">192.168</span>.<span class="number">2.101</span>:root): ftp</span><br><span class="line"><span class="number">331</span> Please specify the password.</span><br><span class="line">Password:</span><br><span class="line"><span class="number">230</span>-welcome to anon home</span><br><span class="line"><span class="number">230</span> Login successful.</span><br><span class="line">Remote system type is UNIX.</span><br><span class="line">Using binary mode to transfer files.</span><br><span class="line">ftp&gt;</span><br></pre></td></tr></table></figure>
+<p>另一种方法：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>. 修改配置文件指定消息文件</span><br><span class="line">banner_file=/etc/vsftpd/banner_file</span><br><span class="line"><span class="number">2</span>. 创建消息文件</span><br><span class="line">vim /etc/vsftpd/banner_file</span><br></pre></td></tr></table></figure>
+<h4 id="4、禁锢本地用户的家，只能在自己的家目录中活动"><a href="#4、禁锢本地用户的家，只能在自己的家目录中活动" class="headerlink" title="4、禁锢本地用户的家，只能在自己的家目录中活动"></a>4、禁锢本地用户的家，只能在自己的家目录中活动</h4><blockquote>
+<p>禁锢所有的本地用户</p>
+</blockquote>
+<p>chroot_local_user=YES    //禁锢所有的本地用户（不能随便跳转）</p>
+<blockquote>
+<p>禁锢大部分用户，允许小部分</p>
+</blockquote>
+<p>chroot_local_user=YES</p>
+<p>chroot_list_enable=YES    //启用用户文件列表</p>
+<p>chroot_list_file=/etc/vsftpd/chroot_list    //定义用户文件列表</p>
+<blockquote>
+<p>允许大部分，禁锢小部分</p>
+</blockquote>
+<p>chroot_local_user=NO 或者 # chroot_local_user=YES</p>
+<p>chroot_list_enable=YES    //启用用户文件列表</p>
+<p>chroot_list_file=/etc/vsftpd/chroot_list    //定义用户文件列表</p>
+<h4 id="5、指定匿名用户和本地用户上传文件的目录"><a href="#5、指定匿名用户和本地用户上传文件的目录" class="headerlink" title="5、指定匿名用户和本地用户上传文件的目录"></a>5、指定匿名用户和本地用户上传文件的目录</h4><blockquote>
+<p>允许匿名用户上传文件，并且可以下载其他用户上传的文件</p>
+</blockquote>
+<p>anon_upload_enable=YES</p>
+<p>anon_umask=022</p>
+<blockquote>
+<p>匿名用户上传的文件都保存在/anon/data里</p>
+</blockquote>
+<p>默认：/var/ftp</p>
+<p>[root@ftp-server ~]# mkdir /anon/data -p<br>[root@ftp-server ~]# echo “anon_root=/anon” &gt;&gt; /etc/vsftpd/vsftpd.conf<br>[root@ftp-server ~]# chmod o+w /anon/data</p>
+<blockquote>
+<p>本地用户上传的文件都保存到/local/data里</p>
+</blockquote>
+<p>默认：/home/username<br>[root@ftp-server ~]# mkdir /local/data -p<br>[root@ftp-server ~]# echo “local_root=/local/data” &gt;&gt;        /etc/vsftpd/vsftpd.conf</p>
+<blockquote>
+<p>禁锢所有用户的家，不能来回跳转</p>
+</blockquote>
+<p>chroot_local_user=YES</p>
+<h3 id="二、FTP服务的访问控制"><a href="#二、FTP服务的访问控制" class="headerlink" title="二、FTP服务的访问控制"></a>二、FTP服务的访问控制</h3><h4 id="1、FTP服务的自身访问控制-对象访问控制"><a href="#1、FTP服务的自身访问控制-对象访问控制" class="headerlink" title="1、FTP服务的自身访问控制(对象访问控制)"></a>1、FTP服务的自身访问控制(对象访问控制)</h4><p>ftpusers        黑名单    </p>
+<p>user_list        默认是黑名单（可以成为白名单）</p>
+<p>需求1：不允许stu1用户访问ftp服务</p>
+<p>echo stu1 &gt;&gt; /etc/vsftpd/ftpusers</p>
+<p>需求2：只允许stu2用户访问ftp服务</p>
+<p>1）修改配置文件将user_list文件变成白名单</p>
+<p>userlist_deny=NO</p>
+<p>2）将stu2用户加入到user_list文件中</p>
+<p>echo stu2 &gt;&gt; user_list</p>
+<p>总结：</p>
+<ol>
+<li>用户在ftpusers文件中，那么用户不能访问ftp服务器</li>
+<li>用户在user_list文件中，如果该文件是白名单，那么<strong>只</strong>在该文件中的用户可以访问ftp服务</li>
+<li>如果user_list文件是白名单，用户即在ftpusers中又在user_list中，那么ftpusers拒绝优先</li>
+</ol>
+<h4 id="2、FTP服务的网络访问控制"><a href="#2、FTP服务的网络访问控制" class="headerlink" title="2、FTP服务的网络访问控制"></a>2、FTP服务的网络访问控制</h4><p>支持tcp_wrappers</p>
+<p>/etc/hosts.allow  白名单</p>
+<p>/etc/hosts.deny 黑名单</p>
+<p>写法：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">/etc/hosts.deny</span><br><span class="line">vsftpd:all                        全部拒绝</span><br><span class="line">vsftpd:all  EXCEPT <span class="number">192.168</span>.<span class="number">0.2</span>    拒绝所有除了<span class="number">192.168</span>.<span class="number">0.2</span>  </span><br><span class="line">vsftpd:<span class="number">192.168</span>.<span class="number">0.254</span>      拒绝单个ip地址=hosts.allow文件里增加vsftpd:<span class="number">192.168</span>.<span class="number">0.254</span>:deny</span><br><span class="line">vsftpd:<span class="number">192.168</span>.<span class="number">0.0</span>/<span class="number">255.255</span>.<span class="number">255.0</span>   拒绝某个网段</span><br><span class="line">vsftpd:<span class="number">192.168</span>.<span class="number">0.0</span>/<span class="number">255.255</span>.<span class="number">255.0</span> EXCEPT <span class="number">192.168</span>.<span class="number">0.254</span>   拒绝某个网段，但是除了某个ip地址</span><br><span class="line">注意：子网掩码不支持<span class="number">192.168</span>.<span class="number">0.0</span>/<span class="number">24</span>这种写法</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>总结：FTP访问控制</p>
+</blockquote>
+<p>1、对象的访问控制（用户）</p>
+<p>ftpusers 和 user_list</p>
+<p>2、网络访问控制<br>tcp_wrappers工具——&gt;/etc/hosts.allow和/etc/hosts.deny<br>托管给xinetd服务去管理</p>
+<h4 id="3、应用案例"><a href="#3、应用案例" class="headerlink" title="3、应用案例"></a>3、应用案例</h4><blockquote>
+<p>匿名用户可以到/anon/data目录里上传下载文件，同时也可以下载其他人所上传的文件</p>
+</blockquote>
+<p>mkdir /anon/data -p</p>
+<p>anon_root=/anon</p>
+<p>anon_upload_enable=YES</p>
+<p>anon_umask=022</p>
+<p>chmod o+w /anon/data</p>
+<blockquote>
+<p>客户端可以使用zhangsan（自己名字），访问你的ftp服务器，但是不能登录ftp服务器的操作系统，并且只能在自己的家目录中活动</p>
+</blockquote>
+<p>FTP的server端创建用户zhangsan</p>
+<p>useradd -s /sbin/nologin zhangsan</p>
+<p>chroot_local_user=YES</p>
+<p>或者</p>
+<p>chroot_local_user=NO</p>
+<p>chroot_list_enable=YES</p>
+<p>chroot_list_file=/etc/vsftpd/chroot_list</p>
+<p>echo zhangsan &gt;&gt; /etc/vsftpd/chroot_list</p>
+<blockquote>
+<p>固定服务器端被动模式下的端口号范围为2000~2050</p>
+</blockquote>
+<p>pasv_max_port=2050</p>
+<p>pasv_min_port=2000</p>
+<blockquote>
+<p>限制匿名用户下载文件的速率为500kbps，最大连接数为10个</p>
+</blockquote>
+<p>anon_max_rate=500000</p>
+<p>max_clients=10</p>
+<p>FTP还能做成基于IP的虚拟主机和基于端口的虚拟主机，详情请查阅</p>
+<p>/usr/share/doc/vsftpd-2.2.2/EXAMPLE/VIRTUAL_HOSTS/README</p>
+
+        
+    </section>
+</article>
+
+
+
+<div class="comments">
+    <div id="comments"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+    new Gitalk({
+        clientID: "7fbe80427f54741e289f",
+        clientSecret: "f34ed5fd92e54c9000bd37ba951948cb939deff5",
+        repo: "sanonz.github.io",
+        owner: "sanonz",
+        admin: ["kenneth"],
+        id: "2018/06/24/ftp服务-（2）实际应用",
+        distractionFreeMode: true,
+        title: "ftp服务-（2）实际应用",
+        body: "http://kenneth96.coding.me/2018/06/24/ftp服务-（2）实际应用/",
+        labels: ["ftp"]
+    }).render('comments');
+    </script>
+</div>
+
+</div>
+        <footer class="footer">
+    Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+
+    
+        &ensp;
+        <span id="cnzz_stat_icon_1234567890" class="vm"></span>
+        <script src="//s13.cnzz.com/stat.php?id=1234567890&show=pic" type="text/javascript"></script>
+    
+</footer>
+
+    </main>
+
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/1.9.0/jquery.min.js"></script>
+    <script type="text/javascript">
+    $(function() {
+        var nodes = {
+            nav: $('#nav'),
+            aside: $('#aside'),
+            asideInner: $('#aside-inner'),
+            navInner: $('#nav-inner')
+        };
+
+        var doing = false;
+        nodes.asideInner.on('webkitAnimationEnd mozAnimationEnd oAnimationEnd oanimationend animationend', function() {
+            if (nodes.aside.hasClass('mobile-open')) {
+                nodes.aside.removeClass('mobile-open');
+            } else {
+                nodes.aside.removeClass('mobile-close panel-show');
+            }
+            doing = false;
+        });
+        $('#open-panel, #aside-mask').on('click', function() {
+            if (doing) {
+                return;
+            }
+            
+            if (nodes.aside.hasClass('panel-show')) {
+                nodes.aside.addClass('mobile-close');
+            } else {
+                nodes.aside.addClass('mobile-open panel-show');
+            }
+        });
+        $('#open-menus').on('click', function() {
+            nodes.navInner.slideToggle();
+        });
+
+        if (window.innerWidth <= 960) {
+            setTimeout(function() {
+                nodes.navInner.slideUp();
+            }, 3000);
+        }
+    });
+    </script>
+    
+        <script type="text/javascript" src="/js/scrollspy.min.js"></script>
+        <script type="text/javascript">
+        $(document.body).scrollspy({target: '#aside-inner'});
+        </script>
+    
+
+</body>
+</html>

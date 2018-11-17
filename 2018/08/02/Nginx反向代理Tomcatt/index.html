@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="UTF-8">
+
+    
+
+    
+
+    <title>轻量级服务器Nginx（上） | SRE</title>
+    <meta name="author" content="John Doe">
+    <meta name="version" content="1.0.0">
+    <meta name="keywords" content="">
+    <meta name="description" content="一、Nginx介绍1、Nginx作用网站应用门户网站、电商、社交1)   web服务器软件 httpd 同类的web服务器软件：apache nginx(俄罗斯) IIS(微软 fastcgi) lighttpd(德国)2)代理服务器   反向代理  3)邮箱服务器  IMAP POP34)负载均衡功能官方网址：http://nginx.org/介绍：https://baike.baidu.com/item/nginx/3817705?fr=aladdin2、网站应用常见架...">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+
+    
+    <link rel="alternate" href="/atom.xml" title="SRE" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/images/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+    <main class="app">
+        <header class="header clearfix">
+    <div id="nav" class="nav">
+    <div class="nav-mobile">
+        <button id="open-panel" class="open-panel nav-mobile-item"><i class="icon-documents"></i></button>
+        <h1 class="nav-mobile-title nav-mobile-item">SRE</h1>
+        <button id="open-menus" class="open-panel nav-mobile-item"><i class="icon-library"></i></button>
+    </div>
+
+    <nav id="nav-inner" class="nav-inner">
+        
+            <a class="nav-item" href="/">
+                <span class="nav-text">首页</span>
+            </a>
+        
+            <a class="nav-item" href="/categories/front-end">
+                <span class="nav-text">Linux</span>
+            </a>
+        
+            <a class="nav-item" href="/categories/back-end">
+                <span class="nav-text">Python</span>
+            </a>
+        
+            <a class="nav-item" href="/tags">
+                <span class="nav-text">标签</span>
+            </a>
+        
+            <a class="nav-item" href="/archives">
+                <span class="nav-text">归档</span>
+            </a>
+        
+            <a class="nav-item" href="/about">
+                <span class="nav-text">关于</span>
+            </a>
+        
+    </nav>
+</div>
+
+    <aside id="aside" class="aside">
+    <div id="aside-mask" class="aside-mask"></div>
+    <div id="aside-inner" class="aside-inner">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit"><i class="icon-search-stroke"></i></button><input type="hidden" name="sitesearch" value="http://kenneth96.coding.me"></form>
+
+        
+        
+        
+        
+
+        
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#一、Nginx介绍"><span class="toc-number">1.</span> <span class="toc-text">一、Nginx介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1、Nginx作用"><span class="toc-number">1.1.</span> <span class="toc-text">1、Nginx作用</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2、网站应用常见架构体系"><span class="toc-number">1.2.</span> <span class="toc-text">2、网站应用常见架构体系</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#二、安装和配置"><span class="toc-number">2.</span> <span class="toc-text">二、安装和配置</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1、版本控制"><span class="toc-number">2.1.</span> <span class="toc-text">1、版本控制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2、源码编译"><span class="toc-number">2.2.</span> <span class="toc-text">2、源码编译</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3、配置自启动"><span class="toc-number">2.3.</span> <span class="toc-text">3、配置自启动</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#三、配置初解"><span class="toc-number">3.</span> <span class="toc-text">三、配置初解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#四、常见使用"><span class="toc-number">4.</span> <span class="toc-text">四、常见使用</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1、基于域名的虚拟主机"><span class="toc-number">4.1.</span> <span class="toc-text">1、基于域名的虚拟主机</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2、基于端口的虚拟主机"><span class="toc-number">4.2.</span> <span class="toc-text">2、基于端口的虚拟主机</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3、客户端缓存"><span class="toc-number">4.3.</span> <span class="toc-text">3、客户端缓存</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4、Gzip压缩"><span class="toc-number">4.4.</span> <span class="toc-text">4、Gzip压缩</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5、反向代理"><span class="toc-number">4.5.</span> <span class="toc-text">5、反向代理</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#五、日志管理"><span class="toc-number">5.</span> <span class="toc-text">五、日志管理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1、访问日志"><span class="toc-number">5.1.</span> <span class="toc-text">1、访问日志</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2、错误日志"><span class="toc-number">5.2.</span> <span class="toc-text">2、错误日志</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3、基于域名进行日志分割"><span class="toc-number">5.3.</span> <span class="toc-text">3、基于域名进行日志分割</span></a></li></ol></li></ol>
+        
+    </div>
+</aside>
+
+</header>
+
+        <div id="content" class="content"><article class="article" itemscope="" itemprop="blogPost">
+    
+    <header class="article-header">
+        
+        <h1 itemprop="name">
+            轻量级服务器Nginx（上）
+        </h1>
+        
+        <div class="article-meta clearfix">
+            <a class="article-date" href="http://kenneth96.coding.me/2018/08/02/Nginx反向代理Tomcatt/index.html">
+    
+    <i class="icon-calendar"></i>
+    
+    <time datetime="2018-08-02T11:45:56.000Z" itemprop="datePublished">2018-08-02</time>
+</a>
+
+            
+<div class="article-tag-list">
+    <i class="icon-tag"></i>
+    <a class="article-tag-link" href="/tags/Nginx/">Nginx</a>
+</div>
+
+
+        </div>
+    </header>
+    
+    <section class="article-body markdown-body">
+        
+        <h3 id="一、Nginx介绍"><a href="#一、Nginx介绍" class="headerlink" title="一、Nginx介绍"></a>一、Nginx介绍</h3><h4 id="1、Nginx作用"><a href="#1、Nginx作用" class="headerlink" title="1、Nginx作用"></a>1、Nginx作用</h4><p>网站应用</p>
+<p>门户网站、电商、社交</p>
+<p>1)   web服务器软件 httpd </p>
+<p>同类的web服务器软件：apache nginx(俄罗斯) IIS(微软 fastcgi) lighttpd(德国)<br><a id="more"></a><br>2)代理服务器   反向代理  </p>
+<p>3)邮箱服务器  IMAP POP3</p>
+<p>4)负载均衡功能</p>
+<p>官方网址：<a href="http://nginx.org/" target="_blank" rel="noopener">http://nginx.org/</a></p>
+<p>介绍：<a href="https://baike.baidu.com/item/nginx/3817705?fr=aladdin" target="_blank" rel="noopener">https://baike.baidu.com/item/nginx/3817705?fr=aladdin</a></p>
+<h4 id="2、网站应用常见架构体系"><a href="#2、网站应用常见架构体系" class="headerlink" title="2、网站应用常见架构体系"></a>2、网站应用常见架构体系</h4><p>LAMP（linux+apache+mysql+php）</p>
+<p>LAMT （linxu+apache+mysql+tomcat)</p>
+<p>LNMP（linux+nginx+mysql+php) </p>
+<p>LNMT （linux+nginx+mysql+tomcat）</p>
+<blockquote>
+<p>Nginx架构的特点（好处）：</p>
+</blockquote>
+<p> ①热部署 ：可以快速重载配置</p>
+<p>②并发高：可以同时响应更多的请求  3000~5000</p>
+<p>③响应快：尤其在处理静态文件上，响应速度很快</p>
+<p>④低消耗：cpu和内存</p>
+<p>⑤分布式支持 ：反向代理  七层负载均衡</p>
+<h3 id="二、安装和配置"><a href="#二、安装和配置" class="headerlink" title="二、安装和配置"></a>二、安装和配置</h3><h4 id="1、版本控制"><a href="#1、版本控制" class="headerlink" title="1、版本控制"></a>1、版本控制</h4><table>
+<thead>
+<tr>
+<th>系统版本</th>
+<th>CentOS7.4</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>软件版本</td>
+<td>nginx-1.14.0</td>
+</tr>
+</tbody>
+</table>
+<h4 id="2、源码编译"><a href="#2、源码编译" class="headerlink" title="2、源码编译"></a>2、源码编译</h4><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">shell &gt; tar xvf nginx-<span class="number">1.14</span>.<span class="number">0</span>.tar.gz</span><br><span class="line">shell &gt; cd nginx-<span class="number">1.14</span>.<span class="number">0</span>/</span><br><span class="line">shell &gt; yum -y install gcc pcre-devel openssl-devel zlib-devel</span><br><span class="line">shell &gt; ./configure --prefix=/usr/local/nginx --with-http_ssl_module</span><br><span class="line">shell &gt; make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+<h4 id="3、配置自启动"><a href="#3、配置自启动" class="headerlink" title="3、配置自启动"></a>3、配置自启动</h4><p>编写启动脚本：vim /etc/init.d/nginx</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/bin/bash</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># chkconfig: 2345 99 20</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#description: nginx-server</span></span><br><span class="line"></span><br><span class="line">nginx=/usr/local/nginx/sbin/nginx</span><br><span class="line"></span><br><span class="line">case <span class="variable">$1</span> <span class="keyword">in</span></span><br><span class="line"></span><br><span class="line">        start)</span><br><span class="line"></span><br><span class="line">                netstat -anptu | grep nginx</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> [ $? <span class="nomarkup">-eq</span> <span class="number">0</span> ]</span><br><span class="line"></span><br><span class="line">                then</span><br><span class="line"></span><br><span class="line">                    echo <span class="string">"nginx service is already running"</span></span><br><span class="line"></span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line"></span><br><span class="line">                     echo <span class="string">"nginx Service started successfully "</span></span><br><span class="line"></span><br><span class="line">                    <span class="variable">$nginx</span></span><br><span class="line"></span><br><span class="line">                fi</span><br><span class="line"></span><br><span class="line">         ;;</span><br><span class="line"></span><br><span class="line">        stop)</span><br><span class="line"></span><br><span class="line">                <span class="variable">$nginx</span> -s stop</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> [ $? <span class="nomarkup">-eq</span> <span class="number">0</span> ]</span><br><span class="line"></span><br><span class="line">                then</span><br><span class="line"></span><br><span class="line">                    echo <span class="string">"nginx service closed successfully"</span></span><br><span class="line"></span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line"></span><br><span class="line">                    echo <span class="string">"nginx server stop fail,try again"</span></span><br><span class="line"></span><br><span class="line">                fi</span><br><span class="line"></span><br><span class="line">        ;;</span><br><span class="line"></span><br><span class="line">        status)</span><br><span class="line"></span><br><span class="line">                netstat -anlpt | grep nginx</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> [ $? <span class="nomarkup">-eq</span> <span class="number">0</span> ]</span><br><span class="line"></span><br><span class="line">                then</span><br><span class="line"></span><br><span class="line">                    echo <span class="string">"nginx server is running"</span></span><br><span class="line"></span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line"></span><br><span class="line">                    echo <span class="string">"nginx service not started "</span></span><br><span class="line"></span><br><span class="line">                fi</span><br><span class="line"></span><br><span class="line">        ;;</span><br><span class="line"></span><br><span class="line">        restart)</span><br><span class="line"></span><br><span class="line">                 <span class="variable">$nginx</span> -s reload</span><br><span class="line"></span><br><span class="line">                 <span class="keyword">if</span> [ $? <span class="nomarkup">-eq</span> <span class="number">0</span> ]</span><br><span class="line"></span><br><span class="line">                 then</span><br><span class="line"></span><br><span class="line">                     echo <span class="string">"nginx service restart successfully "</span></span><br><span class="line"></span><br><span class="line">                 <span class="keyword">else</span></span><br><span class="line"></span><br><span class="line">                     echo <span class="string">"nginx server restart failed"</span></span><br><span class="line"></span><br><span class="line">                 fi</span><br><span class="line"></span><br><span class="line">        ;;</span><br><span class="line"></span><br><span class="line">        *)</span><br><span class="line"></span><br><span class="line">                 echo <span class="string">"please enter &#123;start restart status stop&#125;"</span></span><br><span class="line"></span><br><span class="line">        ;;</span><br><span class="line"></span><br><span class="line">esac</span><br></pre></td></tr></table></figure>
+<p>配置开机自启</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">shell &gt; chkconfig nginx on</span><br><span class="line">shell &gt; chkconfig --list</span><br><span class="line">注：该输出结果只显示 SysV 服务，并不包含</span><br><span class="line">原生 systemd 服务。SysV 配置数据</span><br><span class="line">可能被原生 systemd 配置覆盖。 </span><br><span class="line"></span><br><span class="line">      要列出 systemd 服务，请执行 <span class="string">'systemctl list-unit-files'</span>。</span><br><span class="line">      查看在具体 target 启用的服务请执行</span><br><span class="line">      <span class="string">'systemctl list-dependencies [target]'</span>。</span><br><span class="line"></span><br><span class="line">netconsole     	<span class="number">0</span>:关	<span class="number">1</span>:关	<span class="number">2</span>:关	<span class="number">3</span>:关	<span class="number">4</span>:关	<span class="number">5</span>:关	<span class="number">6</span>:关</span><br><span class="line">network        	<span class="number">0</span>:关	<span class="number">1</span>:关	<span class="number">2</span>:开	<span class="number">3</span>:开	<span class="number">4</span>:开	<span class="number">5</span>:开	<span class="number">6</span>:关</span><br><span class="line">nginx          	<span class="number">0</span>:关	<span class="number">1</span>:关	<span class="number">2</span>:开	<span class="number">3</span>:开	<span class="number">4</span>:开	<span class="number">5</span>:开	<span class="number">6</span>:关</span><br><span class="line">shell&gt;service nginx start</span><br></pre></td></tr></table></figure>
+<p>此时，nginx服务器已经启动了，打开浏览器输入IP地址，看到这个页面就算部署成功</p>
+<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/nginx%E5%90%AF%E5%8A%A8%E6%88%90%E5%8A%9F.jpg?x-oss-process=style/myblog" alt="nginx启动成功"></p>
+<h3 id="三、配置初解"><a href="#三、配置初解" class="headerlink" title="三、配置初解"></a>三、配置初解</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#user  nobody;</span></span><br><span class="line">worker_processes  <span class="number">1</span>; //子进程，工作进程，和cpu核数一致，或者是它的倍数</span><br><span class="line"></span><br><span class="line"><span class="comment">#error_log  logs/error.log;</span></span><br><span class="line"><span class="comment">#error_log  logs/error.log  notice;</span></span><br><span class="line"><span class="comment">#error_log  logs/error.log  info;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#pid        logs/nginx.pid;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">events &#123;</span><br><span class="line">    worker_connections  <span class="number">1024</span>; //连接数，并发量等于进程数*连接数</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">http &#123;  //http服务协议的配置项</span><br><span class="line">    include       mime.types;</span><br><span class="line">    default_type  application/octet-stream;</span><br><span class="line"></span><br><span class="line">    <span class="comment">#log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '</span></span><br><span class="line">    <span class="comment">#                  '$status $body_bytes_sent "$http_referer" '</span></span><br><span class="line">    <span class="comment">#                  '"$http_user_agent" "$http_x_forwarded_for"'; //日志格式</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">#access_log  logs/access.log  main; //日志存储的文件及其路径</span></span><br><span class="line"></span><br><span class="line">    sendfile        on; //文件读取机制，加快速度</span><br><span class="line">    <span class="comment">#tcp_nopush     on;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">#keepalive_timeout  0;</span></span><br><span class="line">    keepalive_timeout  <span class="number">65</span>; //连接最长时间，没有特殊需求，默认即可</span><br><span class="line"></span><br><span class="line">    <span class="comment">#gzip  on;</span></span><br><span class="line"></span><br><span class="line">    server &#123; //vhost虚拟机段</span><br><span class="line">        listen       <span class="number">80</span>; //监听端口</span><br><span class="line">        server_name  localhost; //域名，别名域名</span><br><span class="line"></span><br><span class="line">        <span class="comment">#charset koi8-r;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">#access_log  logs/host.access.log  main;</span></span><br><span class="line"></span><br><span class="line">        location / &#123;</span><br><span class="line">            root   html; //默认访问跟目录</span><br><span class="line">            index  index.html index.htm; //默认索引页</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">#error_page  404              /404.html;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># redirect server error pages to the static page /50x.html</span></span><br><span class="line">        <span class="comment">#</span></span><br><span class="line">        error_page   <span class="number">500</span> <span class="number">502</span> <span class="number">503</span> <span class="number">504</span>  /<span class="number">50</span>x.html; //错误响应的静态文件页面</span><br><span class="line">        location = /<span class="number">50</span>x.html &#123;</span><br><span class="line">            root   html;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+<h3 id="四、常见使用"><a href="#四、常见使用" class="headerlink" title="四、常见使用"></a>四、常见使用</h3><h4 id="1、基于域名的虚拟主机"><a href="#1、基于域名的虚拟主机" class="headerlink" title="1、基于域名的虚拟主机"></a>1、基于域名的虚拟主机</h4><p>在生产业务环境中，一台web服务器，需要使用多个网站部署。搭建vhost虚拟机主机实现不同域名，解析绑定到不同的目录。 </p>
+<p><strong>①编辑配置文件，增加server段配置</strong> </p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    listen       <span class="number">80</span>;</span><br><span class="line">    server_name  web1.devops.com;</span><br><span class="line">    <span class="comment">#把默认目录写在外层</span></span><br><span class="line">    root html/web1;</span><br><span class="line">    location / &#123;</span><br><span class="line">        index  index.html index.htm;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p><strong>②解析host域名，建立网站目录及其文件</strong> </p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">shell &gt; cd /usr/local/nginx/html</span><br><span class="line">shell &gt; mkdir web1</span><br></pre></td></tr></table></figure>
+<p><strong>③测试</strong> </p>
+<p>配置修改之后，需要检测配置，然后重启</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">shell &gt; /usr/local/nginx/sbin/nginx -t</span><br><span class="line">shell &gt; service nginx restart</span><br></pre></td></tr></table></figure>
+<h4 id="2、基于端口的虚拟主机"><a href="#2、基于端口的虚拟主机" class="headerlink" title="2、基于端口的虚拟主机"></a>2、基于端口的虚拟主机</h4><p>默认不占用80端口，能够稍微隐秘一些</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    listen       <span class="number">8080</span>; //直接修改listen就可以了</span><br><span class="line">    server_name  web1.devops.com;</span><br><span class="line">    <span class="comment">#把默认目录写在外层</span></span><br><span class="line">    root html/web1;</span><br><span class="line">    location / &#123;</span><br><span class="line">        index  index.html index.htm;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<h4 id="3、客户端缓存"><a href="#3、客户端缓存" class="headerlink" title="3、客户端缓存"></a>3、客户端缓存</h4><p>B/S架构里  browser浏览器  就是客户端</p>
+<p>告知浏览器获取的信息是在某个区间时间段是有效的</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">location ~ \.(jpeg|jpg|png)$ &#123;</span><br><span class="line">        expires <span class="number">15</span>d;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>d day 天</p>
+<p>H  hour 小时</p>
+<h4 id="4、Gzip压缩"><a href="#4、Gzip压缩" class="headerlink" title="4、Gzip压缩"></a>4、Gzip压缩</h4><p>压缩文件大小变小了，传输更快了。目前市场上大部分浏览器是支持GZIP的。IE6以下支持不好，会出现乱码情况。</p>
+<p>配置实现：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#开启Gzip</span></span><br><span class="line">gzip  on;</span><br><span class="line"><span class="comment">#http协议版本</span></span><br><span class="line">gzip_http_version <span class="number">1.0</span>;</span><br><span class="line"><span class="comment">#禁止IE 6以下使用</span></span><br><span class="line">gzip_disable <span class="string">'MSIE [1-6]'</span>;</span><br><span class="line">gzip_types image/jpeg image/jpg;</span><br></pre></td></tr></table></figure>
+<h4 id="5、反向代理"><a href="#5、反向代理" class="headerlink" title="5、反向代理"></a>5、反向代理</h4><p>正向代理</p>
+<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/%E6%AD%A3%E5%90%91%E4%BB%A3%E7%90%86.jpg?x-oss-process=style/myblog" alt="正向代理"></p>
+<p>反向代理</p>
+<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86.jpg?x-oss-process=style/myblog" alt="反向代理"></p>
+<blockquote>
+<p>配置反向代理</p>
+</blockquote>
+<p>示例：LNMPA </p>
+<p>把php的请求转发到httpd:8080端口进行处理</p>
+<p>把nginx或者apache网站目录路径一致</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    listen       <span class="number">80</span>; </span><br><span class="line">    server_name  web1.devops.com;</span><br><span class="line">    <span class="comment">#把默认目录写在外层</span></span><br><span class="line">    root /var/www/html;</span><br><span class="line">    location / &#123;</span><br><span class="line">        index  index.html;</span><br><span class="line">    &#125;</span><br><span class="line">    location ~ \.(jpeg|jpg|png)$ &#123;</span><br><span class="line">        expires <span class="number">1</span>h;</span><br><span class="line">    &#125;</span><br><span class="line">    location ~ \.php$ &#123;</span><br><span class="line">        proxy_pass http://<span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">8080</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="五、日志管理"><a href="#五、日志管理" class="headerlink" title="五、日志管理"></a>五、日志管理</h3><p>Nginx里默认会有两种日志  access.log 访问日志  error.log 错误日志</p>
+<p>默认路径 /usr/local/nginx/logs</p>
+<h4 id="1、访问日志"><a href="#1、访问日志" class="headerlink" title="1、访问日志"></a>1、访问日志</h4><table>
+<thead>
+<tr>
+<th>$remote_addr/</th>
+<th>客户端的ip地址(代理服务器，显示代理服务ip)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>$remote_user</td>
+<td>用于记录远程客户端的用户名称（ 一般为 “-” ）</td>
+</tr>
+<tr>
+<td>$time_local</td>
+<td>用于记录访问时间和时区</td>
+</tr>
+<tr>
+<td>$request</td>
+<td>用于记录请求的url以及请求方法</td>
+</tr>
+<tr>
+<td>$status</td>
+<td>响应状态码，例如：200成功、404页面找不到等</td>
+</tr>
+<tr>
+<td>$body_bytes_sent</td>
+<td>给客户端发送的文件主体内容字节数</td>
+</tr>
+<tr>
+<td>$http_user_agent</td>
+<td>用户所使用的代理（一般为浏览器）</td>
+</tr>
+<tr>
+<td>$http_x_forwarded_for</td>
+<td>可以记录客户端IP，通过代理服务器来记录客户端的ip地址</td>
+</tr>
+<tr>
+<td>$http_referer</td>
+<td>可以记录用户是从哪个链接访问过来的</td>
+</tr>
+</tbody>
+</table>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">shell &gt; tail /usr/local/nginx/logs/access.log </span><br><span class="line"><span class="number">192.168</span>.<span class="number">2.1</span> - - [<span class="number">02</span>/Aug/<span class="number">2018</span>:<span class="number">20</span>:<span class="number">24</span>:<span class="number">44</span> +<span class="number">0800</span>] <span class="string">"GET / HTTP/1.1"</span> <span class="number">200</span> <span class="number">612</span> <span class="string">"-"</span> <span class="string">"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36"</span></span><br><span class="line"><span class="number">192.168</span>.<span class="number">2.1</span> - - [<span class="number">02</span>/Aug/<span class="number">2018</span>:<span class="number">20</span>:<span class="number">24</span>:<span class="number">45</span> +<span class="number">0800</span>] <span class="string">"GET /favicon.ico HTTP/1.1"</span> <span class="number">404</span> <span class="number">571</span> <span class="string">"http://192.168.2.104/"</span> <span class="string">"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36"</span></span><br><span class="line"><span class="number">192.168</span>.<span class="number">2.1</span> - - [<span class="number">02</span>/Aug/<span class="number">2018</span>:<span class="number">20</span>:<span class="number">33</span>:<span class="number">42</span> +<span class="number">0800</span>] <span class="string">"GET / HTTP/1.1"</span> <span class="number">304</span> <span class="number">0</span> <span class="string">"-"</span> <span class="string">"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36"</span></span><br><span class="line"><span class="number">192.168</span>.<span class="number">2.1</span> - - [<span class="number">02</span>/Aug/<span class="number">2018</span>:<span class="number">21</span>:<span class="number">17</span>:<span class="number">55</span> +<span class="number">0800</span>] <span class="string">"GET / HTTP/1.1"</span> <span class="number">304</span> <span class="number">0</span> <span class="string">"-"</span> <span class="string">"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36"</span></span><br><span class="line"><span class="number">192.168</span>.<span class="number">2.1</span> - - [<span class="number">02</span>/Aug/<span class="number">2018</span>:<span class="number">22</span>:<span class="number">16</span>:<span class="number">32</span> +<span class="number">0800</span>] <span class="string">"GET / HTTP/1.1"</span> <span class="number">304</span> <span class="number">0</span> <span class="string">"-"</span> <span class="string">"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36"</span></span><br></pre></td></tr></table></figure>
+<h4 id="2、错误日志"><a href="#2、错误日志" class="headerlink" title="2、错误日志"></a>2、错误日志</h4><p>默认记录配置启动错误信息和访问请求错误信息</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">shell &gt; tail /usr/local/nginx/logs/error.log </span><br><span class="line"><span class="number">2018</span>/<span class="number">08</span>/<span class="number">02</span> <span class="number">20</span>:<span class="number">24</span>:<span class="number">45</span> [error] <span class="number">66149</span><span class="comment">#0: *1 open() "/usr/local/nginx/html/favicon.ico" failed (2: No such file or directory), client: 192.168.2.1, server: localhost, request: "GET /favicon.ico HTTP/1.1", host: "192.168.2.104", referrer: "http://192.168.2.104/"</span></span><br></pre></td></tr></table></figure>
+<h4 id="3、基于域名进行日志分割"><a href="#3、基于域名进行日志分割" class="headerlink" title="3、基于域名进行日志分割"></a>3、基于域名进行日志分割</h4><p>最小化  把所以删除，单独配置一个 </p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">http &#123;</span><br><span class="line">    include       mime.types;</span><br><span class="line">    default_type  application/octet-stream;</span><br><span class="line">    <span class="comment">#开启格式</span></span><br><span class="line">    log_format  main  <span class="string">'$remote_addr - $remote_user [$time_local] "$request" '</span></span><br><span class="line">                      <span class="string">'$status $body_bytes_sent "$http_referer" '</span></span><br><span class="line">                      <span class="string">'"$http_user_agent" "$http_x_forwarded_for"'</span>;</span><br></pre></td></tr></table></figure>
+<p>设置存储路径和格式，main继承上面的</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    listen       <span class="number">80</span>;</span><br><span class="line">    server_name  localhost;</span><br><span class="line"></span><br><span class="line">    <span class="comment">#charset koi8-r;</span></span><br><span class="line"></span><br><span class="line">    access_log  logs/host.access.log  main;</span><br><span class="line"></span><br><span class="line">    location / &#123;</span><br><span class="line">        root   html;</span><br><span class="line">        index  index.html index.htm;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+        
+    </section>
+</article>
+
+
+
+<div class="comments">
+    <div id="comments"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+    new Gitalk({
+        clientID: "7fbe80427f54741e289f",
+        clientSecret: "f34ed5fd92e54c9000bd37ba951948cb939deff5",
+        repo: "sanonz.github.io",
+        owner: "sanonz",
+        admin: ["kenneth"],
+        id: "2018/08/02/Nginx反向代理Tomcatt",
+        distractionFreeMode: true,
+        title: "轻量级服务器Nginx（上）",
+        body: "http://kenneth96.coding.me/2018/08/02/Nginx反向代理Tomcatt/",
+        labels: ["Nginx"]
+    }).render('comments');
+    </script>
+</div>
+
+</div>
+        <footer class="footer">
+    Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+
+    
+        &ensp;
+        <span id="cnzz_stat_icon_1234567890" class="vm"></span>
+        <script src="//s13.cnzz.com/stat.php?id=1234567890&show=pic" type="text/javascript"></script>
+    
+</footer>
+
+    </main>
+
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/1.9.0/jquery.min.js"></script>
+    <script type="text/javascript">
+    $(function() {
+        var nodes = {
+            nav: $('#nav'),
+            aside: $('#aside'),
+            asideInner: $('#aside-inner'),
+            navInner: $('#nav-inner')
+        };
+
+        var doing = false;
+        nodes.asideInner.on('webkitAnimationEnd mozAnimationEnd oAnimationEnd oanimationend animationend', function() {
+            if (nodes.aside.hasClass('mobile-open')) {
+                nodes.aside.removeClass('mobile-open');
+            } else {
+                nodes.aside.removeClass('mobile-close panel-show');
+            }
+            doing = false;
+        });
+        $('#open-panel, #aside-mask').on('click', function() {
+            if (doing) {
+                return;
+            }
+            
+            if (nodes.aside.hasClass('panel-show')) {
+                nodes.aside.addClass('mobile-close');
+            } else {
+                nodes.aside.addClass('mobile-open panel-show');
+            }
+        });
+        $('#open-menus').on('click', function() {
+            nodes.navInner.slideToggle();
+        });
+
+        if (window.innerWidth <= 960) {
+            setTimeout(function() {
+                nodes.navInner.slideUp();
+            }, 3000);
+        }
+    });
+    </script>
+    
+        <script type="text/javascript" src="/js/scrollspy.min.js"></script>
+        <script type="text/javascript">
+        $(document.body).scrollspy({target: '#aside-inner'});
+        </script>
+    
+
+</body>
+</html>

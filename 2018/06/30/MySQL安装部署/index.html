@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="UTF-8">
+
+    
+
+    
+
+    <title>MySQL安装部署 | SRE</title>
+    <meta name="author" content="John Doe">
+    <meta name="version" content="1.0.0">
+    <meta name="keywords" content="">
+    <meta name="description" content="一、关于数据库1、什么是数据库如果一个项目是动态（内容会变化的，网页后缀.jsp、.php、.shtml等）内容的话，则数据库是必不可少的一个环节。2、MySQL简介MySQL是一个关系型数据库管理系统，由瑞典MySQL AB 公司开发，2008年被Sun公司收购，目前属于 Oracle 旗下产品。MySQL 是最流行的数据库管理系统之一，在 WEB 应用方面，MySQL是最好的 RDBMS (Relational Database Management System，关系数据库管理系...">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+
+    
+    <link rel="alternate" href="/atom.xml" title="SRE" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/images/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+    <main class="app">
+        <header class="header clearfix">
+    <div id="nav" class="nav">
+    <div class="nav-mobile">
+        <button id="open-panel" class="open-panel nav-mobile-item"><i class="icon-documents"></i></button>
+        <h1 class="nav-mobile-title nav-mobile-item">SRE</h1>
+        <button id="open-menus" class="open-panel nav-mobile-item"><i class="icon-library"></i></button>
+    </div>
+
+    <nav id="nav-inner" class="nav-inner">
+        
+            <a class="nav-item" href="/">
+                <span class="nav-text">首页</span>
+            </a>
+        
+            <a class="nav-item" href="/categories/front-end">
+                <span class="nav-text">Linux</span>
+            </a>
+        
+            <a class="nav-item" href="/categories/back-end">
+                <span class="nav-text">Python</span>
+            </a>
+        
+            <a class="nav-item" href="/tags">
+                <span class="nav-text">标签</span>
+            </a>
+        
+            <a class="nav-item" href="/archives">
+                <span class="nav-text">归档</span>
+            </a>
+        
+            <a class="nav-item" href="/about">
+                <span class="nav-text">关于</span>
+            </a>
+        
+    </nav>
+</div>
+
+    <aside id="aside" class="aside">
+    <div id="aside-mask" class="aside-mask"></div>
+    <div id="aside-inner" class="aside-inner">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit"><i class="icon-search-stroke"></i></button><input type="hidden" name="sitesearch" value="http://kenneth96.coding.me"></form>
+
+        
+        
+        
+        
+
+        
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#一、关于数据库"><span class="toc-number">1.</span> <span class="toc-text">一、关于数据库</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1、什么是数据库"><span class="toc-number">1.1.</span> <span class="toc-text">1、什么是数据库</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2、MySQL简介"><span class="toc-number">1.2.</span> <span class="toc-text">2、MySQL简介</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3、常见的其他数据库软件"><span class="toc-number">1.3.</span> <span class="toc-text">3、常见的其他数据库软件</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#二、源码编译MySQL"><span class="toc-number">2.</span> <span class="toc-text">二、源码编译MySQL</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1、下载"><span class="toc-number">2.1.</span> <span class="toc-text">1、下载</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2、安装"><span class="toc-number">2.2.</span> <span class="toc-text">2、安装</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#①版本控制"><span class="toc-number">2.2.1.</span> <span class="toc-text">①版本控制</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#②创建MySQL用户跟组"><span class="toc-number">2.2.2.</span> <span class="toc-text">②创建MySQL用户跟组</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#③解压并进行编译"><span class="toc-number">2.2.3.</span> <span class="toc-text">③解压并进行编译</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3、配置"><span class="toc-number">2.3.</span> <span class="toc-text">3、配置</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#①更改用户跟组"><span class="toc-number">2.3.1.</span> <span class="toc-text">①更改用户跟组</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#②复制配置文件"><span class="toc-number">2.3.2.</span> <span class="toc-text">②复制配置文件</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#③初始化数据库"><span class="toc-number">2.3.3.</span> <span class="toc-text">③初始化数据库</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#④添加启动服务"><span class="toc-number">2.3.4.</span> <span class="toc-text">④添加启动服务</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#⑤添加环境变量（mysql命令可直接使用）"><span class="toc-number">2.3.5.</span> <span class="toc-text">⑤添加环境变量（mysql命令可直接使用）</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#⑥处理匿名登录和无密码问题"><span class="toc-number">2.3.6.</span> <span class="toc-text">⑥处理匿名登录和无密码问题</span></a></li></ol></li></ol></li></ol>
+        
+    </div>
+</aside>
+
+</header>
+
+        <div id="content" class="content"><article class="article" itemscope="" itemprop="blogPost">
+    
+    <header class="article-header">
+        
+        <h1 itemprop="name">
+            MySQL安装部署
+        </h1>
+        
+        <div class="article-meta clearfix">
+            <a class="article-date" href="http://kenneth96.coding.me/2018/06/30/MySQL安装部署/index.html">
+    
+    <i class="icon-calendar"></i>
+    
+    <time datetime="2018-06-30T10:37:08.000Z" itemprop="datePublished">2018-06-30</time>
+</a>
+
+            
+<div class="article-tag-list">
+    <i class="icon-tag"></i>
+    <a class="article-tag-link" href="/tags/MySQL/">MySQL</a>
+</div>
+
+
+        </div>
+    </header>
+    
+    <section class="article-body markdown-body">
+        
+        <h3 id="一、关于数据库"><a href="#一、关于数据库" class="headerlink" title="一、关于数据库"></a>一、关于数据库</h3><h4 id="1、什么是数据库"><a href="#1、什么是数据库" class="headerlink" title="1、什么是数据库"></a>1、什么是数据库</h4><p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/mysql1.jpg?x-oss-process=style/myblog" alt="数据库原理"></p>
+<p>如果一个项目是<strong>动态</strong>（内容会变化的，网页后缀.jsp、.php、.shtml等）内容的话，则数据库是必不可少的一个环节。<br><a id="more"></a></p>
+<h4 id="2、MySQL简介"><a href="#2、MySQL简介" class="headerlink" title="2、MySQL简介"></a>2、MySQL简介</h4><p>MySQL是一个关系型<strong>数据库管理系统</strong>，由瑞典MySQL AB 公司开发，2008年被Sun公司收购，目前属于 Oracle 旗下产品。MySQL 是<strong>最流行的数据库管理系统之一</strong>，在 WEB 应用方面，MySQL是<strong>最好的 </strong>RDBMS (Relational Database Management System，关系数据库管理系统) 应用软件。其和php是黄金搭档（LAMP/LNMP）。</p>
+<h4 id="3、常见的其他数据库软件"><a href="#3、常见的其他数据库软件" class="headerlink" title="3、常见的其他数据库软件"></a>3、常见的其他数据库软件</h4><p>目前市场上还有：Oracle（重量级的数据库）、MS SQL Server（微软）、Access（微软）、PostgreSQL、DB2、Mariadb（MySQL分支，完全兼容MySQL）。</p>
+<h3 id="二、源码编译MySQL"><a href="#二、源码编译MySQL" class="headerlink" title="二、源码编译MySQL"></a>二、源码编译MySQL</h3><h4 id="1、下载"><a href="#1、下载" class="headerlink" title="1、下载"></a>1、下载</h4><p>官方下载地址：</p>
+<p><a href="https://dev.mysql.com/downloads/mysql/5.6.html#downloads" target="_blank" rel="noopener">https://dev.mysql.com/downloads/mysql/5.6.html#downloads</a></p>
+<p>可以通过wget直接下载包，或者上传一个到服务器</p>
+<p>创建软件包存储目录 并上传软件</p>
+<h4 id="2、安装"><a href="#2、安装" class="headerlink" title="2、安装"></a>2、安装</h4><h5 id="①版本控制"><a href="#①版本控制" class="headerlink" title="①版本控制"></a>①版本控制</h5><p>系统：CentOS6.5</p>
+<p>软件：mysql-5.6.33.tar</p>
+<h5 id="②创建MySQL用户跟组"><a href="#②创建MySQL用户跟组" class="headerlink" title="②创建MySQL用户跟组"></a>②创建MySQL用户跟组</h5><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment"># groupadd mysql</span></span><br><span class="line">[root@node1 ~]<span class="comment"># useradd -s /sbin/nologin -g mysql -M mysql</span></span><br></pre></td></tr></table></figure>
+<p>MySQL从5.5开始,源代码安装将原来的configure改为cmake,因此在安装MySQL5.5.x以上版本时,需要先安装cmake,通过yum安装。</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment"># yum install -y cmake</span></span><br></pre></td></tr></table></figure>
+<p>安装好后，通过cmake命令查看是否安装成功</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment"># cmake</span></span><br><span class="line">cmake version <span class="number">2.8</span>.<span class="number">12.2</span></span><br><span class="line">Usage</span><br><span class="line"></span><br><span class="line">  cmake [options] &lt;path-to-source&gt;</span><br><span class="line">  cmake [options] &lt;path-to-existing-build&gt;</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
+<h5 id="③解压并进行编译"><a href="#③解压并进行编译" class="headerlink" title="③解压并进行编译"></a>③解压并进行编译</h5><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment"># tar zxvf mysql-5.6.33.tar.gz[root@node1 ~]# cd mysql-5.6.33</span></span><br></pre></td></tr></table></figure>
+<p>编译配置</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">cmake \</span><br><span class="line">-DCMAKE_INSTALL_PREFIX=/usr/local/mysql \</span><br><span class="line">-DMYSQL_DATADIR=/usr/local/mysql/<span class="keyword">data</span> \</span><br><span class="line">-DSYSCONFDIR=/etc \</span><br><span class="line">-DENABLED_LOCAL_INFILE=<span class="number">1</span> \</span><br><span class="line">-DWITH_PARTITION_STORAGE_ENGINE=<span class="number">1</span> \</span><br><span class="line">-DEXTRA_CHARSETS=all \</span><br><span class="line">-DDEFAULT_CHARSET=utf8 \</span><br><span class="line">-DDEFAULT_COLLATION=utf8_general_ci \</span><br><span class="line">-DWITH_SSL=bundled</span><br></pre></td></tr></table></figure>
+<p>在执行使用cmake编译过程中，出现如下错误</p>
+<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/mysql2.jpg?x-oss-process=style/myblog" alt="编译报错"></p>
+<p>注意解决依赖，缺什么装什么</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 mysql-<span class="number">5.6</span>.<span class="number">33</span>]<span class="comment"># yum -y install ncurses-devel</span></span><br><span class="line">[root@node1 mysql-<span class="number">5.6</span>.<span class="number">33</span>]<span class="comment"># rm -f ./CMakeCache.txt</span></span><br><span class="line">重新cmake以上的参数</span><br></pre></td></tr></table></figure>
+<p>编译并安装：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 mysql-<span class="number">5.6</span>.<span class="number">33</span>]<span class="comment"># make &amp;&amp; make install</span></span><br></pre></td></tr></table></figure>
+<h4 id="3、配置"><a href="#3、配置" class="headerlink" title="3、配置"></a>3、配置</h4><h5 id="①更改用户跟组"><a href="#①更改用户跟组" class="headerlink" title="①更改用户跟组"></a>①更改用户跟组</h5><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 mysql]<span class="comment"># chown -R mysql:mysql /usr/local/mysql</span></span><br></pre></td></tr></table></figure>
+<h5 id="②复制配置文件"><a href="#②复制配置文件" class="headerlink" title="②复制配置文件"></a>②复制配置文件</h5><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 mysql]<span class="comment"># cp /usr/local/mysql/support-files/my-default.cnf /etc/my.cnf</span></span><br></pre></td></tr></table></figure>
+<h5 id="③初始化数据库"><a href="#③初始化数据库" class="headerlink" title="③初始化数据库"></a>③初始化数据库</h5><p>这是很重要的一步，如果不初始化，数据库就不能够使用</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 mysql]<span class="comment"># /usr/local/mysql/scripts/mysql_install_db --basedir=/usr/local/mysql --datadir=/usr/local/mysql/data --user=mysql</span></span><br></pre></td></tr></table></figure>
+<h5 id="④添加启动服务"><a href="#④添加启动服务" class="headerlink" title="④添加启动服务"></a>④添加启动服务</h5><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 mysql]<span class="comment"># cp /usr/local/mysql/support-files/mysql.server /etc/init.d/mysqld </span></span><br><span class="line">[root@node1 mysql]<span class="comment"># chmod +x /etc/init.d/mysqld (因为mysql服务已经有执行权限，可以不执行此条命令)</span></span><br><span class="line">[root@node1 mysql]<span class="comment"># service mysqld start</span></span><br><span class="line">[root@node1 mysql]<span class="comment"># chkconfig --add mysqld(添加服务管理)</span></span><br><span class="line">[root@node1 mysql]<span class="comment"># chkconfig mysqld on（增加之后默认已经自启，此条可以不执行）</span></span><br></pre></td></tr></table></figure>
+<h5 id="⑤添加环境变量（mysql命令可直接使用）"><a href="#⑤添加环境变量（mysql命令可直接使用）" class="headerlink" title="⑤添加环境变量（mysql命令可直接使用）"></a>⑤添加环境变量（mysql命令可直接使用）</h5><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 mysql]<span class="comment"># echo 'PATH=/usr/local/mysql/bin:$PATH' &gt;&gt; /etc/profile</span></span><br><span class="line">[root@node1 mysql]<span class="comment"># echo 'export PATH' &gt;&gt; /etc/profile</span></span><br><span class="line">[root@node1 mysql]<span class="comment"># source /etc/profile</span></span><br></pre></td></tr></table></figure>
+<h5 id="⑥处理匿名登录和无密码问题"><a href="#⑥处理匿名登录和无密码问题" class="headerlink" title="⑥处理匿名登录和无密码问题"></a>⑥处理匿名登录和无密码问题</h5><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select Host,User,Password from mysql.user; //查看用户表</span><br></pre></td></tr></table></figure>
+<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/mysql3.jpg?x-oss-process=style/myblog" alt="处理匿名用户"></p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysql &gt; delete from mysql.user where User=’’; //删除匿名用户</span><br><span class="line">mysql &gt; update mysql.user set Password = password(<span class="string">'123456'</span>); //修改用户密码</span><br><span class="line">mysql &gt; flush privileges; //刷新权限</span><br></pre></td></tr></table></figure>
+<p>接下来，就可以账户密码登录MySQL了，基础安装配置已经完成</p>
+<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/mysql4.jpg?x-oss-process=style/myblog" alt="基础配置完成"></p>
+
+        
+    </section>
+</article>
+
+
+
+<div class="comments">
+    <div id="comments"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+    new Gitalk({
+        clientID: "7fbe80427f54741e289f",
+        clientSecret: "f34ed5fd92e54c9000bd37ba951948cb939deff5",
+        repo: "sanonz.github.io",
+        owner: "sanonz",
+        admin: ["kenneth"],
+        id: "2018/06/30/MySQL安装部署",
+        distractionFreeMode: true,
+        title: "MySQL安装部署",
+        body: "http://kenneth96.coding.me/2018/06/30/MySQL安装部署/",
+        labels: ["MySQL"]
+    }).render('comments');
+    </script>
+</div>
+
+</div>
+        <footer class="footer">
+    Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+
+    
+        &ensp;
+        <span id="cnzz_stat_icon_1234567890" class="vm"></span>
+        <script src="//s13.cnzz.com/stat.php?id=1234567890&show=pic" type="text/javascript"></script>
+    
+</footer>
+
+    </main>
+
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/1.9.0/jquery.min.js"></script>
+    <script type="text/javascript">
+    $(function() {
+        var nodes = {
+            nav: $('#nav'),
+            aside: $('#aside'),
+            asideInner: $('#aside-inner'),
+            navInner: $('#nav-inner')
+        };
+
+        var doing = false;
+        nodes.asideInner.on('webkitAnimationEnd mozAnimationEnd oAnimationEnd oanimationend animationend', function() {
+            if (nodes.aside.hasClass('mobile-open')) {
+                nodes.aside.removeClass('mobile-open');
+            } else {
+                nodes.aside.removeClass('mobile-close panel-show');
+            }
+            doing = false;
+        });
+        $('#open-panel, #aside-mask').on('click', function() {
+            if (doing) {
+                return;
+            }
+            
+            if (nodes.aside.hasClass('panel-show')) {
+                nodes.aside.addClass('mobile-close');
+            } else {
+                nodes.aside.addClass('mobile-open panel-show');
+            }
+        });
+        $('#open-menus').on('click', function() {
+            nodes.navInner.slideToggle();
+        });
+
+        if (window.innerWidth <= 960) {
+            setTimeout(function() {
+                nodes.navInner.slideUp();
+            }, 3000);
+        }
+    });
+    </script>
+    
+        <script type="text/javascript" src="/js/scrollspy.min.js"></script>
+        <script type="text/javascript">
+        $(document.body).scrollspy({target: '#aside-inner'});
+        </script>
+    
+
+</body>
+</html>

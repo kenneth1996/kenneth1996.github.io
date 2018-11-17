@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="UTF-8">
+
+    
+
+    
+
+    <title>CentOS7基础环境配置 | SRE</title>
+    <meta name="author" content="John Doe">
+    <meta name="version" content="1.0.0">
+    <meta name="keywords" content="">
+    <meta name="description" content="系统环境初始配置一、网络环境关闭NetworkManager服务12systemctl stop NetworkManagersystemctl disable NetworkManager二、安全配置防火墙1234systemctl stop firewalldsystemctl disable firewalld检查firewall-cmd --stateselinux123sed -i &#39;s#=enforcing#=disabled#&#39; /etc/selinux/conf...">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+
+    
+    <link rel="alternate" href="/atom.xml" title="SRE" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/images/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+    <main class="app">
+        <header class="header clearfix">
+    <div id="nav" class="nav">
+    <div class="nav-mobile">
+        <button id="open-panel" class="open-panel nav-mobile-item"><i class="icon-documents"></i></button>
+        <h1 class="nav-mobile-title nav-mobile-item">SRE</h1>
+        <button id="open-menus" class="open-panel nav-mobile-item"><i class="icon-library"></i></button>
+    </div>
+
+    <nav id="nav-inner" class="nav-inner">
+        
+            <a class="nav-item" href="/">
+                <span class="nav-text">首页</span>
+            </a>
+        
+            <a class="nav-item" href="/categories/front-end">
+                <span class="nav-text">Linux</span>
+            </a>
+        
+            <a class="nav-item" href="/categories/back-end">
+                <span class="nav-text">Python</span>
+            </a>
+        
+            <a class="nav-item" href="/tags">
+                <span class="nav-text">标签</span>
+            </a>
+        
+            <a class="nav-item" href="/archives">
+                <span class="nav-text">归档</span>
+            </a>
+        
+            <a class="nav-item" href="/about">
+                <span class="nav-text">关于</span>
+            </a>
+        
+    </nav>
+</div>
+
+    <aside id="aside" class="aside">
+    <div id="aside-mask" class="aside-mask"></div>
+    <div id="aside-inner" class="aside-inner">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit"><i class="icon-search-stroke"></i></button><input type="hidden" name="sitesearch" value="http://kenneth96.coding.me"></form>
+
+        
+        
+        
+        
+
+        
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#系统环境初始配置"><span class="toc-number">1.</span> <span class="toc-text">系统环境初始配置</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#一、网络环境"><span class="toc-number">1.1.</span> <span class="toc-text">一、网络环境</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#二、安全配置"><span class="toc-number">1.2.</span> <span class="toc-text">二、安全配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#三、环境主机名规划"><span class="toc-number">1.3.</span> <span class="toc-text">三、环境主机名规划</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#四、基础软件安装"><span class="toc-number">1.4.</span> <span class="toc-text">四、基础软件安装</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#五、时间同步"><span class="toc-number">1.5.</span> <span class="toc-text">五、时间同步</span></a></li></ol></li></ol>
+        
+    </div>
+</aside>
+
+</header>
+
+        <div id="content" class="content"><article class="article" itemscope="" itemprop="blogPost">
+    
+    <header class="article-header">
+        
+        <h1 itemprop="name">
+            CentOS7基础环境配置
+        </h1>
+        
+        <div class="article-meta clearfix">
+            <a class="article-date" href="http://kenneth96.coding.me/2018/08/02/CentOS7基础环境配置/index.html">
+    
+    <i class="icon-calendar"></i>
+    
+    <time datetime="2018-08-02T15:32:34.000Z" itemprop="datePublished">2018-08-02</time>
+</a>
+
+            
+<div class="article-tag-list">
+    <i class="icon-tag"></i>
+    <a class="article-tag-link" href="/tags/基础/">基础</a>
+</div>
+
+
+        </div>
+    </header>
+    
+    <section class="article-body markdown-body">
+        
+        <h3 id="系统环境初始配置"><a href="#系统环境初始配置" class="headerlink" title="系统环境初始配置"></a>系统环境初始配置</h3><h4 id="一、网络环境"><a href="#一、网络环境" class="headerlink" title="一、网络环境"></a>一、网络环境</h4><p>关闭NetworkManager服务</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">systemctl stop NetworkManager</span><br><span class="line">systemctl disable NetworkManager</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
+<h4 id="二、安全配置"><a href="#二、安全配置" class="headerlink" title="二、安全配置"></a>二、安全配置</h4><p>防火墙</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">systemctl stop firewalld</span><br><span class="line">systemctl disable firewalld</span><br><span class="line">检查</span><br><span class="line">firewall-cmd --state</span><br></pre></td></tr></table></figure>
+<p>selinux</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">'s#=enforcing#=disabled#'</span> /etc/selinux/config</span><br><span class="line">检查</span><br><span class="line">grep --color=auto <span class="string">'^SELINUX'</span> /etc/selinux/config</span><br></pre></td></tr></table></figure>
+<h4 id="三、环境主机名规划"><a href="#三、环境主机名规划" class="headerlink" title="三、环境主机名规划"></a>三、环境主机名规划</h4><p>hosts文件内容</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">192.168</span>.<span class="number">2.101</span> node1.devops.com node1</span><br></pre></td></tr></table></figure>
+<p>主机名设置</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hostnamectl set-hostname node1</span><br></pre></td></tr></table></figure>
+<p>测试效果</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ping -c <span class="number">1</span> node1</span><br></pre></td></tr></table></figure>
+<h4 id="四、基础软件安装"><a href="#四、基础软件安装" class="headerlink" title="四、基础软件安装"></a>四、基础软件安装</h4><p>安装依赖软件</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y wget yum-plugin-priorities</span><br></pre></td></tr></table></figure>
+<p>安装软件源</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget -O /etc/yum.repos.d/CentOS-Base-ali.repo http://mirrors.aliyun.com/repo/Centos-<span class="number">7</span>.repo</span><br><span class="line">wget -O /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-<span class="number">7</span>.repo</span><br></pre></td></tr></table></figure>
+<p>源优先级配置</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cat /etc/yum/pluginconf.d/priorities.conf</span><br><span class="line">注意：保证【main】配置下的enabled = <span class="number">1</span></span><br><span class="line">然后编辑相应的repo文件，在想用的配置文件下增加priority=<span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>检查</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">yum repolist</span><br><span class="line">yum clean all &amp;&amp; yum makecache fast &amp;&amp; yum update -y</span><br></pre></td></tr></table></figure>
+<p>禁止内核升级</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/yum.conf</span><br><span class="line">...</span><br><span class="line">exclude=kernel*</span><br><span class="line">exclude=centos-release*</span><br></pre></td></tr></table></figure>
+<p>安装系统基础软件</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">yum groupinstall <span class="string">"Compatibility Libraries"</span> <span class="string">"Console Internet Tools"</span> <span class="string">"Development Tools"</span> <span class="string">"Security Tools"</span> <span class="string">"System Administration Tools"</span> -y</span><br><span class="line">yum install -y vim lrzsz telnet curl net-tools tree bash-completion</span><br></pre></td></tr></table></figure>
+<h4 id="五、时间同步"><a href="#五、时间同步" class="headerlink" title="五、时间同步"></a>五、时间同步</h4><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">yum install ntpdate</span><br><span class="line">ntpdate -u cn.pool.ntp.org</span><br><span class="line">写进计划任务：crontab -e</span><br><span class="line">* * * * * ntpdate -u cn.pool.ntp.org</span><br></pre></td></tr></table></figure>
+
+        
+    </section>
+</article>
+
+
+
+<div class="comments">
+    <div id="comments"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+    new Gitalk({
+        clientID: "7fbe80427f54741e289f",
+        clientSecret: "f34ed5fd92e54c9000bd37ba951948cb939deff5",
+        repo: "sanonz.github.io",
+        owner: "sanonz",
+        admin: ["kenneth"],
+        id: "2018/08/02/CentOS7基础环境配置",
+        distractionFreeMode: true,
+        title: "CentOS7基础环境配置",
+        body: "http://kenneth96.coding.me/2018/08/02/CentOS7基础环境配置/",
+        labels: ["基础"]
+    }).render('comments');
+    </script>
+</div>
+
+</div>
+        <footer class="footer">
+    Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+
+    
+        &ensp;
+        <span id="cnzz_stat_icon_1234567890" class="vm"></span>
+        <script src="//s13.cnzz.com/stat.php?id=1234567890&show=pic" type="text/javascript"></script>
+    
+</footer>
+
+    </main>
+
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/1.9.0/jquery.min.js"></script>
+    <script type="text/javascript">
+    $(function() {
+        var nodes = {
+            nav: $('#nav'),
+            aside: $('#aside'),
+            asideInner: $('#aside-inner'),
+            navInner: $('#nav-inner')
+        };
+
+        var doing = false;
+        nodes.asideInner.on('webkitAnimationEnd mozAnimationEnd oAnimationEnd oanimationend animationend', function() {
+            if (nodes.aside.hasClass('mobile-open')) {
+                nodes.aside.removeClass('mobile-open');
+            } else {
+                nodes.aside.removeClass('mobile-close panel-show');
+            }
+            doing = false;
+        });
+        $('#open-panel, #aside-mask').on('click', function() {
+            if (doing) {
+                return;
+            }
+            
+            if (nodes.aside.hasClass('panel-show')) {
+                nodes.aside.addClass('mobile-close');
+            } else {
+                nodes.aside.addClass('mobile-open panel-show');
+            }
+        });
+        $('#open-menus').on('click', function() {
+            nodes.navInner.slideToggle();
+        });
+
+        if (window.innerWidth <= 960) {
+            setTimeout(function() {
+                nodes.navInner.slideUp();
+            }, 3000);
+        }
+    });
+    </script>
+    
+        <script type="text/javascript" src="/js/scrollspy.min.js"></script>
+        <script type="text/javascript">
+        $(document.body).scrollspy({target: '#aside-inner'});
+        </script>
+    
+
+</body>
+</html>
