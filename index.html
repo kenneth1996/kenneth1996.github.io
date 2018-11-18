@@ -131,7 +131,7 @@
     <header class="article-header">
         
         <h1 itemprop="name">
-            <a href="/2018/11/16/python基础配置/">python基础配置</a>
+            <a href="/2018/11/16/python基础配置/">python环境基础配置</a>
         </h1>
         
         <div class="article-meta clearfix">
@@ -154,8 +154,17 @@
     
     <section class="article-body markdown-body">
         
-        <p>hello</p>
-
+        <h4 id="一、python部署"><a href="#一、python部署" class="headerlink" title="一、python部署"></a>一、python部署</h4><h5 id="1、检查当前版本"><a href="#1、检查当前版本" class="headerlink" title="1、检查当前版本"></a>1、检查当前版本</h5><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@web1 ~]<span class="comment"># python -V</span></span><br><span class="line">Python <span class="number">2.7</span>.<span class="number">5</span></span><br></pre></td></tr></table></figure>
+<h5 id="2、创建安装目录"><a href="#2、创建安装目录" class="headerlink" title="2、创建安装目录"></a>2、创建安装目录</h5><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@web1 ~]<span class="comment"># mkdir /usr/local/python3</span></span><br></pre></td></tr></table></figure>
+<h5 id="3、解决依赖"><a href="#3、解决依赖" class="headerlink" title="3、解决依赖"></a>3、解决依赖</h5><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@web1 ~]<span class="comment"># yum install libffi-devel openssl-devel bzip2-devel expat-devel gdbm-devel readline-devel sqlite-devel</span></span><br></pre></td></tr></table></figure>
+        
+        <p class="article-more-link">
+            <a href="/2018/11/16/python基础配置/#more">
+                <span class="vm">阅读更多</span>
+                <i class="icon-arrow-double-right vm"></i>    
+            </a>
+        </p>
+        
         
     </section>
 </article>
