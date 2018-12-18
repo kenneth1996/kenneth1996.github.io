@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="UTF-8">
+
+    
+
+    
+
+    <title>Docker(二):核心技术 | SRE</title>
+    <meta name="author" content="John Doe">
+    <meta name="version" content="1.0.0">
+    <meta name="keywords" content="">
+    <meta name="description" content="一、镜像管理1、镜像简介Docker镜像是什么？它是一个只读的文件，就类似于我们安装操作系统时候所需要的那个iso光盘镜像，通过运行这个镜像来完成各种应用的部署。这里的镜像就是一个能被docker运行起来的一个程序。2、搜索，查看，获取搜索镜像命令格式：1docker search [image_name]  命令演示：search ubuntu1docker search ubuntu获取 镜像命令格式：1docker pull [image_name]...">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+
+    
+    <link rel="alternate" href="/atom.xml" title="SRE" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/images/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+    <main class="app">
+        <header class="header clearfix">
+    <div id="nav" class="nav">
+    <div class="nav-mobile">
+        <button id="open-panel" class="open-panel nav-mobile-item"><i class="icon-documents"></i></button>
+        <h1 class="nav-mobile-title nav-mobile-item">SRE</h1>
+        <button id="open-menus" class="open-panel nav-mobile-item"><i class="icon-library"></i></button>
+    </div>
+
+    <nav id="nav-inner" class="nav-inner">
+        
+            <a class="nav-item" href="/">
+                <span class="nav-text">首页</span>
+            </a>
+        
+            <a class="nav-item" href="/categories/front-end">
+                <span class="nav-text">Linux</span>
+            </a>
+        
+            <a class="nav-item" href="/categories/back-end">
+                <span class="nav-text">Python</span>
+            </a>
+        
+            <a class="nav-item" href="/tags">
+                <span class="nav-text">标签</span>
+            </a>
+        
+            <a class="nav-item" href="/archives">
+                <span class="nav-text">归档</span>
+            </a>
+        
+            <a class="nav-item" href="/about">
+                <span class="nav-text">关于</span>
+            </a>
+        
+    </nav>
+</div>
+
+    <aside id="aside" class="aside">
+    <div id="aside-mask" class="aside-mask"></div>
+    <div id="aside-inner" class="aside-inner">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit"><i class="icon-search-stroke"></i></button><input type="hidden" name="sitesearch" value="http://kenneth96.coding.me"></form>
+
+        
+        
+        
+        
+
+        
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#一、镜像管理"><span class="toc-number">1.</span> <span class="toc-text">一、镜像管理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1、镜像简介"><span class="toc-number">1.1.</span> <span class="toc-text">1、镜像简介</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2、搜索，查看，获取"><span class="toc-number">1.2.</span> <span class="toc-text">2、搜索，查看，获取</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3、重命名，-删除"><span class="toc-number">1.3.</span> <span class="toc-text">3、重命名， 删除</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4、导入，导出"><span class="toc-number">1.4.</span> <span class="toc-text">4、导入，导出</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5、历史，创建"><span class="toc-number">1.5.</span> <span class="toc-text">5、历史，创建</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#二、容器管理"><span class="toc-number">2.</span> <span class="toc-text">二、容器管理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1、容器简介"><span class="toc-number">2.1.</span> <span class="toc-text">1、容器简介</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2、查看，启动"><span class="toc-number">2.2.</span> <span class="toc-text">2、查看，启动</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3、关闭，删除"><span class="toc-number">2.3.</span> <span class="toc-text">3、关闭，删除</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4、进入，退出"><span class="toc-number">2.4.</span> <span class="toc-text">4、进入，退出</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5、基于容器创建镜像"><span class="toc-number">2.5.</span> <span class="toc-text">5、基于容器创建镜像</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6、日志"><span class="toc-number">2.6.</span> <span class="toc-text">6、日志</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#三、仓库管理"><span class="toc-number">3.</span> <span class="toc-text">三、仓库管理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1、仓库简介"><span class="toc-number">3.1.</span> <span class="toc-text">1、仓库简介</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2、私有仓库部署"><span class="toc-number">3.2.</span> <span class="toc-text">2、私有仓库部署</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3、安全私有仓库方案分析"><span class="toc-number">3.3.</span> <span class="toc-text">3、安全私有仓库方案分析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4、安全仓库实践"><span class="toc-number">3.4.</span> <span class="toc-text">4、安全仓库实践</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#四、数据管理"><span class="toc-number">4.</span> <span class="toc-text">四、数据管理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1、数据卷简介"><span class="toc-number">4.1.</span> <span class="toc-text">1、数据卷简介</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2、数据卷实战"><span class="toc-number">4.2.</span> <span class="toc-text">2、数据卷实战</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3、数据卷容器简介"><span class="toc-number">4.3.</span> <span class="toc-text">3、数据卷容器简介</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4、数据卷容器实践"><span class="toc-number">4.4.</span> <span class="toc-text">4、数据卷容器实践</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#五、网络管理"><span class="toc-number">5.</span> <span class="toc-text">五、网络管理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1、端口映射详解"><span class="toc-number">5.1.</span> <span class="toc-text">1、端口映射详解</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2、随机映射实践"><span class="toc-number">5.2.</span> <span class="toc-text">2、随机映射实践</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3、指定映射实践"><span class="toc-number">5.3.</span> <span class="toc-text">3、指定映射实践</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4、网络管理基础"><span class="toc-number">5.4.</span> <span class="toc-text">4、网络管理基础</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5、bridge实践"><span class="toc-number">5.5.</span> <span class="toc-text">5、bridge实践</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6、host模型实践"><span class="toc-number">5.6.</span> <span class="toc-text">6、host模型实践</span></a></li></ol></li></ol>
+        
+    </div>
+</aside>
+
+</header>
+
+        <div id="content" class="content"><article class="article" itemscope="" itemprop="blogPost">
+    
+    <header class="article-header">
+        
+        <h1 itemprop="name">
+            Docker(二):核心技术
+        </h1>
+        
+        <div class="article-meta clearfix">
+            <a class="article-date" href="http://kenneth96.coding.me/2018/12/18/Docker-二-核心技术/index.html">
+    
+    <i class="icon-calendar"></i>
+    
+    <time datetime="2018-12-18T12:07:27.000Z" itemprop="datePublished">2018-12-18</time>
+</a>
+
+            
+<div class="article-tag-list">
+    <i class="icon-tag"></i>
+    <a class="article-tag-link" href="/tags/容器/">容器</a>
+</div>
+
+
+        </div>
+    </header>
+    
+    <section class="article-body markdown-body">
+        
+        <h3 id="一、镜像管理"><a href="#一、镜像管理" class="headerlink" title="一、镜像管理"></a>一、镜像管理</h3><h4 id="1、镜像简介"><a href="#1、镜像简介" class="headerlink" title="1、镜像简介"></a>1、镜像简介</h4><p>Docker镜像是什么？<br>它是一个只读的文件，就类似于我们安装操作系统时候所需要的那个iso光盘镜像，通过运行这个镜像来完成各种应用的部署。</p>
+<p>这里的镜像就是一个能被docker运行起来的一个程序。</p>
+<h4 id="2、搜索，查看，获取"><a href="#2、搜索，查看，获取" class="headerlink" title="2、搜索，查看，获取"></a>2、搜索，查看，获取</h4><ul>
+<li><p>搜索镜像</p>
+<p>命令格式：</p>
+</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker search [image_name]</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
+<p>  命令演示：</p>
+<figure class="highlight plain"><figcaption><span>search ubuntu</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker search ubuntu</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>获取 镜像</p>
+<p>命令格式：</p>
+</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker pull [image_name]</span><br></pre></td></tr></table></figure>
+<p>  命令演示：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker pull ubuntu</span><br><span class="line"> docker pull nginx</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>查看 镜像</p>
+<p>命令格式：</p>
+</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker images &lt;image_name&gt;</span><br></pre></td></tr></table></figure>
+<p>  命令演示：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker images</span><br></pre></td></tr></table></figure>
+<p>  镜像的ID唯一标识了镜像，如果ID相同,说明是同一镜像。TAG信息来区分不同发行版本，如果不指定具体记,</p>
+<p>  默认使用latest标记信息</p>
+<p>  docker images -a 列出所有的本地的images(包括已删除的镜像记录)</p>
+<h4 id="3、重命名，-删除"><a href="#3、重命名，-删除" class="headerlink" title="3、重命名， 删除"></a>3、重命名， 删除</h4><ul>
+<li><p>镜像 重命名</p>
+<p>命令格式：</p>
+</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker tag [old_image]:old_version:[new_version]</span><br></pre></td></tr></table></figure>
+<p>  命令演示：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker tag nginx:latest sswang-nginx:v1.<span class="number">0</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>删除 镜像</p>
+<p>命令格式：</p>
+</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker rmi [image_id/image_name:image_version]</span><br></pre></td></tr></table></figure>
+<p>  命令演示：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker rmi <span class="number">3</span>fa822599e10</span><br></pre></td></tr></table></figure>
+<p>  如果一个image_id存在多个名称，那么应该使用name:tag的格式删除镜像</p>
+<h4 id="4、导入，导出"><a href="#4、导入，导出" class="headerlink" title="4、导入，导出"></a>4、导入，导出</h4><ul>
+<li><p>导出镜像</p>
+<p>将已经下载好的镜像，导出到本地，以备后用。</p>
+<p>命令格式：</p>
+</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker save -o 镜像名称</span><br></pre></td></tr></table></figure>
+<p>  注意：</p>
+<p>  docker save 会保存镜像的所有历史记录和元数据信息</p>
+<p>  命令演示：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker save -o nginx.tar sswang-nginx</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>导入 镜像</p>
+<p>为了更好的演示效果，我们先将nginx的镜像删除掉</p>
+</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker rmi nginx:v1.<span class="number">0</span></span><br><span class="line">docker rmi nginx</span><br></pre></td></tr></table></figure>
+<p>  导入镜像命令格式：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker load &lt; [image.tar_name]</span><br><span class="line">docker load --input [image.tar_name]</span><br></pre></td></tr></table></figure>
+<p>  注意:</p>
+<p>  docker load 不能指定镜像的名称</p>
+<p>  导入镜像文件：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker load &lt; nginx.tar</span><br></pre></td></tr></table></figure>
+<h4 id="5、历史，创建"><a href="#5、历史，创建" class="headerlink" title="5、历史，创建"></a>5、历史，创建</h4><ul>
+<li><p>查看镜像历史</p>
+<p>查看镜像历史命令格式：</p>
+</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker history [image_name]</span><br></pre></td></tr></table></figure>
+<p>  我们获取到一个镜像，想知道他默认启动了哪些命令或者都封装了哪些系统层，那么我们可以使用docker history这条命令来获取我们想要的信息</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker history sswang-nginx:v1.<span class="number">0</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>根据模板创建镜像</p>
+<p>登录系统模板镜像网站：</p>
+<p><a href="https://download.openvz.org/template/precreated/" target="_blank" rel="noopener">https://download.openvz.org/template/precreated/</a></p>
+<p>找到一个镜像模板进行下载，比如说ubuntu-14.04-x86_64-minimal.tar.gz，地址为：</p>
+<p><a href="https://download.openvz.org/template/precreated/ubuntu-14.04-x86_64-minimal.tar.gz" target="_blank" rel="noopener">https://download.openvz.org/template/precreated/ubuntu-14.04-x86_64-minimal.tar.gz</a></p>
+<p>命令格式：</p>
+</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat 模板文件名.tar | docker import - [自定义镜像名]</span><br></pre></td></tr></table></figure>
+<p>  演示效果：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat ubuntu-<span class="number">14.04</span>-x86_64-minimal.tar.gz | docker import - ubuntu-mini</span><br></pre></td></tr></table></figure>
+<p>注意：</p>
+<p>模板文件只能使用import导入，不能使用load，因为涉及到了依赖文件。具体原因可以用docker hist<br>ory查看两个镜像文件即可</p>
+<h3 id="二、容器管理"><a href="#二、容器管理" class="headerlink" title="二、容器管理"></a>二、容器管理</h3><h4 id="1、容器简介"><a href="#1、容器简介" class="headerlink" title="1、容器简介"></a>1、容器简介</h4><p>容器是什么？<br>容器就类似于我们运行起来的一个操作系统，而且这个操作系统启动了某些服务。<br>这里的容器指的是运行起来的一个Docker镜像</p>
+<h4 id="2、查看，启动"><a href="#2、查看，启动" class="headerlink" title="2、查看，启动"></a>2、查看，启动</h4><blockquote>
+<p>查看容器</p>
+</blockquote>
+<p>命令格式：docker ps</p>
+<p>注意：<br>管理docker容器可以通过名称，也可以通过ID<br>ps是显示正在运行的容器， -a是显示所有运行过的容器，包括已经不运行的容器</p>
+<blockquote>
+<p>启动容器</p>
+</blockquote>
+<ol>
+<li>启动容器有三种方式</li>
+<li>基于镜像新建一个容器并启动</li>
+<li>将关闭的容器重新启动</li>
+<li>守护进程方式启动docker</li>
+</ol>
+<blockquote>
+<p>创建新容器并启动</p>
+</blockquote>
+<p>命令格式：docker run &lt;参数，可选&gt; docker_image 执行的命令<br>启动一个镜像，输入信息后关闭容器</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run nginx /bin/echo <span class="string">"hello docker"</span></span><br></pre></td></tr></table></figure>
+<p>注意：<br>docker run 其实 是两个命令的集合体 docker create + docker start</p>
+<blockquote>
+<p>启动已终止的容器</p>
+</blockquote>
+<p>在生产过程中，常常会出现运行和不运行的容器，我们使用 start 命令开起一个已关闭的容器<br>命令格式：docker start [container_id]</p>
+<blockquote>
+<p>守护进程方式启动容器</p>
+</blockquote>
+<p>更多的时候，需要让Docker容器在后台以守护形式运行。此时可以通过添加-d参数来实现<br>命令格式：docker run -d [image_name] command …<br>守护进程方式启动容器</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d nginx</span><br></pre></td></tr></table></figure>
+<h4 id="3、关闭，删除"><a href="#3、关闭，删除" class="headerlink" title="3、关闭，删除"></a>3、关闭，删除</h4><blockquote>
+<p>关闭容器</p>
+</blockquote>
+<p>在生产中，我们会以为临时情况，要关闭某些容器，我们使用 stop 命令来关闭某个容器<br>命令格式：docker stop [container_id]<br>关闭容器id</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker stop <span class="number">8005</span>c40a1d16</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>删除容器</p>
+</blockquote>
+<p>删除容器有两种方法：<br>正常删除 – 删除已关闭的<br>强制删除 – 删除正在运行的</p>
+<blockquote>
+<p>正常删除容器</p>
+</blockquote>
+<p>命令格式： docker rm [container_id]<br>删除已关闭的容器</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker rm <span class="number">1</span>a5f6a0c9443</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>强制删除运行容器</p>
+</blockquote>
+<p>命令格式：docker rm -f [container_id]<br>删除正在运行的容器</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker rm -f <span class="number">8005</span>c40a1d16</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>拓展批量关闭容器</p>
+</blockquote>
+<p>命令格式：docker rm -f $(docker ps -a -q)</p>
+<h4 id="4、进入，退出"><a href="#4、进入，退出" class="headerlink" title="4、进入，退出"></a>4、进入，退出</h4><p>进入容器的三种方法：<br>1、创建容器的同时进入容器<br>2、手工方式进入容器<br>3、生产方式进入容器</p>
+<blockquote>
+<p>创建并进入容器</p>
+</blockquote>
+<p>命令格式：docker run –name [container_name] -it [docker_image] /bin/bash</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">~]<span class="comment"># docker run -it --name sswang-nginx nginx /bin/bash</span></span><br><span class="line">root@<span class="number">7</span>c5a24a68f96:/<span class="comment"># echo "hello world"</span></span><br><span class="line">hello world</span><br><span class="line">root@<span class="number">7</span>c5a24a68f96:/<span class="comment"># exit</span></span><br><span class="line"><span class="keyword">exit</span></span><br></pre></td></tr></table></figure>
+<p>docker 容器启动命令参数详解：<br>–name:给容器定义一个名称<br>-i:则让容器的标准输入保持打开。<br>-t:让docker分配一个伪终端,并绑定到容器的标准输入上<br>/bin/bash:执行一个命令</p>
+<blockquote>
+<p>退出容器</p>
+</blockquote>
+<p>方法一：exit<br>方法二：Ctrl + D</p>
+<blockquote>
+<p>手工方式进入容器</p>
+</blockquote>
+<p>命令格式：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker exec -it 容器id /bin/bash</span><br></pre></td></tr></table></figure>
+<p>效果演示：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker exec -it d74fff341687 /bin/bash</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>生产方式进入容器</p>
+</blockquote>
+<p>我们生产中常用的进入容器方法是使用脚本，脚本内容如下</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/bin/bash</span></span><br><span class="line"><span class="comment"># 定义进入仓库函数</span></span><br><span class="line">docker_in()&#123;</span><br><span class="line">NAME_ID=<span class="variable">$1</span></span><br><span class="line">PID=$(docker inspect -f <span class="string">"&#123;&#123; .State.Pid &#125;&#125;"</span> <span class="variable">$NAME_ID</span>)</span><br><span class="line">nsenter -t <span class="variable">$PID</span> -m -u -i -n -p</span><br><span class="line">&#125;</span><br><span class="line">docker_in <span class="variable">$1</span></span><br></pre></td></tr></table></figure>
+<p>赋权执行</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chmod +x docker_in.sh</span><br></pre></td></tr></table></figure>
+<p>进入指定的容器，并测试</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./docker_in.sh b3fbcba852fd</span><br></pre></td></tr></table></figure>
+<h4 id="5、基于容器创建镜像"><a href="#5、基于容器创建镜像" class="headerlink" title="5、基于容器创建镜像"></a>5、基于容器创建镜像</h4><blockquote>
+<p>提交方式</p>
+</blockquote>
+<p>命令格式：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker commit -m <span class="string">'改动信息'</span> -a <span class="string">"作者信息"</span>  container_id new_image:tag</span><br></pre></td></tr></table></figure>
+<p>命令演示：<br>进入一个容器，创建文件后并退出</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">./docker_in.sh d74fff341687</span><br><span class="line">mkdir /sswang</span><br><span class="line"><span class="keyword">exit</span></span><br></pre></td></tr></table></figure>
+<p>创建一个镜像</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker commit -m <span class="string">'mkdir /sswang'</span> -a <span class="string">"sswang"</span> d74fff341687 sswang-nginx:v0.<span class="number">2</span></span><br></pre></td></tr></table></figure>
+<p>查看镜像</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker images</span><br></pre></td></tr></table></figure>
+<p>启动一个容器</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -itd sswang-nginx:v0.<span class="number">2</span> /bin/bash</span><br></pre></td></tr></table></figure>
+<p>进入容器进行查看</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">./docker_in.sh ae63ab299a84</span><br><span class="line">ls</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>导出方式</p>
+</blockquote>
+<p>命令格式：<br>docker export [容器id] &gt; 模板文件名.tar<br>注意：<br>docker export 导出镜像的时候，会丢失很多历史记录和元数据信息。<br>命令演示：<br>创建镜像</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker export ae63ab299a84 &gt; gaoji.tar</span><br></pre></td></tr></table></figure>
+<p>导入镜像</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat gaoji.tar | docker import - sswang-test</span><br></pre></td></tr></table></figure>
+<h4 id="6、日志"><a href="#6、日志" class="headerlink" title="6、日志"></a>6、日志</h4><blockquote>
+<p>查看容器运行日志</p>
+</blockquote>
+<p>命令格式：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker logs [容器id]</span><br></pre></td></tr></table></figure>
+<p>命令效果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker logs 7c5a24a68f96</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>查看容器详细信息</p>
+</blockquote>
+<p>命令格式：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker inspect [容器id]</span><br></pre></td></tr></table></figure>
+<p>命令效果：<br>查看容器全部信息</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker inspect <span class="number">930</span>f29ccdf8a</span><br></pre></td></tr></table></figure>
+<p>查看容器网络信息</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker inspect --format=<span class="string">'&#123;&#123;range .NetworkSettings.Networks&#125;&#125;&#123;&#123;.IPAddress&#125;&#125;&#123;&#123;end&#125;&#125;'</span> <span class="number">930</span>f29cc</span><br><span class="line">df8a</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>查看容器端口信息</p>
+</blockquote>
+<p>命令格式：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker port [容器 id]</span><br></pre></td></tr></table></figure>
+<p>命令效果：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker port <span class="number">930</span>f29ccdf8a</span><br></pre></td></tr></table></figure>
+<h3 id="三、仓库管理"><a href="#三、仓库管理" class="headerlink" title="三、仓库管理"></a>三、仓库管理</h3><h4 id="1、仓库简介"><a href="#1、仓库简介" class="headerlink" title="1、仓库简介"></a>1、仓库简介</h4><p>仓库是什么？<br>仓库就类似于我们在网上搜索操作系统光盘的一个镜像站。<br>这里的仓库指的是Docker镜像存储的地方</p>
+<blockquote>
+<p>Docker 仓库</p>
+</blockquote>
+<p>Docker的仓库有三大类：</p>
+<ol>
+<li>公有仓库：Docker hub、Docker cloud、等</li>
+<li>私有仓库：registry、harbor等</li>
+<li>本地仓库：在当前主机存储镜像的地方。</li>
+</ol>
+<p>传输数据携带tls标识的docker私有仓库是安全的相关命令<br>和仓库相关的命令：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker login [仓库名称]</span><br><span class="line">docker pull [镜像名称]</span><br><span class="line">docker push [镜像名称]</span><br><span class="line">docker search [镜像名称</span><br></pre></td></tr></table></figure>
+<h4 id="2、私有仓库部署"><a href="#2、私有仓库部署" class="headerlink" title="2、私有仓库部署"></a>2、私有仓库部署</h4><blockquote>
+<p>创建仓库流程</p>
+</blockquote>
+<ol>
+<li>根据registry镜像创建容器</li>
+<li>配置仓库权限</li>
+<li>提交镜像到私有仓库</li>
+<li>测试</li>
+</ol>
+<blockquote>
+<p>实施方案</p>
+</blockquote>
+<p>下载registry镜像</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker pull registry</span><br></pre></td></tr></table></figure>
+<p>启动仓库容器</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d -p <span class="number">5000</span>:<span class="number">5000</span> registry</span><br></pre></td></tr></table></figure>
+<p>检查容器效果</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl <span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">5000</span>/v2/_catalog</span><br></pre></td></tr></table></figure>
+<p>配置容器权限</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/docker/daemon.json</span><br><span class="line"></span><br><span class="line">&#123;<span class="string">"registry-mirrors"</span>: [<span class="string">"http://74f21445.m.daocloud.io"</span>], <span class="string">"insecure-registries"</span>: [<span class="string">"192.168.8.14:</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">5000"</span>]&#125;</span><br></pre></td></tr></table></figure>
+<p>注意：<br>私有仓库的ip地址是宿主机的ip，而且ip两侧有双引号<br>重启docker服务</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">systemctl restart docker</span><br><span class="line">systemctl status docker</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>效果查看</p>
+</blockquote>
+<p>启动容器</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker start <span class="number">315</span>b5422c699</span><br></pre></td></tr></table></figure>
+<p>标记镜像</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker tag ubuntu-mini <span class="number">192.168</span>.<span class="number">8.14</span>:<span class="number">5000</span>/ubuntu-<span class="number">14.04</span>-mini</span><br></pre></td></tr></table></figure>
+<p>提交镜像</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker push <span class="number">192.168</span>.<span class="number">8.14</span>:<span class="number">5000</span>/ubuntu-<span class="number">14.04</span>-mini</span><br></pre></td></tr></table></figure>
+<p>下载镜像</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker pull <span class="number">192.168</span>.<span class="number">8.14</span>:<span class="number">5000</span>/ubuntu-<span class="number">14.04</span>-mini</span><br></pre></td></tr></table></figure>
+<h4 id="3、安全私有仓库方案分析"><a href="#3、安全私有仓库方案分析" class="headerlink" title="3、安全私有仓库方案分析"></a>3、安全私有仓库方案分析</h4><blockquote>
+<p>安全仓库简介</p>
+</blockquote>
+<p>Docker官方是推荐仓库采用Secure Registry的工作模式的，即传输所有数据都采用tls。<br>TLS依赖的文件就是：key和crt文件、数据传输使用域名<br>首先清理环境，将daemon.json文件中的Insecure Registry内容清空，重启Docker进程。</p>
+<blockquote>
+<p>安全仓库分析：</p>
+</blockquote>
+<ol>
+<li>基于tls的安全方式传输信息</li>
+<li>hosts文件做域名解析和CA证书的创建</li>
+<li>仓库使用CA证书</li>
+<li>docker使用ca证书</li>
+<li>验证</li>
+</ol>
+<blockquote>
+<p>技术点分析</p>
+</blockquote>
+<ol>
+<li><p>需要registry服务所在主机使用域名传输数据，即配置本机的hosts文件</p>
+</li>
+<li><p>证书可以买或者自己建造(推荐openssl)</p>
+</li>
+<li><p>docker仓库使用证书，-v和-e参数使用</p>
+</li>
+<li><p>docker服务使用证书</p>
+<p>/etc/docker/certs.d/myitcast.com:5000/ca.crt</p>
+</li>
+<li><p>本机验证+跨主机验证</p>
+</li>
+</ol>
+<blockquote>
+<p>方案：</p>
+</blockquote>
+<ol>
+<li>本机hosts文件配置</li>
+<li>创建ca证书和ca秘钥</li>
+<li>retistry容器使用证书和秘钥</li>
+<li>docker服务使用认证文件</li>
+<li>构造镜像</li>
+<li>本机测试</li>
+<li>异机测试</li>
+</ol>
+<h4 id="4、安全仓库实践"><a href="#4、安全仓库实践" class="headerlink" title="4、安全仓库实践"></a>4、安全仓库实践</h4><blockquote>
+<p>tls 配置</p>
+</blockquote>
+<p>1、本机hosts文件配置</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/hosts</span><br><span class="line"><span class="number">192.168</span>.<span class="number">8.14</span> docker.devops.com</span><br></pre></td></tr></table></figure>
+<p>2、创建ca证书和秘钥</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir CA/&#123;certs,<span class="keyword">data</span>&#125; -p</span><br><span class="line">cd CA</span><br><span class="line">openssl req -newkey rsa:<span class="number">2048</span> -nodes -sha256 -keyout certs/ca.key -x509 -days <span class="number">365</span> -out certs/ca.c</span><br><span class="line">rt</span><br></pre></td></tr></table></figure>
+<p>证书认证信息</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">Country Name (<span class="number">2</span> letter code) [AU]:ZG</span><br><span class="line">State or Province Name (full name) [Some-State]:BJ</span><br><span class="line">Locality Name (eg, city) []:BJ</span><br><span class="line">Organization Name (eg, company) [Internet Widgits Pty Ltd]:kenneth</span><br><span class="line">Organizational Unit Name (eg, section) []:kenneth</span><br><span class="line">Common Name (e.g. server FQDN or YOUR name) []:docker.devops.com</span><br><span class="line">Email Address []:<span class="number">570344317</span>@qq.com</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>注意：<br>Common Name 内容和hosts文件中的内容一致</p>
+<blockquote>
+<p>仓库配置</p>
+</blockquote>
+<p>3、创建一个使用证书的retistry容器</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker run -d -p <span class="number">5000</span>:<span class="number">5000</span> --restart=always --name registry \</span><br><span class="line">-v `pwd`/<span class="keyword">data</span>:/var/lib/registry \</span><br><span class="line">-v `pwd`/certs:/certs \</span><br><span class="line">-e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/ca.crt \</span><br><span class="line">-e REGISTRY_HTTP_TLS_KEY=/certs/ca.key \</span><br><span class="line">registry</span><br></pre></td></tr></table></figure>
+<p>注释：<br>-v 数据卷管理<br>-e 环境变量配置</p>
+<p>4、docker服务使用ca证书<br>一个安全的仓库使用TLS且他的CA证书副本在Docker主机的 /etc/docker/certs.d/docker.devops.com:5000目<br>录下，证书的名称是ca.crt<br>docker.devops.com 就是hosts文件中配置的主机域名</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p /etc/docker/certs.d/docker.devops.com:<span class="number">5000</span></span><br><span class="line">cp certs/ca.crt /etc/docker/certs.d/docker.devops.com:<span class="number">5000</span>/ca.crt</span><br><span class="line">systemctl restart docker</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>效果测试</p>
+</blockquote>
+<p>5、构造镜像</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker tag nginx:latest myitcast.com:<span class="number">5000</span>/nginx:v0.<span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>注意：<br>镜像命名格式：myitcast.com:5000/镜像名:镜像版本<br>6、本机测试<br>浏览器访问：<br><a href="https://docker.devops.com:5000/v2/_catalog" target="_blank" rel="noopener">https://docker.devops.com:5000/v2/_catalog</a><br>提交镜像</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker push docker.devops.com:<span class="number">5000</span>/nginx:v0.<span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>浏览器访问：<br><a href="https://docker.devops.com:5000/v2/_catalog" target="_blank" rel="noopener">https://docker.devops.com:5000/v2/_catalog</a><br>注意：<br>使用google浏览器<br>下载镜像</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker pull myitcast.com:<span class="number">5000</span>/nginx:v0.<span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>7、异机测试<br>时间同步措施：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ntpdate -u time1.aliyun.com</span><br></pre></td></tr></table></figure>
+<p>hosts文件配置</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/hosts</span><br><span class="line"><span class="number">192.168</span>.<span class="number">8.14</span> docker.devops.com</span><br></pre></td></tr></table></figure>
+<p>docker使用ca证书</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p /etc/docker/certs.d/docker.devops.com:<span class="number">5000</span></span><br><span class="line">vim /etc/docker/certs.d/docker.devops.com:<span class="number">5000</span>/ca.crt</span><br><span class="line">内容和 registry 主机上的 ca.crt 文件内容一致。</span><br><span class="line">systemctl restart docker</span><br></pre></td></tr></table></figure>
+<p>下载镜像</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker pull docker.devops.com:<span class="number">5000</span>/nginx:v0.<span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>注意：如果异机测试的话，一定要保证时间同步，没有的话，要先做时间同步<br>ntpdate -u time1.aliyun.com<br>如果私有仓库的时间同步后发生变化，那么需要重新生成一次证书，因为证书已经失效了。</p>
+<h3 id="四、数据管理"><a href="#四、数据管理" class="headerlink" title="四、数据管理"></a>四、数据管理</h3><p>docker的镜像是只读的，虽然依据镜像创建的容器可以进行操作，但是我们不能将数据保存到容器中，因为容器会随时关闭和开启，那么如何将数据保存下来呢？<br>答案就是：数据卷和数据卷容器</p>
+<h4 id="1、数据卷简介"><a href="#1、数据卷简介" class="headerlink" title="1、数据卷简介"></a>1、数据卷简介</h4><p>什么是数据卷？<br>就是将宿主机的某个目录，映射到容器中，作为数据存储的目录，我们就可以在宿主机对数据进行存储<br>缺点是：太单一了<br>docker 数据卷命令详解</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># docker run --help</span></span><br><span class="line">  。。。</span><br><span class="line">     -v, --volume list            Bind mount a volume (default [])</span><br><span class="line">                                  挂载一个数据卷，默认为空</span><br></pre></td></tr></table></figure>
+<p>我们可以使用命令 docker run 用来创建容器，可以在使用docker run 命令时添加 -v 参数，就可以创建并挂<br>载一个到多个数据卷到当前运行的容器中。<br>    -v   参数的作用是将宿主机的一个目录作为容器的数据卷挂载到docker容器中，使宿主机和容器之间可以共享一个<br>目录，如果本地路径不存在，Docker也会自动创建。<br>    -v   宿主机文件:容器文件</p>
+<h4 id="2、数据卷实战"><a href="#2、数据卷实战" class="headerlink" title="2、数据卷实战"></a>2、数据卷实战</h4><blockquote>
+<p>数据卷实践之目录</p>
+</blockquote>
+<p>命令格式：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -itd --name [容器名字] -v [宿主机目录]:[容器目录] [镜像名称] [命令(可选)]</span><br></pre></td></tr></table></figure>
+<p>命令演示：<br>创建测试文件</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo <span class="string">"file1"</span> &gt; /tmp/file1.txt</span><br></pre></td></tr></table></figure>
+<p>启动一个容器，挂载数据卷</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -itd --name test1 -v /tmp:/test1 nginx</span><br></pre></td></tr></table></figure>
+<p>测试效果</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">~<span class="comment"># docker exec -it a53c61c77 /bin/bash</span></span><br><span class="line">root@a53c61c77bde:/<span class="comment"># cat /test1/file1.txt</span></span><br><span class="line">file1</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>数据卷实践之文件</p>
+</blockquote>
+<p>命令格式：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -itd --name [容器名字] -v [宿主机文件]:[容器文件] [镜像名称] [命令(可选)]</span><br></pre></td></tr></table></figure>
+<p>命令演示：<br>创建测试文件</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo <span class="string">"file1"</span> &gt; /tmp/file1.txt</span><br></pre></td></tr></table></figure>
+<p>启动一个容器，挂载数据卷</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -itd --name test2 -v /tmp/file1.txt:/nihao/nihao.sh nginx</span><br></pre></td></tr></table></figure>
+<p>测试效果</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">~<span class="comment"># docker exec -it 84c37743 /bin/bash</span></span><br><span class="line">root@<span class="number">84</span>c37743d339:/<span class="comment"># cat /nihao/nihao.sh</span></span><br><span class="line">file1</span><br></pre></td></tr></table></figure>
+<h4 id="3、数据卷容器简介"><a href="#3、数据卷容器简介" class="headerlink" title="3、数据卷容器简介"></a>3、数据卷容器简介</h4><blockquote>
+<p>什么是数据卷容器？</p>
+</blockquote>
+<p>将宿主机的某个目录，使用容器的方式来表示，然后其他的应用容器将数据保存在这个容器中，达到大批量应用数据同时存储的目的</p>
+<blockquote>
+<p>docker  数据卷命令详解</p>
+</blockquote>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># docker run --help</span></span><br><span class="line">。。。</span><br><span class="line">        -v,    --volumes-from value Mount volumes from the specified container(s) (default [])</span><br><span class="line">                                    从指定的容器挂载卷，默认为空</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>数据卷容器操作流程</p>
+</blockquote>
+<p>如果使用数据卷容器，在多个容器间共享数据，并永久保存这些数据，需要有一个规范的流程才能做得到：</p>
+<ol>
+<li>创建数据卷容器</li>
+<li>其他容器挂载数据卷容器</li>
+</ol>
+<p>注意：<br>数据卷容器不启动</p>
+<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/docker2.2.jpg?x-oss-process=style/myblog" alt=""></p>
+<h4 id="4、数据卷容器实践"><a href="#4、数据卷容器实践" class="headerlink" title="4、数据卷容器实践"></a>4、数据卷容器实践</h4><p>数据卷容器实践包括两部分：创建数据卷容器和使用数据卷容器</p>
+<blockquote>
+<p>创建一个数据卷容器</p>
+</blockquote>
+<p>命令格式：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker create -v [容器数据卷目录] --name 容器名字 [命令(可选)]</span><br></pre></td></tr></table></figure>
+<p>执行效果</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker create -v /<span class="keyword">data</span> --name v-test nginx</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>创建两个容器， 同时挂载数据卷容器</p>
+</blockquote>
+<p>命令格式：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run --volumes-from [数据卷容器 id/name] -tid --name 容器名字 [命令(可选)]</span><br></pre></td></tr></table></figure>
+<p>执行效果：<br>创建 vc-test1 容器</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run --volumes-from <span class="number">4693558</span>c49e8 -tid --name vc-test1 nginx /bin/bash</span><br></pre></td></tr></table></figure>
+<p>创建 vc-test2 容器</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run --volumes-from <span class="number">4693558</span>c49e8 -tid --name vc-test2 nginx /bin/bash</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>确认卷容器共享</p>
+</blockquote>
+<p>进入vc-test1，操作数据卷容器</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">~<span class="comment"># docker exec -it vc-test1 /bin/bash</span></span><br><span class="line">root@c408f4f14786:/<span class="comment"># ls /data/</span></span><br><span class="line">root@c408f4f14786:/<span class="comment"># echo 'v-test1' &gt; /data/v-test1.txt</span></span><br><span class="line">root@c408f4f14786:/<span class="comment"># exit</span></span><br></pre></td></tr></table></figure>
+<p>进入vc-test2，确认数据卷</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">~<span class="comment"># docker exec -it vc-test2 /bin/bash</span></span><br><span class="line">root@<span class="number">7448</span>eee82ab0:/<span class="comment"># ls /data/</span></span><br><span class="line">v-test1.txt</span><br><span class="line">root@<span class="number">7448</span>eee82ab0:/<span class="comment"># echo 'v-test2' &gt; /data/v-test2.txt</span></span><br><span class="line">root@<span class="number">7448</span>eee82ab0:/<span class="comment"># exit</span></span><br></pre></td></tr></table></figure>
+<p>回到vc-test1进行验证</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">~<span class="comment"># docker exec -it vc-test1 /bin/bash</span></span><br><span class="line">root@c408f4f14786:/<span class="comment"># ls /data/</span></span><br><span class="line">v-test1.txt v-test2.txt</span><br><span class="line">root@c408f4f14786:/<span class="comment"># cat /data/v-test2.txt</span></span><br><span class="line">v-test2</span><br></pre></td></tr></table></figure>
+<p>回到宿主机查看/data/目录</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">~<span class="comment"># ls /data/</span></span><br><span class="line">~<span class="comment">#</span></span><br></pre></td></tr></table></figure>
+<p>结果证明：<br>容器间可以共享数据卷你容器，不过数据是保存在数据卷内，并没有保存到宿主机的文件目录中</p>
+<h3 id="五、网络管理"><a href="#五、网络管理" class="headerlink" title="五、网络管理"></a>五、网络管理</h3><h4 id="1、端口映射详解"><a href="#1、端口映射详解" class="headerlink" title="1、端口映射详解"></a>1、端口映射详解</h4><blockquote>
+<p>端口映射简介</p>
+</blockquote>
+<p>默认情况下，容器和宿主机之间网络是隔离的，我们可以通过端口映射的方式，将容器中的端口，映射到宿主机的某<br>个端口上。这样我们就可以通过 宿主机的ip+port的方式来访问容器里的内容</p>
+<blockquote>
+<p>端口映射种类</p>
+</blockquote>
+<p>1、随机映射 -P(大写)<br>2、指定映射 -p 宿主机端口:容器端口<br>注意：<br>生产场景一般不使用随机映射，但是随机映射的好处就是由docker分配，端口不会冲突,<br>不管哪种映射都会影响性能，因为涉及到映射</p>
+<h4 id="2、随机映射实践"><a href="#2、随机映射实践" class="headerlink" title="2、随机映射实践"></a>2、随机映射实践</h4><blockquote>
+<p>默认随机映射</p>
+</blockquote>
+<p>命令格式：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d -P [镜像名称]</span><br></pre></td></tr></table></figure>
+<p>命令效果：<br>启动一个 nginx 镜像</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d -P nginx</span><br></pre></td></tr></table></figure>
+<p>注意：<br>宿主机的32768被映射到容器的80端口<br>-P 自动绑定所有对外提供服务的容器端口，映射的端口将会从没有使用的端口池中自动随机选择，但是如果连续启动多个容器的话，则下一个容器的端口默认是当前容器占用端口号+1</p>
+<blockquote>
+<p>指定主机随机映射</p>
+</blockquote>
+<p>命令格式</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d -p [宿主机 ip]::[容器端口] --name 容器名称 镜像名称</span><br></pre></td></tr></table></figure>
+<p>命令效果</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d -p <span class="number">192.168</span>.<span class="number">8.14</span>::<span class="number">80</span> --name nginx-<span class="number">2</span> nginx</span><br></pre></td></tr></table></figure>
+<h4 id="3、指定映射实践"><a href="#3、指定映射实践" class="headerlink" title="3、指定映射实践"></a>3、指定映射实践</h4><blockquote>
+<p>指定端口映射</p>
+</blockquote>
+<p>命令格式：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d -p [宿主机ip]:[宿主机端口]:[容器端口] --name 容器名字</span><br></pre></td></tr></table></figure>
+<p>注意：<br>如果不指定宿主机ip的话，默认使用 0.0.0.0，<br>容器端口必须清楚，而且必须写出来<br>命令实践：<br>我们在启动容器的时候，给容器指定一个访问的端口 1199</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d -p <span class="number">192.168</span>.<span class="number">8.14</span>:<span class="number">1199</span>:<span class="number">80</span> --name nginx-<span class="number">1</span> nginx</span><br></pre></td></tr></table></figure>
+<p>查看新容器ip</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker inspect --format=<span class="string">'&#123;&#123;range .NetworkSettings.Networks&#125;&#125;&#123;&#123;.IPAddress&#125;&#125;&#123;&#123;end&#125;&#125;'</span> <span class="number">0</span>ad3acfbfb76</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>多端口映射方法</p>
+</blockquote>
+<p>命令格式</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d -p [宿主机端口 <span class="number">1</span>]:[容器端口 <span class="number">1</span>] -p [宿主机端口 <span class="number">2</span>]:[容器端口 <span class="number">2</span>] --name 容器名称</span><br></pre></td></tr></table></figure>
+<p>开起多端口映射实践</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d -p <span class="number">520</span>:<span class="number">443</span> -p <span class="number">6666</span>:<span class="number">80</span> --name nginx-<span class="number">3</span> nginx</span><br></pre></td></tr></table></figure>
+<h4 id="4、网络管理基础"><a href="#4、网络管理基础" class="headerlink" title="4、网络管理基础"></a>4、网络管理基础</h4><blockquote>
+<p>docker 网络命令</p>
+</blockquote>
+<p>查看网络命令帮助</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">~<span class="comment"># docker network help</span></span><br><span class="line">...</span><br><span class="line">connect Connect a container to a network</span><br><span class="line">create Create a network</span><br><span class="line">disconnect Disconnect a container from a network</span><br><span class="line">inspect Display detailed information on one or more networks</span><br><span class="line">ls List networks</span><br><span class="line">prune Remove all unused networks</span><br><span class="line">rm Remove one or more networks</span><br></pre></td></tr></table></figure>
+<p>查看当前主机网络</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">~<span class="comment"># docker network ls</span></span><br><span class="line">NETWORK ID NAME DRIVER SCOPE</span><br><span class="line"><span class="number">8</span>a18574f0f27 bridge bridge local</span><br><span class="line"><span class="number">0925619</span>f069d host host local</span><br><span class="line">e8800439307e none null local</span><br></pre></td></tr></table></figure>
+<p>查看bridge网络的信息</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">~<span class="comment"># docker network inspect 8a18574f0f27</span></span><br><span class="line">[</span><br><span class="line">    &#123;</span><br><span class="line">       <span class="string">"Name"</span>: <span class="string">"bridge"</span>,</span><br><span class="line">       ...</span><br><span class="line">       <span class="string">"Config"</span>: [</span><br><span class="line">       &#123;</span><br><span class="line">       <span class="string">"Subnet"</span>: <span class="string">"172.17.0.0/16"</span>,</span><br><span class="line">       <span class="string">"Gateway"</span>: <span class="string">"172.17.0.1"</span></span><br><span class="line">       &#125;</span><br><span class="line">       ...</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>docker 的网络模式</p>
+</blockquote>
+<p>bridge模式：<br>简单来说：就是穿马甲，打着宿主机的旗号，做自己的事情。<br>Docker的默认模式，它会在docker容器启动时候，自动配置好自己的网络信息，同一宿主机的所有容器都在<br>一个网络下，彼此间可以通信。类似于我们vmware虚拟机的nat模式。<br>利用宿主机的网卡进行通信，因为涉及到网络转换，所以会造成资源消耗，网络效率会低。</p>
+<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/docker2.3.jpg?x-oss-process=style/myblog" alt=""></p>
+<p>host模式：<br>简单来说，就是鸠占鹊巢，用着宿主机的东西，干自己的事情。容器使用宿主机的ip地址进行通信。<br>特点：容器和宿主机共享网络</p>
+<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/docker2.4.jpg?x-oss-process=style/myblog" alt=""></p>
+<p>container模式：<br>新创建的容器间使用使用已创建的容器网络，类似一个局域网。<br>特点：容器和容器共享网络</p>
+<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/docker2.5.jpg?x-oss-process=style/myblog" alt=""></p>
+<p>none模式：<br>这种模式最纯粹，不会帮你做任何网络的配置，可以最大限度的定制化。</p>
+<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/docker2.6.jpg?x-oss-process=style/myblog" alt=""></p>
+<p>overlay模式：<br>容器彼此不再同一网络，而且能互相通行。</p>
+<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/docker2.7.jpg?x-oss-process=style/myblog" alt=""></p>
+<h4 id="5、bridge实践"><a href="#5、bridge实践" class="headerlink" title="5、bridge实践"></a>5、bridge实践</h4><p>端口映射的时候默认就是bridge网络模式，现在我们来自定义桥接网络。</p>
+<blockquote>
+<p>创建网络</p>
+</blockquote>
+<p>命令格式：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker network create --driver 网络类型</span><br></pre></td></tr></table></figure>
+<p>命令演示：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker network create --driver bridge bridge-test</span><br></pre></td></tr></table></figure>
+<p>查看主机网络类型</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">~<span class="comment"># docker network ls</span></span><br><span class="line">NETWORK ID NAME DRIVER SCOPE</span><br><span class="line"><span class="number">8</span>a18574f0f27 bridge bridge local</span><br><span class="line"><span class="number">172</span>ae1f1f3f5 bridge-test bridge local</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>查看新建网络的网络信息</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">~<span class="comment"># docker network inspect bridge-test</span></span><br><span class="line">[</span><br><span class="line">      &#123;</span><br><span class="line">       <span class="string">"Name"</span>: <span class="string">"bridge-test"</span>,</span><br><span class="line">       ...</span><br><span class="line">       <span class="string">"Config"</span>: [</span><br><span class="line">            &#123;</span><br><span class="line">             <span class="string">"Subnet"</span>: <span class="string">"172.18.0.0/16"</span>,</span><br><span class="line">             <span class="string">"Gateway"</span>: <span class="string">"172.18.0.1"</span></span><br><span class="line">       ...</span><br></pre></td></tr></table></figure>
+<p>宿主机又多出来一个网卡设备</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">~<span class="comment"># ifconfig</span></span><br><span class="line">br-<span class="number">172</span>ae1f1f3f5 Link encap:Ethernet HWaddr <span class="number">02</span>:<span class="number">42</span>:<span class="number">18</span>:<span class="number">4</span>e:ac:<span class="number">92</span></span><br><span class="line">inet addr:<span class="number">172.18</span>.<span class="number">0.1</span> Bcast:<span class="number">172.18</span>.<span class="number">255.255</span> Mask:<span class="number">255.255</span>.<span class="number">0.0</span></span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>在自定义网络中启动容器</p>
+</blockquote>
+<p>命令格式：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run --net=[网络名称] -itd --name=容器名称</span><br></pre></td></tr></table></figure>
+<p>使用效果：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run --net=bridge-test -itd --name=nginx-new-bri nginx</span><br></pre></td></tr></table></figure>
+<p>查看该容器的ip信息</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker inspect --format=<span class="string">'&#123;&#123;range .NetworkSettings.Networks&#125;&#125;&#123;&#123;.IPAddress&#125;&#125;&#123;&#123;end&#125;&#125;'</span> nginx-ne</span><br><span class="line">w-bri</span><br></pre></td></tr></table></figure>
+<p>注意<br>使用默认的桥接模型创建的容器是可以直接联网的。<br>使用自定义的桥接模型创建的容器不可以直接联网，但是可以通过端口映射来实现联网</p>
+<blockquote>
+<p>容器断开网络</p>
+</blockquote>
+<p>命令格式：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker network disconnect 网络名</span><br></pre></td></tr></table></figure>
+<p>命令演示：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker network disconnect bridge-test nginx-new-bri</span><br></pre></td></tr></table></figure>
+<p>效果展示：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker network inspect bridge-test</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>容器连接网络</p>
+</blockquote>
+<p>命令格式：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker network connect 网络名</span><br></pre></td></tr></table></figure>
+<p>命令演示：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker network connect bridge-test nginx-new-bri</span><br></pre></td></tr></table></figure>
+<p>效果展示：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker network inspect bridge-test</span><br></pre></td></tr></table></figure>
+<h4 id="6、host模型实践"><a href="#6、host模型实践" class="headerlink" title="6、host模型实践"></a>6、host模型实践</h4><blockquote>
+<p>命令详解</p>
+</blockquote>
+<p>host模型我们知道，容器使用宿主机的ip地址进行对外提供服务，本身没有ip地址。<br>命令格式：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run --net=host -itd --name [容器名称] 镜像名称</span><br></pre></td></tr></table></figure>
+<p>命令示例：<br>创建容器，使用host模式</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run --net=host -itd --name nginx-<span class="number">1</span> nginx</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>host 特点：</p>
+</blockquote>
+<p>host模型比较适合于，一台宿主机跑一个固定的容器，比较稳定，或者一个宿主机跑多个占用不同端口的应用的场<br>景，他的网络性能是很高的。<br>hosts模型启动的容器不会有任何地址，他其实是使用了宿主机的所有信息</p>
+
+        
+    </section>
+</article>
+
+
+
+<div class="comments">
+    <div id="comments"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+    new Gitalk({
+        clientID: "f117eb282f890eafac3d",
+        clientSecret: "13caf80f1f529128478f1fcbea32505d83fbea71",
+        repo: "comment-repo",
+        owner: "kenneth1996",
+        admin: ["kenneth1996"],
+        id: "2018/12/18/Docker-二-核心技术",
+        distractionFreeMode: true,
+        title: "Docker(二):核心技术",
+        body: "http://kenneth96.coding.me/2018/12/18/Docker-二-核心技术/",
+        labels: ["容器"]
+    }).render('comments');
+    </script>
+</div>
+
+</div>
+        <footer class="footer">
+    Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+
+    
+        &ensp;
+        <span id="cnzz_stat_icon_1234567890" class="vm"></span>
+        <script src="//s13.cnzz.com/stat.php?id=1234567890&show=pic" type="text/javascript"></script>
+    
+</footer>
+
+    </main>
+
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/1.9.0/jquery.min.js"></script>
+    <script type="text/javascript">
+    $(function() {
+        var nodes = {
+            nav: $('#nav'),
+            aside: $('#aside'),
+            asideInner: $('#aside-inner'),
+            navInner: $('#nav-inner')
+        };
+
+        var doing = false;
+        nodes.asideInner.on('webkitAnimationEnd mozAnimationEnd oAnimationEnd oanimationend animationend', function() {
+            if (nodes.aside.hasClass('mobile-open')) {
+                nodes.aside.removeClass('mobile-open');
+            } else {
+                nodes.aside.removeClass('mobile-close panel-show');
+            }
+            doing = false;
+        });
+        $('#open-panel, #aside-mask').on('click', function() {
+            if (doing) {
+                return;
+            }
+            
+            if (nodes.aside.hasClass('panel-show')) {
+                nodes.aside.addClass('mobile-close');
+            } else {
+                nodes.aside.addClass('mobile-open panel-show');
+            }
+        });
+        $('#open-menus').on('click', function() {
+            nodes.navInner.slideToggle();
+        });
+
+        if (window.innerWidth <= 960) {
+            setTimeout(function() {
+                nodes.navInner.slideUp();
+            }, 3000);
+        }
+    });
+    </script>
+    
+        <script type="text/javascript" src="/js/scrollspy.min.js"></script>
+        <script type="text/javascript">
+        $(document.body).scrollspy({target: '#aside-inner'});
+        </script>
+    
+
+</body>
+</html>

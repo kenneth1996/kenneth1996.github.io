@@ -131,6 +131,50 @@
     <header class="article-header">
         
         <h1 itemprop="name">
+            <a href="/2018/07/09/MySQL主从同步排错思路“‘/">MySQL主从同步排错思路</a>
+        </h1>
+        
+        <div class="article-meta clearfix">
+            <a class="article-date" href="http://kenneth96.coding.me/categories/front-end/page/2/index.html">
+    
+    <i class="icon-calendar"></i>
+    
+    <time datetime="2018-07-09T13:13:21.000Z" itemprop="datePublished">2018-07-09</time>
+</a>
+
+            
+<div class="article-tag-list">
+    <i class="icon-tag"></i>
+    <a class="article-tag-link" href="/tags/MySQL/">MySQL</a>
+</div>
+
+
+        </div>
+    </header>
+    
+    <section class="article-body markdown-body">
+        
+        <h4 id="一、权限层"><a href="#一、权限层" class="headerlink" title="一、权限层"></a>一、权限层</h4><p>slave是通过MySQL连接登录到master上来读取二进制日志，因此需要在<br>master上给slave配置权限，最常见的就是误操作配置错误，修改正确即可</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql &gt; grant replication slave on *.* to &apos;slave1&apos;@&apos;192.168.2.106&apos;identified by &apos;123456&apos;;</span><br></pre></td></tr></table></figure>
+<h4 id="二、服务层"><a href="#二、服务层" class="headerlink" title="二、服务层"></a>二、服务层</h4><p>server-id是标记一个数据库的标识，如果重复了就会报错，修改一下即可<br>
+        
+        </p><p class="article-more-link">
+            <a href="/2018/07/09/MySQL主从同步排错思路“‘/#more">
+                <span class="vm">阅读更多</span>
+                <i class="icon-arrow-double-right vm"></i>    
+            </a>
+        </p>
+        
+        
+    </section>
+</article>
+
+
+    <article class="article" itemscope="" itemprop="blogPost">
+    
+    <header class="article-header">
+        
+        <h1 itemprop="name">
             <a href="/2018/06/30/MySQL基本操作/">MySQL基本操作</a>
         </h1>
         
