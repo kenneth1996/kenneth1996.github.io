@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="UTF-8">
+
+    
+
+    
+
+    <title>云原生(一)Kubernetes1.13 | SRE</title>
+    <meta name="author" content="John Doe">
+    <meta name="version" content="1.0.0">
+    <meta name="keywords" content="">
+    <meta name="description" content="云原生(一)Kubernetes1.13一、Kubernetes是什么1、简介Kubernetes是一个开源的，用于管理云平台中多个主机上的容器化的应用，Kubernetes的目标是让部署容器化的应用简单并且高效（powerful）,Kubernetes提供了应用部署，规划，更新，维护的一种机制。Kubernetes一个核心的特点就是能够自主的管理容器来保证云平台中的容器按照用户的期望状态运行着（比如用户想让apache一直运行，用户不需要关心怎么去做，Kubernetes会自动去监控，...">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+
+    
+    <link rel="alternate" href="/atom.xml" title="SRE" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/images/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+    <main class="app">
+        <header class="header clearfix">
+    <div id="nav" class="nav">
+    <div class="nav-mobile">
+        <button id="open-panel" class="open-panel nav-mobile-item"><i class="icon-documents"></i></button>
+        <h1 class="nav-mobile-title nav-mobile-item">SRE</h1>
+        <button id="open-menus" class="open-panel nav-mobile-item"><i class="icon-library"></i></button>
+    </div>
+
+    <nav id="nav-inner" class="nav-inner">
+        
+            <a class="nav-item" href="/">
+                <span class="nav-text">首页</span>
+            </a>
+        
+            <a class="nav-item" href="/categories/front-end">
+                <span class="nav-text">Linux</span>
+            </a>
+        
+            <a class="nav-item" href="/categories/back-end">
+                <span class="nav-text">Python</span>
+            </a>
+        
+            <a class="nav-item" href="/tags">
+                <span class="nav-text">标签</span>
+            </a>
+        
+            <a class="nav-item" href="/archives">
+                <span class="nav-text">归档</span>
+            </a>
+        
+            <a class="nav-item" href="/about">
+                <span class="nav-text">关于</span>
+            </a>
+        
+    </nav>
+</div>
+
+    <aside id="aside" class="aside">
+    <div id="aside-mask" class="aside-mask"></div>
+    <div id="aside-inner" class="aside-inner">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit"><i class="icon-search-stroke"></i></button><input type="hidden" name="sitesearch" value="http://kenneth96.coding.me"></form>
+
+        
+        
+        
+        
+
+        
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#云原生-一-Kubernetes1-13"><span class="toc-number">1.</span> <span class="toc-text">云原生(一)Kubernetes1.13</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#一、Kubernetes是什么"><span class="toc-number">1.1.</span> <span class="toc-text">一、Kubernetes是什么</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1、简介"><span class="toc-number">1.1.1.</span> <span class="toc-text">1、简介</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2、起源"><span class="toc-number">1.1.2.</span> <span class="toc-text">2、起源</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3、发展历程"><span class="toc-number">1.1.3.</span> <span class="toc-text">3、发展历程</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#二、为什么要用Kubernetes"><span class="toc-number">1.2.</span> <span class="toc-text">二、为什么要用Kubernetes</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#三、准备工作"><span class="toc-number">1.3.</span> <span class="toc-text">三、准备工作</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1、主机环境"><span class="toc-number">1.3.1.</span> <span class="toc-text">1、主机环境</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2、系统环境"><span class="toc-number">1.3.2.</span> <span class="toc-text">2、系统环境</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3、安装Docker"><span class="toc-number">1.3.3.</span> <span class="toc-text">3、安装Docker</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#四、安装部署"><span class="toc-number">1.4.</span> <span class="toc-text">四、安装部署</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1、安装kubeadm和kubelet"><span class="toc-number">1.4.1.</span> <span class="toc-text">1、安装kubeadm和kubelet</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2、镜像下载"><span class="toc-number">1.4.2.</span> <span class="toc-text">2、镜像下载</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3、集群部署"><span class="toc-number">1.4.3.</span> <span class="toc-text">3、集群部署</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4、flannel容器组网"><span class="toc-number">1.4.4.</span> <span class="toc-text">4、flannel容器组网</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#5、node端配置"><span class="toc-number">1.4.5.</span> <span class="toc-text">5、node端配置</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#五、web-UI"><span class="toc-number">1.5.</span> <span class="toc-text">五、web UI</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1、下载编排文件"><span class="toc-number">1.5.1.</span> <span class="toc-text">1、下载编排文件</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2、安装部署"><span class="toc-number">1.5.2.</span> <span class="toc-text">2、安装部署</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3、查看状态"><span class="toc-number">1.5.3.</span> <span class="toc-text">3、查看状态</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4、授权"><span class="toc-number">1.5.4.</span> <span class="toc-text">4、授权</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#5、访问"><span class="toc-number">1.5.5.</span> <span class="toc-text">5、访问</span></a></li></ol></li></ol></li></ol>
+        
+    </div>
+</aside>
+
+</header>
+
+        <div id="content" class="content"><article class="article" itemscope="" itemprop="blogPost">
+    
+    <header class="article-header">
+        
+        <h1 itemprop="name">
+            云原生(一)Kubernetes1.13
+        </h1>
+        
+        <div class="article-meta clearfix">
+            <a class="article-date" href="http://kenneth96.coding.me/2019/02/02/云原生-一-Kubernetes1-13/index.html">
+    
+    <i class="icon-calendar"></i>
+    
+    <time datetime="2019-02-02T04:56:45.000Z" itemprop="datePublished">2019-02-02</time>
+</a>
+
+            
+<div class="article-tag-list">
+    <i class="icon-tag"></i>
+    <a class="article-tag-link" href="/tags/k8s/">k8s</a>
+</div>
+
+
+        </div>
+    </header>
+    
+    <section class="article-body markdown-body">
+        
+        <h3 id="云原生-一-Kubernetes1-13"><a href="#云原生-一-Kubernetes1-13" class="headerlink" title="云原生(一)Kubernetes1.13"></a>云原生(一)Kubernetes1.13</h3><h4 id="一、Kubernetes是什么"><a href="#一、Kubernetes是什么" class="headerlink" title="一、Kubernetes是什么"></a>一、Kubernetes是什么</h4><h5 id="1、简介"><a href="#1、简介" class="headerlink" title="1、简介"></a>1、简介</h5><p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/kubernetes2.png" alt=""></p>
+<p><strong>Kubernetes</strong>是一个开源的，用于管理云平台中多个主机上的容器化的应用，Kubernetes的目标是让部署容器化的应用简单并且高效（powerful）,Kubernetes提供了应用部署，规划，更新，维护的一种机制。<br><a id="more"></a><br>Kubernetes一个核心的特点就是能够自主的管理容器来保证云平台中的容器按照用户的期望状态运行着（比如用户想让apache一直运行，用户不需要关心怎么去做，Kubernetes会自动去监控，然后去重启，新建，总之，让apache一直提供服务），管理员可以加载一个微型服务，让规划器来找到合适的位置，同时，Kubernetes也系统提升工具以及人性化方面，让用户能够方便的部署自己的应用</p>
+<p>现在Kubernetes着重于不间断的服务状态（比如web服务器或者缓存服务器）和原生云平台应用（Nosql）,在不久的将来会支持各种生产云平台中的各种服务，例如，分批，工作流，以及传统数据库。</p>
+<h5 id="2、起源"><a href="#2、起源" class="headerlink" title="2、起源"></a>2、起源</h5><p>在Docker 作为高级容器引擎快速发展的同时，Google也开始将自身在容器技术及集群方面的积累贡献出来。在Google内部，容器技术已经应用了几十年，Borg系统运行管理着成千上万的容器应用，在它的支持下，无论是谷歌搜索、Gmail还是谷歌地图，可以轻而易举地从庞大的数据中心中获取技术资源来支撑服务运行。</p>
+<p>Borg是集群的管理器，在它的系统中，运行着众多集群，而每个集群可由成千上万的服务器联接组成，Borg每时每刻都在处理来自众多应用程序所提交的成百上千的Job, 对这些Job进行接收、调度、启动、停止、重启和监控。正如Borg论文中所说，Borg提供了3大好处:</p>
+<p>1）隐藏资源管理和错误处理，用户仅需要关注应用的开发。</p>
+<p>2）服务高可用、高可靠。</p>
+<p>3）可将负载运行在由成千上万的机器联合而成的集群中。</p>
+<p>作为Google的竞争技术优势，Borg理所当然的被视为商业秘密隐藏起来，但当Tiwtter的工程师精心打造出属于自己的Borg系统（Mesos）时， Google也审时度势地推出了来源于自身技术理论的新的开源工具。</p>
+<p>2014年6月，谷歌云计算专家埃里克·布鲁尔（Eric Brewer）在旧金山的发布会为这款新的开源工具揭牌，它的名字Kubernetes在希腊语中意思是船长或领航员，这也恰好与它在容器集群管理中的作用吻合，即作为装载了集装箱（Container）的众多货船的指挥者，负担着全局调度和运行监控的职责。</p>
+<h5 id="3、发展历程"><a href="#3、发展历程" class="headerlink" title="3、发展历程"></a>3、发展历程</h5><p>2014.10.27 Kubernetes 由Google正式开源<br>2015.07.22 Kubernetes 在OSCON(开源大会)上发布了 1.0 版本<br>2015.11.16 Kubernetes 发布 1.1 版本，改进工具+创建社区。<br>2016.04.16 Kubernetes 发布 1.2 版本，性能升级+简化部署和管理。<br>2016.07.22 Kubernetes 发布 1.3 版本，对接云原生+企业级负载。<br>2016.09.26 Kubernetes 发布 1.4 版本，支持不同的运行环境。<br>2016.12.13 Kubernetes 发布 1.5 版本，支持生产级别负载。<br>2017.03.28 Kubernetes 发布 1.6 版本，支持多租户+自动化集群负载。<br>2017.06.29 Kubernetes 发布 1.7 版本，提升安全性、存储和可扩展性。<br>2017.09.28 Kubernetes 发布 1.8 版本，增加项目的成熟度，加强服务治理。<br>2017.12.15 Kubernetes 发布 1.9 版本，改进Apps Workloads API+测试支持Windows。<br>2018.03.27 Kubernetes 发布 1.10版本，加强了三个关键领域的功能，包括存储，安全和网络<br>2018.06.27 Kubernetes 发布 1.11版本，增强了网络方面的主要功能<br>2019.09.29 Kubernetes 发布 1.12版本，改善TLS,自动扩缩容功能趋于成熟<br>2019.12.04 Kubernetes 发布 1.12版本，kubeadm简化集群管理、容器存储接口和CoreDNS作为默认DNS。</p>
+<p>Kubernetes作为容器集群管理工具，于2015年7月22日迭代到 v 1.0并正式对外公布，这意味着这个开源容器编排系统可以正式在生产环境使用。与此同时，谷歌联合Linux基金会及其他合作伙伴共同成立了CNCF基金会( Cloud Native Computing Foundation)，并将Kuberentes 作为首个编入CNCF管理体系的开源项目，助力容器技术生态的发展进步。Kubernetes项目凝结了Google过去十年间在生产环境的经验和教训，从Borg的多任务Alloc资源块到Kubernetes的多副本Pod，从Borg的Cell集群管理，到Kubernetes设计理念中的联邦集群，在Docker等高级引擎带动容器技术兴起和大众化的同时，为容器集群管理提供独了到见解和新思路。</p>
+<h4 id="二、为什么要用Kubernetes"><a href="#二、为什么要用Kubernetes" class="headerlink" title="二、为什么要用Kubernetes"></a>二、为什么要用Kubernetes</h4><p>IT从来都是一个由新技术驱动的行业，谁能比别人先一步领先一步掌握新技术，谁就在竞争中赢得了先机。</p>
+<p><strong>Kubernetes架构图</strong></p>
+<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/kubernetes1.png?x-oss-process=style/myblog" alt=""></p>
+<ul>
+<li>核心层：Kubernetes最核心的功能，对外提供API构建高层的应用，对内提供插件式应用执行环境</li>
+<li>应用层：部署（无状态应用、有状态应用、批处理任务、集群应用等）和路由（服务发现、DNS解析等）</li>
+<li>管理层：系统度量（如基础设施、容器和网络的度量），自动化（如自动扩展、动态Provision等）以及策略管理（RBAC、Quota、PSP、NetworkPolicy等）</li>
+<li>接口层：kubectl命令行工具、客户端SDK以及集群联邦</li>
+<li>生态系统：在接口层之上的庞大容器集群管理调度的生态系统</li>
+<li>Kubernetes外部：日志、监控、配置管理、CI、CD、Workflow、FaaS、OTS应用、ChatOps等</li>
+<li>Kubernetes内部：CRI、CNI、CVI、镜像仓库、Cloud Provider、集群自身的配置和管理等</li>
+</ul>
+<h4 id="三、准备工作"><a href="#三、准备工作" class="headerlink" title="三、准备工作"></a>三、准备工作</h4><h5 id="1、主机环境"><a href="#1、主机环境" class="headerlink" title="1、主机环境"></a>1、主机环境</h5><p>两台机器</p>
+<p>系统环境：CentOS 7.6</p>
+<p>192.168.1.130 k8smaster</p>
+<p>192.168.1.131 k8snode1</p>
+<h5 id="2、系统环境"><a href="#2、系统环境" class="headerlink" title="2、系统环境"></a>2、系统环境</h5><p>先用对系统进行初始配置</p>
+<blockquote>
+<p>主机名配置</p>
+</blockquote>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cat &lt;&lt; EOF &gt;&gt; /etc/hosts</span><br><span class="line"><span class="number">192.168</span>.<span class="number">1.130</span> k8smaster.devops.com k8smaster</span><br><span class="line"><span class="number">192.168</span>.<span class="number">1.131</span> k8snode1.devops.com k8snode1</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>修改内核参数</p>
+</blockquote>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">cat &lt;&lt; EOF &gt; /etc/sysctl.d/k8s.conf</span><br><span class="line">net.ipv4.ip_forward=<span class="number">1</span></span><br><span class="line">net.bridge.bridge-nf-call-ip6tables = <span class="number">1</span></span><br><span class="line">net.bridge.bridge-nf-call-iptables = <span class="number">1</span></span><br><span class="line">net.bridge.bridge-nf-call-arptables = <span class="number">1</span></span><br><span class="line">vm.swappiness=<span class="number">0</span></span><br><span class="line">EOF</span><br><span class="line">modprobe br_netfilter</span><br><span class="line">sysctl -p /etc/sysctl.d/k8s.conf</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>关闭swap</p>
+</blockquote>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">swapoff -a</span><br></pre></td></tr></table></figure>
+<h5 id="3、安装Docker"><a href="#3、安装Docker" class="headerlink" title="3、安装Docker"></a>3、安装Docker</h5><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">yum install -y yum-utils device-mapper-persistent-data lvm2</span><br><span class="line">yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo</span><br><span class="line">yum makecache fast</span><br><span class="line">yum install -y --setopt=obsoletes=<span class="number">0</span> \</span><br><span class="line">  docker-ce-<span class="number">18.06</span>.<span class="number">1</span>.ce-<span class="number">3</span>.el7</span><br><span class="line">systemctl start docker</span><br><span class="line">systemctl enable docker</span><br><span class="line">tee /etc/docker/daemon.json &lt;&lt;-<span class="string">'EOF'</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"registry-mirrors"</span>: [<span class="string">"https://jvozu2vk.mirror.aliyuncs.com"</span>]</span><br><span class="line">&#125;</span><br><span class="line">EOF</span><br><span class="line">systemctl daemon-reload</span><br><span class="line">systemctl restart docker</span><br></pre></td></tr></table></figure>
+<h4 id="四、安装部署"><a href="#四、安装部署" class="headerlink" title="四、安装部署"></a>四、安装部署</h4><h5 id="1、安装kubeadm和kubelet"><a href="#1、安装kubeadm和kubelet" class="headerlink" title="1、安装kubeadm和kubelet"></a>1、安装kubeadm和kubelet</h5><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/yum.repos.d/kubernetes.repo</span><br><span class="line">[kubernetes]</span><br><span class="line">name=Kubernetes Repo</span><br><span class="line">baseurl=https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64/</span><br><span class="line">gpgcheck=<span class="number">1</span></span><br><span class="line">gpgkey=https://mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg</span><br><span class="line">enabled=<span class="number">1</span></span><br><span class="line">yum install -y kubelet kubeadm kubectl</span><br><span class="line">systemctl start kubelet</span><br><span class="line">systemctl enable kubelet.service</span><br></pre></td></tr></table></figure>
+<p>查看下面两个文件的值是否为1</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@k8smaster ~]<span class="comment"># cat /proc/sys/net/bridge/bridge-nf-call-ip6tables</span></span><br><span class="line"><span class="number">1</span></span><br><span class="line">[root@k8smaster ~]<span class="comment"># cat /proc/sys/net/bridge/bridge-nf-call-ip6tables</span></span><br><span class="line"><span class="number">1</span></span><br></pre></td></tr></table></figure>
+<h5 id="2、镜像下载"><a href="#2、镜像下载" class="headerlink" title="2、镜像下载"></a>2、镜像下载</h5><p>查看需要哪些镜像：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[root@k8smaster ~]<span class="comment">#  kubeadm config images list</span></span><br><span class="line">k8s.gcr.io/kube-apiserver:v1.<span class="number">13.2</span></span><br><span class="line">k8s.gcr.io/kube-controller-manager:v1.<span class="number">13.2</span></span><br><span class="line">k8s.gcr.io/kube-scheduler:v1.<span class="number">13.2</span></span><br><span class="line">k8s.gcr.io/kube-proxy:v1.<span class="number">13.2</span></span><br><span class="line">k8s.gcr.io/pause:<span class="number">3.1</span></span><br><span class="line">k8s.gcr.io/etcd:<span class="number">3.2</span>.<span class="number">24</span></span><br><span class="line">k8s.gcr.io/coredns:<span class="number">1.2</span>.<span class="number">6</span></span><br></pre></td></tr></table></figure>
+<p>这些镜像在国内是下不了的，只能翻墙去下。因为kubeadm是根据容器名来识别，下国内别人下好的镜像，改个名字就可以了</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">docker pull mirrorgooglecontainers/kube-apiserver-amd64:v1.<span class="number">13.2</span></span><br><span class="line">docker pull mirrorgooglecontainers/kube-controller-manager-amd64:v1.<span class="number">13.2</span></span><br><span class="line">docker pull mirrorgooglecontainers/kube-scheduler-amd64:v1.<span class="number">13.2</span> </span><br><span class="line">docker pull mirrorgooglecontainers/kube-proxy-amd64:v1.<span class="number">13.2</span></span><br><span class="line">docker pull mirrorgooglecontainers/pause-amd64:<span class="number">3.1</span></span><br><span class="line">docker pull mirrorgooglecontainers/etcd-amd64:<span class="number">3.2</span>.<span class="number">24</span></span><br><span class="line">docker pull carlziess/coredns-<span class="number">1.2</span>.<span class="number">6</span></span><br><span class="line">docker pull registry.cn-hangzhou.aliyuncs.com/pycf/flannel:v0.<span class="number">10.0</span>-amd64</span><br></pre></td></tr></table></figure>
+<p>然后给镜像打对应的标签</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">docker tag mirrorgooglecontainers/kube-apiserver-amd64:v1.<span class="number">13.2</span> k8s.gcr.io/kube-apiserver:v1.<span class="number">13.2</span></span><br><span class="line">docker tag mirrorgooglecontainers/kube-controller-manager-amd64:v1.<span class="number">13.2</span> k8s.gcr.io/kube-controller-manager:v1.<span class="number">13.2</span></span><br><span class="line">docker tag mirrorgooglecontainers/kube-scheduler-amd64:v1.<span class="number">13.2</span> k8s.gcr.io/kube-scheduler:v1.<span class="number">13.2</span></span><br><span class="line">docker tag mirrorgooglecontainers/kube-proxy-amd64:v1.<span class="number">13.2</span> k8s.gcr.io/kube-proxy:v1.<span class="number">13.2</span></span><br><span class="line">docker tag mirrorgooglecontainers/pause-amd64:<span class="number">3.1</span> k8s.gcr.io/pause:<span class="number">3.1</span></span><br><span class="line">docker tag mirrorgooglecontainers/etcd-amd64:<span class="number">3.2</span>.<span class="number">24</span> k8s.gcr.io/etcd:<span class="number">3.2</span>.<span class="number">24</span></span><br><span class="line">docker tag carlziess/coredns-<span class="number">1.2</span>.<span class="number">6</span> k8s.gcr.io/coredns:<span class="number">1.2</span>.<span class="number">6</span></span><br><span class="line">docker tag registry.cn-hangzhou.aliyuncs.com/pycf/flannel:v0.<span class="number">10.0</span>-amd64quay.io/coreos/flannel:v0.<span class="number">10.0</span>-amd64</span><br></pre></td></tr></table></figure>
+<p>node端需要执行的操作：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">docker pull mirrorgooglecontainers/kube-proxy-amd64:v1.<span class="number">13.2</span></span><br><span class="line">docker pull mirrorgooglecontainers/pause-amd64:<span class="number">3.1</span></span><br><span class="line">docker pull carlziess/coredns-<span class="number">1.2</span>.<span class="number">6</span></span><br><span class="line">docker pull registry.cn-hangzhou.aliyuncs.com/pycf/flannel:v0.<span class="number">10.0</span>-amd64</span><br><span class="line">docker tag mirrorgooglecontainers/kube-proxy-amd64:v1.<span class="number">13.2</span> k8s.gcr.io/kube-proxy:v1.<span class="number">13.2</span></span><br><span class="line">docker tag mirrorgooglecontainers/pause-amd64:<span class="number">3.1</span> k8s.gcr.io/pause:<span class="number">3.1</span></span><br><span class="line">docker tag carlziess/coredns-<span class="number">1.2</span>.<span class="number">6</span>  k8s.gcr.io/coredns:<span class="number">1.2</span>.<span class="number">6</span></span><br><span class="line">docker tag registry.cn-hangzhou.aliyuncs.com/pycf/flannel:v0.<span class="number">10.0</span>-amd64quay.io/coreos/flannel:v0.<span class="number">10.0</span>-amd64</span><br></pre></td></tr></table></figure>
+<h5 id="3、集群部署"><a href="#3、集群部署" class="headerlink" title="3、集群部署"></a>3、集群部署</h5><p>master端初始化集群:</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">kubeadm init \</span><br><span class="line"></span><br><span class="line">  --kubernetes-version=v1.<span class="number">13.2</span> \</span><br><span class="line"></span><br><span class="line">  --pod-network-cidr=<span class="number">10.244</span>.<span class="number">0.0</span>/<span class="number">16</span> \</span><br><span class="line"></span><br><span class="line">  --apiserver-advertise-address=<span class="number">192.168</span>.<span class="number">1.130</span></span><br></pre></td></tr></table></figure>
+<p>把执行最后的token复制保存一下，之后要用到，就像下面这样的:</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubeadm join <span class="number">192.168</span>.<span class="number">1.130</span>:<span class="number">6443</span> --token <span class="number">786</span>rp5.ju4lmdf0g06i2pmi --discovery-token-ca-cert-hash sha256:<span class="number">70</span>dac4db1453a8555b522c856226fadee86534e0fc306dcb306cc2498aa6f4ed</span><br></pre></td></tr></table></figure>
+<p>设置一下环境变量</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p <span class="variable">$HOME</span>/.kube</span><br><span class="line">sudo cp -i /etc/kubernetes/admin.conf <span class="variable">$HOME</span>/.kube/config</span><br><span class="line">sudo chown $(id -u):$(id -g) <span class="variable">$HOME</span>/.kube/config</span><br><span class="line">export KUBECONFIG=/etc/kubernetes/admin.conf</span><br></pre></td></tr></table></figure>
+<p>如果安装失败，运行下面这个命令清理环境</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubeadm reset</span><br></pre></td></tr></table></figure>
+<h5 id="4、flannel容器组网"><a href="#4、flannel容器组网" class="headerlink" title="4、flannel容器组网"></a>4、flannel容器组网</h5><p>运行如下命令部署flannel</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@k8smaster ~]<span class="comment"># kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/bc79dd1505b0c8681ece4de4c0d86c5cd2643275/Documentation/kube-flannel.yml</span></span><br></pre></td></tr></table></figure>
+<h5 id="5、node端配置"><a href="#5、node端配置" class="headerlink" title="5、node端配置"></a>5、node端配置</h5><p>安装k8s</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/yum.repos.d/kubernetes.repo</span><br><span class="line">[kubernetes]</span><br><span class="line">name=Kubernetes Repo</span><br><span class="line">baseurl=https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64/</span><br><span class="line">gpgcheck=<span class="number">1</span></span><br><span class="line">gpgkey=https://mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg</span><br><span class="line">enabled=<span class="number">1</span></span><br><span class="line">yum install -y kubelet kubeadm kubectl</span><br><span class="line">systemctl start kubelet</span><br><span class="line">systemctl enable kubelet.service</span><br></pre></td></tr></table></figure>
+<p>k8s集群添加node节点</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@k8snode1 ~]<span class="comment"># kubeadm join 192.168.1.130:6443 --token 786rp5.ju4lmdf0g06i2pmi --discovery-token-ca-cert-hash sha256:70dac4db1453a8555b522c856226fadee86534e0fc306dcb306cc2498aa6f4ed</span></span><br></pre></td></tr></table></figure>
+<p>然后在master节点查看</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@k8smaster ~]<span class="comment"># kubectl get nodes</span></span><br><span class="line">NAME        STATUS   ROLES    AGE     VERSION</span><br><span class="line">k8smaster   Ready    master   <span class="number">15</span>m     v1.<span class="number">13.2</span></span><br><span class="line">k8snode1    Ready    &lt;none&gt;   <span class="number">3</span>m53s   v1.<span class="number">13.2</span></span><br></pre></td></tr></table></figure>
+<p>大功告成</p>
+<h4 id="五、web-UI"><a href="#五、web-UI" class="headerlink" title="五、web UI"></a>五、web UI</h4><h5 id="1、下载编排文件"><a href="#1、下载编排文件" class="headerlink" title="1、下载编排文件"></a>1、下载编排文件</h5><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget https://raw.githubusercontent.com/kubernetes/dashboard/master/aio/deploy/recommended/kubernetes-dashboard.yaml</span><br></pre></td></tr></table></figure>
+<p>将镜像地址修改为mirrorgooglecontainers/kubernetes-dashboard-amd64:v1.10.1</p>
+<h5 id="2、安装部署"><a href="#2、安装部署" class="headerlink" title="2、安装部署"></a>2、安装部署</h5><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[root@k8smaster ~]<span class="comment"># ~$ kubectl create -f kubernetes-dashboard.yaml </span></span><br><span class="line">secret/kubernetes-dashboard-certs created</span><br><span class="line">serviceaccount/kubernetes-dashboard created</span><br><span class="line">role.rbac.authorization.k8s.io/kubernetes-dashboard-minimal created</span><br><span class="line">rolebinding.rbac.authorization.k8s.io/kubernetes-dashboard-minimal created</span><br><span class="line">deployment.apps/kubernetes-dashboard created</span><br><span class="line">service/kubernetes-dashboard created</span><br></pre></td></tr></table></figure>
+<h5 id="3、查看状态"><a href="#3、查看状态" class="headerlink" title="3、查看状态"></a>3、查看状态</h5><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@k8smaster ~]<span class="comment"># ~$ kubectl get service --all-namespaces</span></span><br><span class="line">NAMESPACE     NAME                   TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)         AGE</span><br><span class="line">default       example-service        NodePort    <span class="number">10.107</span>.<span class="number">118.34</span>    &lt;none&gt;        <span class="number">80</span>:<span class="number">30952</span>/TCP    <span class="number">23</span>m</span><br><span class="line">default       kubernetes             ClusterIP   <span class="number">10.96</span>.<span class="number">0.1</span>        &lt;none&gt;        <span class="number">443</span>/TCP         <span class="number">123</span>m</span><br><span class="line">kube-system   kube-dns               ClusterIP   <span class="number">10.96</span>.<span class="number">0.10</span>       &lt;none&gt;        <span class="number">53</span>/UDP,<span class="number">53</span>/TCP   <span class="number">123</span>m</span><br><span class="line">kube-system   kubernetes-dashboard   ClusterIP   <span class="number">10.107</span>.<span class="number">116.183</span>   &lt;none&gt;        <span class="number">443</span>/TCP         <span class="number">6</span>m5s</span><br></pre></td></tr></table></figure>
+<h5 id="4、授权"><a href="#4、授权" class="headerlink" title="4、授权"></a>4、授权</h5><p>授予Dashboard账户集群管理权限,先新建kubernetes-dashboard-admin.rbac.yaml文件</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">vim kubernetes-dashboard-admin.rbac.yaml</span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: ServiceAccount</span><br><span class="line">metadata:</span><br><span class="line">  name: admin-user</span><br><span class="line">  namespace: kube-system</span><br><span class="line">---</span><br><span class="line"><span class="comment"># Create ClusterRoleBinding</span></span><br><span class="line">apiVersion: rbac.authorization.k8s.io/v1</span><br><span class="line">kind: ClusterRoleBinding</span><br><span class="line">metadata:</span><br><span class="line">  name: admin-user</span><br><span class="line">roleRef:</span><br><span class="line">  apiGroup: rbac.authorization.k8s.io</span><br><span class="line">  kind: ClusterRole</span><br><span class="line">  name: cluster-admin</span><br><span class="line">subjects:</span><br><span class="line">- kind: ServiceAccount</span><br><span class="line">  name: admin-user</span><br><span class="line">  namespace: kube-system</span><br></pre></td></tr></table></figure>
+<p>执行</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@k8smaster ~]<span class="comment"># ~$ kubectl create -f kubernetes-dashboard-admin.rbac.yaml</span></span><br></pre></td></tr></table></figure>
+<p>找到kubernete-dashboard-admin的token，记下这串token，等下登录的时候会使用，这个token默认是永久的。</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">[root@k8smaster ~]<span class="comment"># ~$ kubectl -n kube-system get secret | grep admin-user</span></span><br><span class="line">admin-user-token-<span class="number">2</span>zc6r                           kubernetes.io/service-account-token   <span class="number">3</span>      <span class="number">27</span>s</span><br><span class="line"></span><br><span class="line">[root@k8smaster ~]<span class="comment"># ~$ kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep admin-user | awk '&#123;print $1&#125;')</span></span><br><span class="line">Name:         admin-user-token-<span class="number">2</span>zc6r</span><br><span class="line">Namespace:    kube-system</span><br><span class="line">Labels:       &lt;none&gt;</span><br><span class="line">Annotations:  kubernetes.io/service-account.name: admin-user</span><br><span class="line">              kubernetes.io/service-account.uid: <span class="number">0</span>a358e70-<span class="number">18</span>d2-<span class="number">11</span>e9-a9d0-<span class="number">000</span>c29245f60</span><br><span class="line"></span><br><span class="line">Type:  kubernetes.io/service-account-token</span><br><span class="line"></span><br><span class="line"><span class="keyword">Data</span></span><br><span class="line">====</span><br><span class="line">ca.crt:     <span class="number">1025</span> bytes</span><br><span class="line">namespace:  <span class="number">11</span> bytes</span><br><span class="line">token:      eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJhZG1pbi11c2VyLXRva2VuLTJ6YzZyIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6ImFkbWluLXVzZXIiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiIwYTM1OGU3MC0xOGQyLTExZTktYTlkMC0wMDBjMjkyNDVmNjAiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6a3ViZS1zeXN0ZW06YWRtaW4tdXNlciJ9.nXbQv2KEkuEEJgkxQYfuMtiXOsWaMm1E_34dybyPoeSuChxlzA7HlQ13mtcTSIjmA7rVMv22XN0A2dTf6bbb-<span class="number">31</span>XLLAcmWwzy1cajJCXcO5zjhUYdNHZwGb2sLE4WyDcMlXIjPLGFYflnLJQ_fkU6RfnjHU0Th3tJ_YRJvcPt7eieeG2lEF6iRl48kdF0IduOWh749AzMXqxdDbW56YlazD7dzBkyHDlrpYZvC93-a-BPYXR5MpFEYSUNQWg-PILkFgwWBP0dnpbBcS80BzmuaslEhE8bSq_JZ5h_aQjM0fhN2ogPQM-<span class="number">6</span>cuKXPTmLnsQQ9NN4Vjrg0YSmsfHp9OwFw</span><br></pre></td></tr></table></figure>
+<h5 id="5、访问"><a href="#5、访问" class="headerlink" title="5、访问"></a>5、访问</h5><p>创建证书</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[root@k8smaster ~]<span class="comment"># ~$ cat $HOME/.kube/config</span></span><br><span class="line">[root@k8smaster ~]<span class="comment"># ~$ cd .kube/</span></span><br><span class="line">运行以下命令来生成一个p12格式的浏览器证书</span><br><span class="line">[root@k8smaster ~]<span class="comment"># ~$ grep 'client-certificate-data' ~/.kube/config | head -n 1 | awk '&#123;print $2&#125;' | base64 -d &gt;&gt; kubecfg.crt</span></span><br><span class="line">[root@k8smaster ~]<span class="comment"># ~$ grep 'client-key-data' ~/.kube/config | head -n 1 | awk '&#123;print $2&#125;' | base64 -d &gt;&gt; kubecfg.key</span></span><br><span class="line">[root@k8smaster ~]<span class="comment"># ~$ openssl pkcs12 -export -clcerts -inkey kubecfg.key -in kubecfg.crt -out kubecfg.p12 -name "kubernetes-client"</span></span><br><span class="line">按要求输入密码直接回车即可，密码不要胡乱输，后面给浏览器导入的时候要用。</span><br><span class="line">运行完后在当前目录会有个kubecfg.p12证书文件。</span><br></pre></td></tr></table></figure>
+<p>将证书导入谷歌浏览器</p>
+<p>点击浏览器 菜单-设置-高级-管理证书</p>
+<p>选择“受信任的根证书颁发机构”这一栏，然后点击导入。（注意 版本的差别：chrome71选择个人）<br>然后根据步骤操作完。</p>
+<p>导入上面生成的p12文件后，重启浏览器chrome://restart，访问<a href="https://192.168.1.130:6443/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/,弹出证书信息，点击确定即可。" target="_blank" rel="noopener">https://192.168.1.130:6443/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/,弹出证书信息，点击确定即可。</a></p>
+<p>然后选择token登录方式，查看token</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep admin-user | awk <span class="string">'&#123;print $1&#125;'</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/kubernetes3.png?x-oss-process=style/myblog" alt=""></p>
+
+        
+    </section>
+</article>
+
+
+
+<div class="comments">
+    <div id="comments"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+    new Gitalk({
+        clientID: "f117eb282f890eafac3d",
+        clientSecret: "13caf80f1f529128478f1fcbea32505d83fbea71",
+        repo: "comment-repo",
+        owner: "kenneth1996",
+        admin: ["kenneth1996"],
+        id: "2019/02/02/云原生-一-Kubernetes1-13",
+        distractionFreeMode: true,
+        title: "云原生(一)Kubernetes1.13",
+        body: "http://kenneth96.coding.me/2019/02/02/云原生-一-Kubernetes1-13/",
+        labels: ["k8s"]
+    }).render('comments');
+    </script>
+</div>
+
+</div>
+        <footer class="footer">
+    Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+
+    
+        &ensp;
+        <span id="cnzz_stat_icon_1234567890" class="vm"></span>
+        <script src="//s13.cnzz.com/stat.php?id=1234567890&show=pic" type="text/javascript"></script>
+    
+</footer>
+
+    </main>
+
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/1.9.0/jquery.min.js"></script>
+    <script type="text/javascript">
+    $(function() {
+        var nodes = {
+            nav: $('#nav'),
+            aside: $('#aside'),
+            asideInner: $('#aside-inner'),
+            navInner: $('#nav-inner')
+        };
+
+        var doing = false;
+        nodes.asideInner.on('webkitAnimationEnd mozAnimationEnd oAnimationEnd oanimationend animationend', function() {
+            if (nodes.aside.hasClass('mobile-open')) {
+                nodes.aside.removeClass('mobile-open');
+            } else {
+                nodes.aside.removeClass('mobile-close panel-show');
+            }
+            doing = false;
+        });
+        $('#open-panel, #aside-mask').on('click', function() {
+            if (doing) {
+                return;
+            }
+            
+            if (nodes.aside.hasClass('panel-show')) {
+                nodes.aside.addClass('mobile-close');
+            } else {
+                nodes.aside.addClass('mobile-open panel-show');
+            }
+        });
+        $('#open-menus').on('click', function() {
+            nodes.navInner.slideToggle();
+        });
+
+        if (window.innerWidth <= 960) {
+            setTimeout(function() {
+                nodes.navInner.slideUp();
+            }, 3000);
+        }
+    });
+    </script>
+    
+        <script type="text/javascript" src="/js/scrollspy.min.js"></script>
+        <script type="text/javascript">
+        $(document.body).scrollspy({target: '#aside-inner'});
+        </script>
+    
+
+</body>
+</html>
