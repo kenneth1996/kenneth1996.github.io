@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="UTF-8">
+
+    
+
+    
+
+    <title>Docker(三):高级应用 | SRE</title>
+    <meta name="author" content="John Doe">
+    <meta name="version" content="1.0.0">
+    <meta name="keywords" content="">
+    <meta name="description" content="一、Dockerfile1、Dockerfile简介什么是DockerfileDockerfile类似于脚本，将docker镜像使用自动化的方式实现出来。Dockerfile 的作用找一个镜像： ubuntu创建一个容器： docker run ubuntu进入容器： docker exec -it 容器 命令操作： 各种应用配置….构造新镜像： docker commitDockerfile  使用 准则大： 首字母必须大写D空： 尽量将Doc...">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+
+    
+    <link rel="alternate" href="/atom.xml" title="SRE" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/images/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+    <main class="app">
+        <header class="header clearfix">
+    <div id="nav" class="nav">
+    <div class="nav-mobile">
+        <button id="open-panel" class="open-panel nav-mobile-item"><i class="icon-documents"></i></button>
+        <h1 class="nav-mobile-title nav-mobile-item">SRE</h1>
+        <button id="open-menus" class="open-panel nav-mobile-item"><i class="icon-library"></i></button>
+    </div>
+
+    <nav id="nav-inner" class="nav-inner">
+        
+            <a class="nav-item" href="/">
+                <span class="nav-text">首页</span>
+            </a>
+        
+            <a class="nav-item" href="/categories/front-end">
+                <span class="nav-text">Linux</span>
+            </a>
+        
+            <a class="nav-item" href="/categories/back-end">
+                <span class="nav-text">Python</span>
+            </a>
+        
+            <a class="nav-item" href="/tags">
+                <span class="nav-text">标签</span>
+            </a>
+        
+            <a class="nav-item" href="/archives">
+                <span class="nav-text">归档</span>
+            </a>
+        
+            <a class="nav-item" href="/about">
+                <span class="nav-text">关于</span>
+            </a>
+        
+    </nav>
+</div>
+
+    <aside id="aside" class="aside">
+    <div id="aside-mask" class="aside-mask"></div>
+    <div id="aside-inner" class="aside-inner">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit"><i class="icon-search-stroke"></i></button><input type="hidden" name="sitesearch" value="http://kenneth96.coding.me"></form>
+
+        
+        
+        
+        
+
+        
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#一、Dockerfile"><span class="toc-number">1.</span> <span class="toc-text">一、Dockerfile</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1、Dockerfile简介"><span class="toc-number">1.1.</span> <span class="toc-text">1、Dockerfile简介</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2、Dockerfile入门"><span class="toc-number">1.2.</span> <span class="toc-text">2、Dockerfile入门</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#①准备环境"><span class="toc-number">1.2.1.</span> <span class="toc-text">①准备环境</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#②定制文件"><span class="toc-number">1.2.2.</span> <span class="toc-text">②定制文件</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#③-构建镜像"><span class="toc-number">1.2.3.</span> <span class="toc-text">③ 构建镜像</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#④效果查看"><span class="toc-number">1.2.4.</span> <span class="toc-text">④效果查看</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3、基础指令详解"><span class="toc-number">1.3.</span> <span class="toc-text">3、基础指令详解</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4、文件编辑指令"><span class="toc-number">1.4.</span> <span class="toc-text">4、文件编辑指令</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#①目录文件编辑指令"><span class="toc-number">1.4.1.</span> <span class="toc-text">①目录文件编辑指令</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#②ADD实践"><span class="toc-number">1.4.2.</span> <span class="toc-text">②ADD实践</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#③COPY实践"><span class="toc-number">1.4.3.</span> <span class="toc-text">③COPY实践</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#④VOLUME实践"><span class="toc-number">1.4.4.</span> <span class="toc-text">④VOLUME实践</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5、环境指令详解"><span class="toc-number">1.5.</span> <span class="toc-text">5、环境指令详解</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#①环境设置指令"><span class="toc-number">1.5.1.</span> <span class="toc-text">①环境设置指令</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#②ENV实践"><span class="toc-number">1.5.2.</span> <span class="toc-text">②ENV实践</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#③WORKDIR实践"><span class="toc-number">1.5.3.</span> <span class="toc-text">③WORKDIR实践</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6、Dockerfile-构建过程"><span class="toc-number">1.6.</span> <span class="toc-text">6、Dockerfile 构建过程</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#①Dockerfile-构建过程"><span class="toc-number">1.6.1.</span> <span class="toc-text">①Dockerfile 构建过程</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#②构建过程镜像介绍"><span class="toc-number">1.6.2.</span> <span class="toc-text">②构建过程镜像介绍</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#③构建缓存"><span class="toc-number">1.6.3.</span> <span class="toc-text">③构建缓存</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#④构建历史"><span class="toc-number">1.6.4.</span> <span class="toc-text">④构建历史</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#二、Docker-compose"><span class="toc-number">2.</span> <span class="toc-text">二、Docker compose</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1、简介"><span class="toc-number">2.1.</span> <span class="toc-text">1、简介</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2、入门"><span class="toc-number">2.2.</span> <span class="toc-text">2、入门</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#①docker-compose-部署"><span class="toc-number">2.2.1.</span> <span class="toc-text">①docker compose 部署</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#②compose简单配置文件"><span class="toc-number">2.2.2.</span> <span class="toc-text">②compose简单配置文件</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#③运行一个容器"><span class="toc-number">2.2.3.</span> <span class="toc-text">③运行一个容器</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3、命令详解"><span class="toc-number">2.3.</span> <span class="toc-text">3、命令详解</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#①服务启动、关闭、查看"><span class="toc-number">2.3.1.</span> <span class="toc-text">①服务启动、关闭、查看</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#②服务创建、开启、关闭、删除"><span class="toc-number">2.3.2.</span> <span class="toc-text">②服务创建、开启、关闭、删除</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4、文件详解"><span class="toc-number">2.4.</span> <span class="toc-text">4、文件详解</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#①格式详解："><span class="toc-number">2.4.1.</span> <span class="toc-text">①格式详解：</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#②属性详解"><span class="toc-number">2.4.2.</span> <span class="toc-text">②属性详解</span></a></li></ol></li></ol></li></ol>
+        
+    </div>
+</aside>
+
+</header>
+
+        <div id="content" class="content"><article class="article" itemscope="" itemprop="blogPost">
+    
+    <header class="article-header">
+        
+        <h1 itemprop="name">
+            Docker(三):高级应用
+        </h1>
+        
+        <div class="article-meta clearfix">
+            <a class="article-date" href="http://kenneth96.coding.me/2019/03/25/Docker/index.html">
+    
+    <i class="icon-calendar"></i>
+    
+    <time datetime="2019-03-25T14:38:53.000Z" itemprop="datePublished">2019-03-25</time>
+</a>
+
+            
+<div class="article-tag-list">
+    <i class="icon-tag"></i>
+    <a class="article-tag-link" href="/tags/容器/">容器</a>
+</div>
+
+
+        </div>
+    </header>
+    
+    <section class="article-body markdown-body">
+        
+        <h3 id="一、Dockerfile"><a href="#一、Dockerfile" class="headerlink" title="一、Dockerfile"></a>一、Dockerfile</h3><h4 id="1、Dockerfile简介"><a href="#1、Dockerfile简介" class="headerlink" title="1、Dockerfile简介"></a>1、Dockerfile简介</h4><blockquote>
+<p>什么是Dockerfile</p>
+</blockquote>
+<p>Dockerfile类似于脚本，将docker镜像使用自动化的方式实现出来。</p>
+<p>Dockerfile 的作用</p>
+<ol>
+<li><p>找一个镜像： ubuntu</p>
+</li>
+<li><p>创建一个容器： docker run ubuntu</p>
+</li>
+<li><p>进入容器： docker exec -it 容器 命令</p>
+</li>
+<li><p>操作： 各种应用配置</p>
+<p>….</p>
+</li>
+<li><p>构造新镜像： docker commit</p>
+</li>
+</ol>
+<blockquote>
+<p>Dockerfile  使用 准则<br><a id="more"></a></p>
+<ol>
+<li>大： 首字母必须大写D</li>
+<li>空： 尽量将Dockerfile放在空目录中。</li>
+<li>单： 每个容器尽量只有一个功能。</li>
+<li>少： 执行的命令越少越好。</li>
+</ol>
+</blockquote>
+<blockquote>
+<p>Dockerfile 文件内容</p>
+</blockquote>
+<p>首行注释信息<br>指令(大写) 参数</p>
+<blockquote>
+<p>Dockerfile 使用命令</p>
+</blockquote>
+<p>构建镜像命令格式：<br>docker build -t [镜像名]:[版本号][Dockerfile所在目录]<br>构建样例：<br>docker build -t nginx:v0.2 /opt/dockerfile/nginx/<br>参数详解：<br>-t 指定构建后的镜像信息，<br>/opt/dockerfile/nginx/ 则代表Dockerfile存放位置，如果是当前目录，则用 .(点)表示</p>
+<h4 id="2、Dockerfile入门"><a href="#2、Dockerfile入门" class="headerlink" title="2、Dockerfile入门"></a>2、Dockerfile入门</h4><h5 id="①准备环境"><a href="#①准备环境" class="headerlink" title="①准备环境"></a>①准备环境</h5><p>创建Dockerfile专用目录</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mkdir /docker/images/nginx -p</span><br><span class="line">cd /docker/images/nginx</span><br></pre></td></tr></table></figure>
+<h5 id="②定制文件"><a href="#②定制文件" class="headerlink" title="②定制文件"></a>②定制文件</h5><p>创建Dockerfile文件</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 构建一个基于 centos 的 docker 定制镜像</span></span><br><span class="line"><span class="comment"># 基础镜像</span></span><br><span class="line">FROM centos</span><br><span class="line"><span class="comment"># 镜像作者</span></span><br><span class="line">MAINTAINER kenneth <span class="number">000000</span>@qq.com</span><br><span class="line"><span class="comment"># 执行命令</span></span><br><span class="line">RUN yum install wget -y</span><br><span class="line">RUN wget -O /etc/yum.repos.d/CentOS-Base-ali.repo http://mirrors.aliyun.com/repo/Centos-<span class="number">7</span>.repo</span><br><span class="line">RUN wget -O /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-<span class="number">7</span>.repo</span><br><span class="line">RUN yum install nginx -y</span><br><span class="line"><span class="comment"># 对外端口</span></span><br><span class="line">EXPOSE <span class="number">80</span></span><br><span class="line"><span class="comment"># 启动 nginx</span></span><br><span class="line">ENTRYPOINT [<span class="string">"/usr/sbin/nginx"</span>,<span class="string">"-g"</span>,<span class="string">"daemon off;"</span>]</span><br></pre></td></tr></table></figure>
+<h5 id="③-构建镜像"><a href="#③-构建镜像" class="headerlink" title="③ 构建镜像"></a>③ 构建镜像</h5><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker build -t nginx:v0.<span class="number">1</span> .</span><br></pre></td></tr></table></figure>
+<h5 id="④效果查看"><a href="#④效果查看" class="headerlink" title="④效果查看"></a>④效果查看</h5><p>使用新镜像启动一个容器，查看效果</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -itd -P nginx:v0.<span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>浏览器查看效果</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl <span class="number">192.168</span>.<span class="number">8.14</span>:<span class="number">32774</span></span><br></pre></td></tr></table></figure>
+<h4 id="3、基础指令详解"><a href="#3、基础指令详解" class="headerlink" title="3、基础指令详解"></a>3、基础指令详解</h4><p><code>FROM</code></p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">格式：</span><br><span class="line">FROM &lt;image&gt;</span><br><span class="line">FROM &lt;image&gt;:&lt;tag&gt;。</span><br><span class="line">解释：</span><br><span class="line">FROM 是 Dockerfile 里的第一条而且只能是除了首行注释之外的第一条指令</span><br><span class="line">可以有多个 FROM 语句，来创建多个 image</span><br><span class="line">FROM 后面是有效的镜像名称，如果该镜像没有在你的本地仓库，那么就会从远程仓库 Pull 取，如果远程也没有，就报</span><br><span class="line">错失败</span><br><span class="line">下面所有的 系统可执行指令 在 FROM 的镜像中执行。</span><br></pre></td></tr></table></figure>
+<p><code>MAINTAINER</code></p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">格式：</span><br><span class="line">MAINTAINER &lt;name&gt;</span><br><span class="line">解释：</span><br><span class="line">指定该 dockerfile 文件的维护者信息。类似我们在 docker commit 时候使用-a 参数指定的信息</span><br></pre></td></tr></table></figure>
+<p><code>RUN</code></p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">格式：</span><br><span class="line">RUN &lt;command&gt; (shell 模式)</span><br><span class="line">RUN[<span class="string">"executable"</span>, <span class="string">"param1"</span>, <span class="string">"param2"</span>]。 (exec 模式)</span><br><span class="line">解释：</span><br><span class="line">表示 当前镜像构建时候运行的命令，如果有确认输入的话，一定要在命令中添加 -y</span><br><span class="line">如果命令较长，那么可以在命令结尾使用 \ 来换行</span><br><span class="line">生产中，推荐使用上面数组的格式</span><br><span class="line">注释：</span><br><span class="line">shell 模式：类似于 /bin/bash -c command</span><br><span class="line">举例： RUN echo hello</span><br><span class="line">exec 模式：类似于 RUN [<span class="string">"/bin/bash"</span>, <span class="string">"-c"</span>, <span class="string">"command"</span>]</span><br><span class="line">举例： RUN [<span class="string">"echo"</span>, <span class="string">"hello"</span>]</span><br></pre></td></tr></table></figure>
+<p><code>EXPOSE</code></p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">格式：</span><br><span class="line">EXPOSE &lt;port&gt; [&lt;port&gt;...]</span><br><span class="line">解释：</span><br><span class="line">设置 Docker 容器对外暴露的端口号，Docker 为了安全，不会自动对外打开端口，如果需要外部提供访问，还需要启动容</span><br><span class="line">器时增加-p 或者-P 参数对容器的端口进行分配。</span><br></pre></td></tr></table></figure>
+<p><code>ENTRYPOINT</code></p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">格式：</span><br><span class="line">ENTRYPOINT [<span class="string">"executable"</span>, <span class="string">"param1"</span>,<span class="string">"param2"</span>] (exec 模式)</span><br><span class="line">ENTRYPOINT command <span class="keyword">param</span>1 <span class="keyword">param</span>2 (shell 模式)</span><br><span class="line">解释：</span><br><span class="line">和 CMD 类似都是配置容器启动后执行的命令，并且不会被 docker run 提供的参数覆盖。</span><br><span class="line">每个 Dockerfile 中只能有一个 ENTRYPOINT，当指定多个时，只有最后一个起效。</span><br><span class="line">生产中我们可以同时使用 ENTRYPOINT 和 CMD，</span><br><span class="line">想要在 docker run 时被覆盖，可以使用 <span class="string">"docker run --entrypoint"</span></span><br></pre></td></tr></table></figure>
+<h4 id="4、文件编辑指令"><a href="#4、文件编辑指令" class="headerlink" title="4、文件编辑指令"></a>4、文件编辑指令</h4><h5 id="①目录文件编辑指令"><a href="#①目录文件编辑指令" class="headerlink" title="①目录文件编辑指令"></a>①目录文件编辑指令</h5><p><code>ADD</code></p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">格式：</span><br><span class="line">ADD &lt;src&gt;... &lt;dest&gt;</span><br><span class="line">ADD [<span class="string">"&lt;src&gt;"</span>,... <span class="string">"&lt;dest&gt;"</span>]</span><br><span class="line">解释：</span><br><span class="line">将指定的 &lt;src&gt; 文件复制到容器文件系统中的 &lt;dest&gt;</span><br><span class="line">src 指的是宿主机，dest 指的是容器</span><br><span class="line">所有拷贝到 container 中的文件和文件夹权限为 <span class="number">0755</span>,uid 和 gid 为 <span class="number">0</span></span><br><span class="line">如果文件是可识别的压缩格式，则 docker 会帮忙解压缩</span><br><span class="line">注意：</span><br><span class="line"><span class="number">1</span>、如果源路径是个文件，且目标路径是以 / 结尾， 则 docker 会把目标路径当作一个目录，会把源文件拷贝到该目录下;</span><br><span class="line">如果目标路径不存在，则会自动创建目标路径。</span><br><span class="line"><span class="number">2</span>、如果源路径是个文件，且目标路径是不是以 / 结尾，则 docker 会把目标路径当作一个文件。</span><br><span class="line">如果目标路径不存在，会以目标路径为名创建一个文件，内容同源文件；</span><br><span class="line">如果目标文件是个存在的文件，会用源文件覆盖它，当然只是内容覆盖，文件名还是目标文件名。</span><br><span class="line">如果目标文件实际是个存在的目录，则会源文件拷贝到该目录下。 注意，这种情况下，最好显示的以 / 结尾，以避免混</span><br><span class="line">淆。</span><br><span class="line"><span class="number">3</span>、如果源路径是个目录，且目标路径不存在，则 docker 会自动以目标路径创建一个目录，把源路径目录下的文件拷贝进来。</span><br><span class="line">如果目标路径是个已经存在的目录，则 docker 会把源路径目录下的文件拷贝到该目录下。</span><br><span class="line"><span class="number">4</span>、 如果源文件是个压缩文件，则 docker  会自动帮解压 到指定的容器中( 无论目标是文件还是目录，都会当成目录处理)。</span><br></pre></td></tr></table></figure>
+<p><code>COPY</code></p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">格式：</span><br><span class="line">COPY &lt;src&gt;... &lt;dest&gt;</span><br><span class="line">COPY [<span class="string">"&lt;src&gt;"</span>,... <span class="string">"&lt;dest&gt;"</span>]</span><br><span class="line">解释：</span><br><span class="line">COPY 指令和 ADD 指令功能和使用方式类似。只是 COPY 指令不会做自动解压工作。</span><br><span class="line">单纯复制文件场景，Docker 推荐使用 COPY</span><br></pre></td></tr></table></figure>
+<p><code>VOLUME</code></p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">格式：</span><br><span class="line">VOLUME [<span class="string">"/data"</span>]</span><br><span class="line">解释：</span><br><span class="line">VOLUME 指令可以在镜像中创建挂载点，这样只要通过该镜像创建的容器都有了挂载点</span><br><span class="line">通过 VOLUME 指令创建的挂载点，无法指定主机上对应的目录，是自动生成的。</span><br><span class="line">举例：</span><br><span class="line">VOLUME [<span class="string">"/var/lib/tomcat7/webapps/"</span>]</span><br></pre></td></tr></table></figure>
+<h5 id="②ADD实践"><a href="#②ADD实践" class="headerlink" title="②ADD实践"></a>②ADD实践</h5><blockquote>
+<p>拷贝普通文件</p>
+</blockquote>
+<p>Dockerfile文件内容</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"><span class="comment"># 执行命令</span></span><br><span class="line">...</span><br><span class="line"><span class="comment"># 增加文件</span></span><br><span class="line">ADD [<span class="string">"sources.list"</span>,<span class="string">"/etc/apt/sources.list"</span>]</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>构建镜像</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker build -t ubuntu-nginx:v0.<span class="number">6</span> .</span><br></pre></td></tr></table></figure>
+<p>根据镜像创建容器,创建时候，不添加执行命令</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker run -p <span class="number">80</span> --name nginx-<span class="number">10</span> -d ubuntu-nginx:v0.<span class="number">6</span></span><br><span class="line">docker ps</span><br></pre></td></tr></table></figure>
+<p>进入容器查看效果</p>
+<blockquote>
+<p>拷贝压缩文件</p>
+</blockquote>
+<p>Dockerfile文件内容</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"><span class="comment"># 执行命令</span></span><br><span class="line">...</span><br><span class="line"><span class="comment"># 增加文件</span></span><br><span class="line">ADD [<span class="string">"linshi.tar.gz"</span>,<span class="string">"/nihao/"</span>]</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>构建镜像</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker build -t ubuntu-nginx:v0.<span class="number">7</span> .</span><br></pre></td></tr></table></figure>
+<p>根据镜像创建容器,创建时候，不添加执行命令</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker run -p <span class="number">80</span> --name nginx-<span class="number">11</span> -d ubuntu-nginx:v0.<span class="number">7</span></span><br><span class="line">docker ps</span><br></pre></td></tr></table></figure>
+<p>进入容器查看效果</p>
+<h5 id="③COPY实践"><a href="#③COPY实践" class="headerlink" title="③COPY实践"></a>③COPY实践</h5><p>修改Dockerfile文件内容:</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"><span class="comment"># 执行命令</span></span><br><span class="line">...</span><br><span class="line"><span class="comment"># 增加文件</span></span><br><span class="line">COPY index.html /var/www/html/</span><br><span class="line">...</span><br><span class="line">ENTRYPOINT [<span class="string">"/usr/sbin/nginx"</span>,<span class="string">"-g"</span>,<span class="string">"daemon off;"</span>]</span><br></pre></td></tr></table></figure>
+<p>index.html 文件内容：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;h1&gt;你好 docker&lt;/h1&gt;</span><br></pre></td></tr></table></figure>
+<p>构建镜像</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker build -t ubuntu-nginx:v0.<span class="number">8</span> .</span><br></pre></td></tr></table></figure>
+<p>根据镜像创建容器,创建时候，不添加执行命令</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker run -p <span class="number">80</span> --name nginx-<span class="number">12</span> -d ubuntu-nginx:v0.<span class="number">8</span></span><br><span class="line">docker ps</span><br></pre></td></tr></table></figure>
+<p>浏览器访问nginx查看效果</p>
+<h5 id="④VOLUME实践"><a href="#④VOLUME实践" class="headerlink" title="④VOLUME实践"></a>④VOLUME实践</h5><p>修改Dockerfile文件内容</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在上一个 Dockerfile 文件内容基础上，在 COPY 下面增加一个 VOLUME</span></span><br><span class="line">VOLUME [<span class="string">"/data/"</span>]</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>构建镜像</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker build -t ubuntu-nginx:v0.<span class="number">9</span> .</span><br></pre></td></tr></table></figure>
+<p>创建容器</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -itd --name nginx-<span class="number">13</span> ubuntu-nginx:v0.<span class="number">9</span></span><br></pre></td></tr></table></figure>
+<p>查看镜像信息</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker inspect nginx-<span class="number">13</span></span><br></pre></td></tr></table></figure>
+<p>验证操作</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker run -itd --name vc-nginx-<span class="number">1</span> --volumes-from nginx-<span class="number">13</span> nginx</span><br><span class="line">docker run -itd --name vc-nginx-<span class="number">2</span> --volumes-from nginx-<span class="number">13</span> nginx</span><br></pre></td></tr></table></figure>
+<p>进入容器1</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker exec -it vc-nginx-<span class="number">1</span> /bin/bash</span><br><span class="line">echo <span class="string">'nihao itcast'</span> &gt; <span class="keyword">data</span>/nihao.txt</span><br></pre></td></tr></table></figure>
+<p>进入容器2</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker exec -it vc-nginx-<span class="number">2</span> /bin/bash</span><br><span class="line">cat <span class="keyword">data</span>/nihao.txt</span><br></pre></td></tr></table></figure>
+<h4 id="5、环境指令详解"><a href="#5、环境指令详解" class="headerlink" title="5、环境指令详解"></a>5、环境指令详解</h4><h5 id="①环境设置指令"><a href="#①环境设置指令" class="headerlink" title="①环境设置指令"></a>①环境设置指令</h5><p><code>ENV</code></p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">格式：</span><br><span class="line">ENV &lt;key&gt; &lt;value&gt;</span><br><span class="line">ENV &lt;key&gt;=&lt;value&gt; ...</span><br><span class="line">解释：</span><br><span class="line">设置环境变量，可以在 RUN 之前使用，然后 RUN 命令时调用，容器启动时这些环境变量都会被指定</span><br></pre></td></tr></table></figure>
+<p><code>WORKDIR</code></p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">格式：</span><br><span class="line">WORKDIR /path/to/workdir (shell 模式)</span><br><span class="line">解释：</span><br><span class="line">切换目录，为后续的 RUN、CMD、ENTRYPOINT 指令配置工作目录。 相当于 cd</span><br><span class="line">可以多次切换(相当于 cd 命令)，</span><br><span class="line">也可以使用多个 WORKDIR 指令，后续命令如果参数是相对路径，则会基于之前命令指定的路径。例如</span><br><span class="line">举例：</span><br><span class="line">WORKDIR /a</span><br><span class="line">WORKDIR b</span><br><span class="line">WORKDIR c</span><br><span class="line">RUN pwd</span><br><span class="line">则最终路径为 /a/b/c</span><br></pre></td></tr></table></figure>
+<h5 id="②ENV实践"><a href="#②ENV实践" class="headerlink" title="②ENV实践"></a>②ENV实践</h5><p>修改Dockerfile文件内容：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在上一个 Dockerfile 文件内容基础上，在 RUN 下面增加一个 ENV</span></span><br><span class="line">ENV NIHAO=helloworld</span><br></pre></td></tr></table></figure>
+<p>…<br>构建镜像</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker build -t ubuntu-nginx:v0.<span class="number">10</span> .</span><br></pre></td></tr></table></figure>
+<p>根据镜像创建容器,创建时候，不添加执行命令</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker run -p <span class="number">80</span> --name nginx-<span class="number">13</span> -d ubuntu-nginx:v0.<span class="number">10</span></span><br><span class="line">docker exec -it <span class="number">54</span>f86f714083 /bin/bash</span><br><span class="line">echo <span class="variable">$NIHAO</span></span><br></pre></td></tr></table></figure>
+<h5 id="③WORKDIR实践"><a href="#③WORKDIR实践" class="headerlink" title="③WORKDIR实践"></a>③WORKDIR实践</h5><p>修改Dockerfile文件内容：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在上一个 Dockerfile 文件内容基础上，在 RUN 下面增加一个 WORKDIR</span></span><br><span class="line">WORKDIR /nihao/itcast/</span><br><span class="line">RUN [<span class="string">"touch"</span>,<span class="string">"itcast.txt"</span>]</span><br></pre></td></tr></table></figure>
+<p>…<br>构建镜像</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker build -t ubuntu-nginx:v0.<span class="number">11</span> .</span><br></pre></td></tr></table></figure>
+<p>根据镜像创建容器,创建时候，不添加执行命令</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker run -p <span class="number">80</span> --name nginx-<span class="number">14</span> -d ubuntu-nginx:v0.<span class="number">11</span></span><br><span class="line">docker exec -it <span class="number">54</span>f76f520083 /bin/bash</span><br><span class="line">ls</span><br></pre></td></tr></table></figure>
+<h4 id="6、Dockerfile-构建过程"><a href="#6、Dockerfile-构建过程" class="headerlink" title="6、Dockerfile 构建过程"></a>6、Dockerfile 构建过程</h4><h5 id="①Dockerfile-构建过程"><a href="#①Dockerfile-构建过程" class="headerlink" title="①Dockerfile 构建过程"></a>①Dockerfile 构建过程</h5><p>从基础镜像1运行一个容器A<br>遇到一条Dockerfile指令，都对容器A做一次修改操作<br>执行完毕一条命令，提交生成一个新镜像2<br>再基于新的镜像2运行一个容器B<br>遇到一条Dockerfile指令，都对容器B做一次修改操作<br>执行完毕一条命令，提交生成一个新镜像3<br>…</p>
+<h5 id="②构建过程镜像介绍"><a href="#②构建过程镜像介绍" class="headerlink" title="②构建过程镜像介绍"></a>②构建过程镜像介绍</h5><p>构建过程中，创建了很多镜像，这些中间镜像，我们可以直接使用来启动容器，通过查看容器效果，从侧面能看到我们每次构建的效果。<br>提供了镜像调试的能力<br>我们可以通过docker history &lt;镜像名&gt; 来查看整个构建过程所产生的镜像</p>
+<h5 id="③构建缓存"><a href="#③构建缓存" class="headerlink" title="③构建缓存"></a>③构建缓存</h5><p>第一次构建很慢，之后的构建都会很快，因为他们用到了构建的缓存。<br>不适用构建缓存方法常见两种：<br>全部不同缓存：<br>docker build –no-cache -t [镜像名]:[镜像版本] [Dockerfile位置]<br>部分使用缓存：<br>ENV REFRESH_DATE 2018-01-12<br>只要构建的缓存时间不变，那么就用缓存，如果时间一旦改变，就不用缓存了<br>样例:</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 构建一个基于 ubuntu 16.04 的 docker 定制镜像</span></span><br><span class="line"><span class="comment"># 基础镜像</span></span><br><span class="line">FROM ubuntu-<span class="number">16.04</span></span><br><span class="line"><span class="comment"># 镜像作者</span></span><br><span class="line">MAINTAINER President.Wang <span class="number">000000</span>@qq.com</span><br><span class="line"><span class="comment"># 创建构建刷新时间</span></span><br><span class="line">ENV REFRESH_DATE <span class="number">2018</span>-<span class="number">01</span>-<span class="number">12</span></span><br><span class="line"><span class="comment"># 执行命令</span></span><br><span class="line">RUN apt-get update</span><br><span class="line">RUN apt-get install nginx -y</span><br><span class="line"><span class="comment"># 对外端口</span></span><br><span class="line">EXPOSE <span class="number">80</span></span><br></pre></td></tr></table></figure>
+<h5 id="④构建历史"><a href="#④构建历史" class="headerlink" title="④构建历史"></a>④构建历史</h5><p>查看构建过程查看</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker history</span><br></pre></td></tr></table></figure>
+<h3 id="二、Docker-compose"><a href="#二、Docker-compose" class="headerlink" title="二、Docker compose"></a>二、Docker compose</h3><h4 id="1、简介"><a href="#1、简介" class="headerlink" title="1、简介"></a>1、简介</h4><p>我们使用 Docker 的时候，定义 Dockerfile 文件，然后使用 docker build、docker run 等命令操作容器。然而微服务架构的应用系统一般包含若干个微服务，每个微服务一般都会部署多个实例，如果每个微服务都要手动启停，那么效率之低，维护量之大可想而知。</p>
+<p>使用 Docker Compose 可以轻松、高效的管理容器，它是一个用于定义和运行多容器 Docker 的应用程序工具。</p>
+<h4 id="2、入门"><a href="#2、入门" class="headerlink" title="2、入门"></a>2、入门</h4><h5 id="①docker-compose-部署"><a href="#①docker-compose-部署" class="headerlink" title="①docker compose 部署"></a>①docker compose 部署</h5><p>安装依赖工具</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install python-pip -y</span><br></pre></td></tr></table></figure>
+<p>安装编排工具</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install docker-compose</span><br></pre></td></tr></table></figure>
+<p>查看编排工具版本</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker-compose version</span><br></pre></td></tr></table></figure>
+<p>查看命令帮助</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker-compose --help</span><br></pre></td></tr></table></figure>
+<h5 id="②compose简单配置文件"><a href="#②compose简单配置文件" class="headerlink" title="②compose简单配置文件"></a>②compose简单配置文件</h5><p>docker-compose.yml 文件内容</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">version: <span class="string">'2'</span></span><br><span class="line">services:</span><br><span class="line">web1:</span><br><span class="line">image: nginx</span><br><span class="line">ports:</span><br><span class="line">- <span class="string">"9999:80"</span></span><br><span class="line">container_name: nginx-web1</span><br><span class="line">web2:</span><br><span class="line">image: nginx</span><br><span class="line">ports:</span><br><span class="line">- <span class="string">"8888:80"</span></span><br><span class="line">container_name: nginx-web2</span><br></pre></td></tr></table></figure>
+<h5 id="③运行一个容器"><a href="#③运行一个容器" class="headerlink" title="③运行一个容器"></a>③运行一个容器</h5><p>后台启动</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker-compose up -d</span><br></pre></td></tr></table></figure>
+<p>查看运行效果</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker-compose ps</span><br></pre></td></tr></table></figure>
+<h4 id="3、命令详解"><a href="#3、命令详解" class="headerlink" title="3、命令详解"></a>3、命令详解</h4><p>注意：<br>所有命令尽量都在docker compose项目目录下面进行操作<br>项目目录：docker-compose.yml所在目录</p>
+<h5 id="①服务启动、关闭、查看"><a href="#①服务启动、关闭、查看" class="headerlink" title="①服务启动、关闭、查看"></a>①服务启动、关闭、查看</h5><p>后台启动</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker-compose up -d</span><br></pre></td></tr></table></figure>
+<p>删除服务</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker-compose down</span><br></pre></td></tr></table></figure>
+<p>查看正在运行的服务</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker-compose ps</span><br></pre></td></tr></table></figure>
+<h5 id="②服务创建、开启、关闭、删除"><a href="#②服务创建、开启、关闭、删除" class="headerlink" title="②服务创建、开启、关闭、删除"></a>②服务创建、开启、关闭、删除</h5><blockquote>
+<p>创建一个服务</p>
+</blockquote>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker-compose create</span><br></pre></td></tr></table></figure>
+<p>注意：<br>create 默认不会创建网络配置，所以，我们一般不会在第一次创建服务时候使用，一般结合rm场景来使<br>用。</p>
+<blockquote>
+<p>启动一个服务</p>
+</blockquote>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker-compose start &lt;服务名&gt;</span><br></pre></td></tr></table></figure>
+<p>注意：<br>如果后面不加服务名，会停止所有的服务</p>
+<blockquote>
+<p>停止一个服务</p>
+</blockquote>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker-compose stop &lt;服务名&gt;</span><br></pre></td></tr></table></figure>
+<p>注意：<br>如果后面不加服务名，会停止所有的服务</p>
+<blockquote>
+<p>删除服务</p>
+</blockquote>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker-compose rm &lt;服务名&gt;</span><br></pre></td></tr></table></figure>
+<p>注意：<br>这个docker-compose rm不会删除应用的网络和数据卷</p>
+<h4 id="4、文件详解"><a href="#4、文件详解" class="headerlink" title="4、文件详解"></a>4、文件详解</h4><p>compose文件样例：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">version: <span class="string">'2'</span> <span class="comment"># compose 版本号</span></span><br><span class="line">services: <span class="comment"># 服务标识符</span></span><br><span class="line">web1: <span class="comment"># 子服务命名</span></span><br><span class="line">image: nginx <span class="comment"># 服务依赖镜像属性</span></span><br><span class="line">ports: <span class="comment"># 服务端口属性</span></span><br><span class="line">- <span class="string">"9999:80"</span> <span class="comment"># 宿主机端口:容器端口</span></span><br><span class="line">container_name: nginx-web1 <span class="comment"># 容器命名</span></span><br></pre></td></tr></table></figure>
+<h5 id="①格式详解："><a href="#①格式详解：" class="headerlink" title="①格式详解："></a>①格式详解：</h5><p>compose版本号、服务标识符必须顶格写<br>属性名和属性值使用’: ‘(冒号+空格) 隔开<br>层级使用’ ‘(两个空格)表示，而且是一个叠加的关系<br>服务属性列表使用’ - ‘(空格空格-空格)来表示</p>
+<h5 id="②属性详解"><a href="#②属性详解" class="headerlink" title="②属性详解"></a>②属性详解</h5><p>镜像</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">格式：</span><br><span class="line">image: 镜像名称:版本号</span><br><span class="line">举例：</span><br><span class="line">image: nginx:latest</span><br></pre></td></tr></table></figure>
+<p>容器命名</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">格式：</span><br><span class="line">container_name: 自定义容器命名</span><br><span class="line">举例：</span><br><span class="line">container_name: nginx-web1</span><br></pre></td></tr></table></figure>
+<p>数据卷</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">格式：</span><br><span class="line">volumes:</span><br><span class="line">- 宿主机文件:容器文件</span><br><span class="line">举例：</span><br><span class="line">volumes:</span><br><span class="line">- ./linshi.conf:/nihao/haha.sh</span><br></pre></td></tr></table></figure>
+<p>端口</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">格式：</span><br><span class="line">ports:</span><br><span class="line">- <span class="string">"宿主机端口:容器端口"</span></span><br><span class="line">expose:</span><br><span class="line">- <span class="string">"容器暴露端口"</span></span><br><span class="line">举例：</span><br><span class="line">ports:</span><br><span class="line">- <span class="string">"9999:80"</span></span><br></pre></td></tr></table></figure>
+<p>镜像构建</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">格式：</span><br><span class="line">build: Dockerfile 的路径</span><br><span class="line">举例：</span><br><span class="line">build: .</span><br><span class="line">build: ./dockerfile_dir/</span><br><span class="line">build: /root/dockerfile_dir/</span><br></pre></td></tr></table></figure>
+<p>服务依赖</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">格式：</span><br><span class="line">depends_on:</span><br><span class="line">- 本任务依赖哪个服务</span><br><span class="line">举例：</span><br><span class="line">depends_on:</span><br><span class="line">- web1</span><br></pre></td></tr></table></figure>
+
+        
+    </section>
+</article>
+
+
+
+<div class="comments">
+    <div id="comments"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+    new Gitalk({
+        clientID: "f117eb282f890eafac3d",
+        clientSecret: "13caf80f1f529128478f1fcbea32505d83fbea71",
+        repo: "comment-repo",
+        owner: "kenneth1996",
+        admin: ["kenneth1996"],
+        id: "2019/03/25/Docker",
+        distractionFreeMode: true,
+        title: "Docker(三):高级应用",
+        body: "http://kenneth96.coding.me/2019/03/25/Docker/",
+        labels: ["容器"]
+    }).render('comments');
+    </script>
+</div>
+
+</div>
+        <footer class="footer">
+    Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+
+    
+        &ensp;
+        <span id="cnzz_stat_icon_1234567890" class="vm"></span>
+        <script src="//s13.cnzz.com/stat.php?id=1234567890&show=pic" type="text/javascript"></script>
+    
+</footer>
+
+    </main>
+
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/1.9.0/jquery.min.js"></script>
+    <script type="text/javascript">
+    $(function() {
+        var nodes = {
+            nav: $('#nav'),
+            aside: $('#aside'),
+            asideInner: $('#aside-inner'),
+            navInner: $('#nav-inner')
+        };
+
+        var doing = false;
+        nodes.asideInner.on('webkitAnimationEnd mozAnimationEnd oAnimationEnd oanimationend animationend', function() {
+            if (nodes.aside.hasClass('mobile-open')) {
+                nodes.aside.removeClass('mobile-open');
+            } else {
+                nodes.aside.removeClass('mobile-close panel-show');
+            }
+            doing = false;
+        });
+        $('#open-panel, #aside-mask').on('click', function() {
+            if (doing) {
+                return;
+            }
+            
+            if (nodes.aside.hasClass('panel-show')) {
+                nodes.aside.addClass('mobile-close');
+            } else {
+                nodes.aside.addClass('mobile-open panel-show');
+            }
+        });
+        $('#open-menus').on('click', function() {
+            nodes.navInner.slideToggle();
+        });
+
+        if (window.innerWidth <= 960) {
+            setTimeout(function() {
+                nodes.navInner.slideUp();
+            }, 3000);
+        }
+    });
+    </script>
+    
+        <script type="text/javascript" src="/js/scrollspy.min.js"></script>
+        <script type="text/javascript">
+        $(document.body).scrollspy({target: '#aside-inner'});
+        </script>
+    
+
+</body>
+</html>
