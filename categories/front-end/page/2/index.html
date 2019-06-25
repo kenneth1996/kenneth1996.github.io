@@ -131,6 +131,49 @@
     <header class="article-header">
         
         <h1 itemprop="name">
+            <a href="/2018/08/18/普罗米修斯监控系统-二/">普罗米修斯监控系统(下)</a>
+        </h1>
+        
+        <div class="article-meta clearfix">
+            <a class="article-date" href="http://kenneth96.coding.me/categories/front-end/page/2/index.html">
+    
+    <i class="icon-calendar"></i>
+    
+    <time datetime="2018-08-18T15:10:50.000Z" itemprop="datePublished">2018-08-18</time>
+</a>
+
+            
+<div class="article-tag-list">
+    <i class="icon-tag"></i>
+    <a class="article-tag-link" href="/tags/prometheus/">prometheus</a>
+</div>
+
+
+        </div>
+    </header>
+    
+    <section class="article-body markdown-body">
+        
+        <h3 id="一、图形美化"><a href="#一、图形美化" class="headerlink" title="一、图形美化"></a>一、图形美化</h3><h4 id="1、简介"><a href="#1、简介" class="headerlink" title="1、简介"></a>1、简介</h4><p>Grafana是一个可视化面板（Dashboard），有着非常漂亮的图表和布局展示，功能齐全的度量仪表盘和图形编辑器，支持多种不同的时序数据库数据源，对每种数据源提供不同的查询方法，而且能很好的支持每种数据源的特性。 </p>
+<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/grafana1.jpg" alt=""><br>
+        
+        </p><p class="article-more-link">
+            <a href="/2018/08/18/普罗米修斯监控系统-二/#more">
+                <span class="vm">阅读更多</span>
+                <i class="icon-arrow-double-right vm"></i>    
+            </a>
+        </p>
+        
+        
+    </section>
+</article>
+
+
+    <article class="article" itemscope="" itemprop="blogPost">
+    
+    <header class="article-header">
+        
+        <h1 itemprop="name">
             <a href="/2018/08/06/轻量级服务器nginx-下/">轻量级服务器Nginx（下）</a>
         </h1>
         
@@ -527,51 +570,6 @@
         
         </p><p class="article-more-link">
             <a href="/2018/06/25/NFS服务/#more">
-                <span class="vm">阅读更多</span>
-                <i class="icon-arrow-double-right vm"></i>    
-            </a>
-        </p>
-        
-        
-    </section>
-</article>
-
-
-    <article class="article" itemscope="" itemprop="blogPost">
-    
-    <header class="article-header">
-        
-        <h1 itemprop="name">
-            <a href="/2018/06/24/ftp服务-（2）实际应用/">ftp服务-（2）实际应用</a>
-        </h1>
-        
-        <div class="article-meta clearfix">
-            <a class="article-date" href="http://kenneth96.coding.me/categories/front-end/page/2/index.html">
-    
-    <i class="icon-calendar"></i>
-    
-    <time datetime="2018-06-24T13:22:30.000Z" itemprop="datePublished">2018-06-24</time>
-</a>
-
-            
-<div class="article-tag-list">
-    <i class="icon-tag"></i>
-    <a class="article-tag-link" href="/tags/ftp/">ftp</a>
-</div>
-
-
-        </div>
-    </header>
-    
-    <section class="article-body markdown-body">
-        
-        <h3 id="一、ftp的基本应用"><a href="#一、ftp的基本应用" class="headerlink" title="一、ftp的基本应用"></a>一、ftp的基本应用</h3><p>基本环境：</p>
-<p>ftp-server：192.168.2.101</p>
-<p>client：192.168.2.103  </p>
-<h4 id="1、允许匿名用户上传文件"><a href="#1、允许匿名用户上传文件" class="headerlink" title="1、允许匿名用户上传文件"></a>1、允许匿名用户上传文件</h4><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">将配置文件中的注释去掉</span><br><span class="line">[root@ftp-server ~]<span class="comment"># cd /etc/vsftpd/</span></span><br><span class="line">[root@ftp-server vsftpd]<span class="comment"># mv vsftpd.conf vsftpd.conf.bck</span></span><br><span class="line">[root@ftp-server vsftpd]<span class="comment"># grep -v ^# vsftpd.conf.bck &gt; vsftpd.conf </span></span><br><span class="line">在vsftpd.conf中加入以下三行开启匿名用户权限</span><br><span class="line">anon_upload_enable=YES</span><br><span class="line">anon_mkdir_write_enable=YES</span><br><span class="line">anon_other_write_enable=YES</span><br></pre></td></tr></table></figure>
-        
-        <p class="article-more-link">
-            <a href="/2018/06/24/ftp服务-（2）实际应用/#more">
                 <span class="vm">阅读更多</span>
                 <i class="icon-arrow-double-right vm"></i>    
             </a>
