@@ -155,147 +155,15 @@
     <section class="article-body markdown-body">
         
         <h3 id="一、虚拟化技术"><a href="#一、虚拟化技术" class="headerlink" title="一、虚拟化技术"></a>一、虚拟化技术</h3><h4 id="1、主机虚拟化方式"><a href="#1、主机虚拟化方式" class="headerlink" title="1、主机虚拟化方式"></a>1、主机虚拟化方式</h4><p>主机的两种虚拟化实现方式： </p>
-<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/kvm1.png" alt=""></p>
-<ul>
-<li><p>type-I： 实现虚拟化的方面更彻底，更可靠。 </p>
-<p>常见软件：xen, vmware ESX/ESXi </p>
-</li>
-<li><p>type-II 借助于宿主机的软件来实现各种虚拟机管理 </p>
-<p>常见软件：kvm, vmware workstation, virtualbox</p>
-</li>
-</ul>
-<p>type1 hypervisor和type2 hypervisor的工作机制是差不多的（vsphere的管理界面甚至和vmware workstation类似），只是前者直接工作在硬件层面，效率较高，两者还有一个区别是前者的虚拟客户机所需要的内存是按需分配的（例如你分配了1G内存给虚拟客户机，如果现在该客户机只需512M就可以了，那么type1 hypervisor就只给它分配512M内存），这样你所有正在运行的虚拟机的所分配内存之和可以比实际的物理内存大（后者就不行）；而type2 hypervisor是你给虚拟客户机分配多少内存，你的虚拟客户机就在内存中占用多少内存空间，此外在type2 hypervisor中还要考虑主机的操作系统的内存使用。 </p>
-<h4 id="2、常见Hypervisor"><a href="#2、常见Hypervisor" class="headerlink" title="2、常见Hypervisor"></a>2、常见Hypervisor</h4><h5 id="①RedHat-KVM"><a href="#①RedHat-KVM" class="headerlink" title="①RedHat KVM"></a>①RedHat KVM</h5><ul>
-<li>虚拟化方式：完全虚拟化</li>
-<li>架构：寄居架构（linux内核）; 祼金属架构RHEV-H</li>
-<li>特点：祼金属架构RHEV-H或在关键的硬盘和网卡上支持半虚拟化VirtIO，达到最佳性能。</li>
-<li>I/O协议栈：KVM重用了整个Linux I/O协议栈，所以KVM的用户就自然就获得了最新的驱动和I/O协议栈的改进。</li>
-</ul>
-<p>架构图：</p>
-<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/kvm2.png" alt=""></p>
-<h5 id="②VmWare-ESX"><a href="#②VmWare-ESX" class="headerlink" title="②VmWare ESX"></a>②VmWare ESX</h5><ul>
-<li>虚拟化方式：完全虚拟化</li>
-<li>架构：裸金属架构</li>
-<li>I/O协议栈：VMware 选择性能，但是把I/O协议栈放到了hypervisor里面。不幸的是，VMware kernel是专有的，那就意味着VMware不得不开发和维护整个协议栈，会导致开发速度会减慢，你的硬件可能要等一段时间才会得到VMware的支持。</li>
-</ul>
-<p>架构图：</p>
-<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/kvm3.png" alt=""></p>
-<h5 id="③Citrix-XenServer"><a href="#③Citrix-XenServer" class="headerlink" title="③Citrix XenServer"></a>③Citrix XenServer</h5><ul>
-<li>虚拟化方式：半虚拟化(linux安装linux); 全虚拟化(linux安装windows),硬件辅助虚拟化</li>
-<li>架构：裸金属架构</li>
-<li>I/O协议栈：Xen选择了可维护这条道路，它将所有的I/O操作放到了Linux guest里面，也就是所谓的domain-0里面。重用Linux来做I/O, Xen的维护者就不用重写整个I/O协议栈了。但不幸的是，这样就牺牲了性能：每一个中断都必需经过Xen的调度，才能切换到domain 0, 并且所有的东西都不得不经过一个附加层的映射。</li>
-</ul>
-<p>架构图：</p>
-<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/kvm8.jpg" alt=""></p>
-<h5 id="④Microsoft-Hyper-V"><a href="#④Microsoft-Hyper-V" class="headerlink" title="④Microsoft Hyper-V"></a>④Microsoft Hyper-V</h5><ul>
-<li>虚拟化方式：半虚拟化</li>
-<li>架构：裸金属架构 Hyper-V Server; 寄居架构 Windows 2008</li>
-<li>特点：父分区（宿主机操作系统）的位置挪到了子分区（虚拟机操作系统）的旁边，宿主机操作系统和虚拟机操作系统是平级的，没有谁依附谁之上的关系。</li>
-<li>I/O协议栈：虚拟机看到的所有设备不再都是虚拟出来的，有部分的硬件资源是真实的物理设备。</li>
-</ul>
-<p>架构图</p>
-<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/kvm9.png" alt=""></p>
-<h4 id="3、kvm简介"><a href="#3、kvm简介" class="headerlink" title="3、kvm简介"></a>3、kvm简介</h4><p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/blog/kvm/kvm10.png" alt=""></p>
-<h5 id="①kvm虚拟化原理"><a href="#①kvm虚拟化原理" class="headerlink" title="①kvm虚拟化原理"></a>①kvm虚拟化原理</h5><p>kvm依赖于HVM技术，只能运行在支持硬件虚拟化的CPU上，也就是说CPU支持VT-x或AMD-v，并且只支持x86_64bits系统。只要基于硬件的操作系统内核一旦装载了kvm模块，那么kvm模块就和linux内核组合成了hypervisor，变成了type-I模型的虚拟机。</p>
-<p>kvm类似于寄生虫，linux内核一旦被寄宿，就没有自主权，跟着kvm一起变成hypervisor的一部分。原来的用户空间就变成了hypervisor的管理控制台运行位置，而 kvm以字符设备/dev/kvm的形式作为kvm整个的调用管理接口。 </p>
-<p>kvm创建的虚拟机就是一个进程，ps查看，kill杀死 </p>
-<p>kvm虚拟模式演变过程：</p>
-<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/blog/kvm/kvm1.png" alt=""></p>
-<h5 id="②优点"><a href="#②优点" class="headerlink" title="②优点"></a>②优点</h5><ul>
-<li>支持 CPU 和 memory 超载（Overcommit） </li>
-<li>支持 半虚拟化I/O （virtio） </li>
-<li>支持 热插拔 （cpu，块设备、网络设备等） </li>
-<li>支持 多存储管理 </li>
-<li>支持 实时迁移（Live Migration） </li>
-<li>支持 PCI 设备直接分配和 单根I/O 虚拟化 （SR-IOV）</li>
-<li>支持 内核同页合并 （KSM ） </li>
-<li>支持 NUMA （Non-Uniform Memory Access，非一致存储访问结构 ） </li>
-</ul>
-<p>关键点：</p>
-<ol>
-<li>cpu 支持硬件虚拟化 </li>
-<li>CPU 不建议超过当前核心数 </li>
-<li>迁移时候，基础环境要一致</li>
-</ol>
-<h3 id="二、基础配置"><a href="#二、基础配置" class="headerlink" title="二、基础配置"></a>二、基础配置</h3><h4 id="1、环境配置"><a href="#1、环境配置" class="headerlink" title="1、环境配置"></a>1、环境配置</h4><h5 id="①检查虚拟化配置"><a href="#①检查虚拟化配置" class="headerlink" title="①检查虚拟化配置"></a>①检查虚拟化配置</h5><p>确保cpu支持虚拟化</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">egrep <span class="string">'(vmx|svm)'</span> /proc/cpuinfo</span><br></pre></td></tr></table></figure>
-<p>支持模块</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">modprobe kvm &amp;&amp; modprobe kvm-intel</span><br><span class="line">lsmod | egrep <span class="string">'kvm|Module'</span></span><br><span class="line">modinfo kvm/kvm-intel</span><br></pre></td></tr></table></figure>
-<p>验证</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ls /dev/kvm</span><br></pre></td></tr></table></figure>
-<p>如果有信息，就表明我们的虚拟机支持虚拟化</p>
-<h5 id="②系统环境基本配置"><a href="#②系统环境基本配置" class="headerlink" title="②系统环境基本配置"></a>②系统环境基本配置</h5><blockquote>
-<p>网络环境</p>
-</blockquote>
-<p>​     关闭NetworkManager服务</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">systemctl stop NetworkManager</span><br><span class="line">systemctl disable NetworkManager</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>安全配置</p>
-</blockquote>
-<p>防火墙</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">systemctl stop firewalld</span><br><span class="line">systemctl disable firewalld</span><br><span class="line">检查</span><br><span class="line">firewall-cmd --state</span><br></pre></td></tr></table></figure>
-<p>selinux</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">'s#=enforcing#=disabled#'</span> /etc/selinux/config</span><br><span class="line">检查</span><br><span class="line">grep --color=auto <span class="string">'^SELINUX'</span> /etc/selinux/config</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>环境主机名规划</p>
-</blockquote>
-<p>hosts文件内容</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">192.168</span>.<span class="number">2.100</span> controller.devops.com controller</span><br></pre></td></tr></table></figure>
-<p>主机名设置</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hosnamectl set-hostname controller</span><br></pre></td></tr></table></figure>
-<p>测试效果</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ping -c <span class="number">1</span> controller</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>基础软件安装</p>
-</blockquote>
-<p>安装依赖软件</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y wget yum-plugin-priorities</span><br></pre></td></tr></table></figure>
-<p>安装软件源</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget -O /etc/yum.repos.d/CentOS-Base-ali.repo http://mirrors.aliyun.com/repo/Centos-<span class="number">7</span>.re o</span><br><span class="line">wget -O /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-<span class="number">7</span>.repo</span><br></pre></td></tr></table></figure>
-<p>源优先级配置</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cat /etc/yum/pluginconf.d/priorities.conf</span><br><span class="line">注意：保证 [main] 配置下的 enabled = <span class="number">1</span></span><br><span class="line">然后编辑相应的 repo 文件，在想用的配置文件下增加 priority=<span class="number">1</span></span><br></pre></td></tr></table></figure>
-<p>检查</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">yum repolist</span><br><span class="line">yum clean all &amp;&amp; yum makecache fast &amp;&amp; yum update -y</span><br></pre></td></tr></table></figure>
-<p>禁止内核升级 </p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># vim /etc/yum.conf</span></span><br><span class="line">...</span><br><span class="line">exclude=kernel*</span><br><span class="line">exclude=centos-release*</span><br></pre></td></tr></table></figure>
-<p>安装系统基础软件</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">yum groupinstall <span class="string">"Compatibility Librari "</span> <span class="string">"Console Internet Tools"</span> <span class="string">"Development Tools"</span> <span class="string">"Securi</span></span><br><span class="line"><span class="string">ty Tools"</span> <span class="string">"System Administration Tools"</span> -y</span><br><span class="line">yum install -y vim lrzsz telnet curl net-tools tree bash-completion</span><br></pre></td></tr></table></figure>
-<h4 id="2、安装部署"><a href="#2、安装部署" class="headerlink" title="2、安装部署"></a>2、安装部署</h4><p>安装kvm一般会安装以下几种软件:</p>
-<ul>
-<li><p>qemu-kvm：用户态管理kvm，网卡、声卡、PCI设备等都是需要qemu来管理</p>
-</li>
-<li><p>libvirt：是管理kvm的工具</p>
-</li>
-<li><p>virt-install：安装虚拟机用的</p>
-</li>
-</ul>
-<p>安装kvm</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">yum install qemu-kvm libvirt virt-install -y</span><br><span class="line">ln -sv /usr/libexec/qemu-kvm /usr/bin/</span><br></pre></td></tr></table></figure>
-<p>启动服务</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">systemctl start libvirtd</span><br><span class="line">systemctl enable libvirtd</span><br></pre></td></tr></table></figure>
-<p>检查效果 </p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ifconfig</span><br><span class="line">ip route</span><br><span class="line">ps aux | grep -v grep | grep dns</span><br></pre></td></tr></table></figure>
-<h4 id="3、常用命令"><a href="#3、常用命令" class="headerlink" title="3、常用命令"></a>3、常用命令</h4><p>管理工具集</p>
-<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/blog/kvm/kvm2.jpg" alt=""></p>
-<p>虚拟机的管理有两套管理工具： </p>
-<p>qemu：linux内核支持的专用kvm管理工具 </p>
-<ul>
-<li><p>qemu-kvm: 结合虚拟化软件qemv管理kvm虚拟机的集成工具集 </p>
-</li>
-<li><p>qemu-img: 虚拟磁盘的管理工具</p>
-</li>
-</ul>
-<p>libvirt：通用的虚拟化技术管理工具</p>
-<ul>
-<li><p>virt-install 虚拟机专用创建工具 </p>
-</li>
-<li><p>virsh 操作虚拟环境的一个命令行管理工具，支持远程管理操作</p>
-</li>
-<li><p>virsh-manager 管理虚拟机的图形化的桌面用户接口 </p>
-</li>
-</ul>
-<p>本文档创建虚拟机选用virt-install，管理虚拟机使用virsh，磁盘用qemu-img。</p>
-
+<p><img src="https://k-linux.oss-cn-beijing.aliyuncs.com/images/kvm1.png" alt=""><br>
+        
+        </p><p class="article-more-link">
+            <a href="/2019/08/18/KVM虚拟化/#more">
+                <span class="vm">阅读更多</span>
+                <i class="icon-arrow-double-right vm"></i>    
+            </a>
+        </p>
+        
         
     </section>
 </article>
