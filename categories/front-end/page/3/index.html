@@ -131,6 +131,58 @@
     <header class="article-header">
         
         <h1 itemprop="name">
+            <a href="/2018/06/25/NFS服务/">NFS服务</a>
+        </h1>
+        
+        <div class="article-meta clearfix">
+            <a class="article-date" href="http://kenneth96.coding.me/categories/front-end/page/3/index.html">
+    
+    <i class="icon-calendar"></i>
+    
+    <time datetime="2018-06-25T08:43:56.000Z" itemprop="datePublished">2018-06-25</time>
+</a>
+
+            
+<div class="article-tag-list">
+    <i class="icon-tag"></i>
+    <a class="article-tag-link" href="/tags/nfs/">nfs</a>
+</div>
+
+
+        </div>
+    </header>
+    
+    <section class="article-body markdown-body">
+        
+        <h4 id="一、NFS服务介绍"><a href="#一、NFS服务介绍" class="headerlink" title="一、NFS服务介绍"></a>一、NFS服务介绍</h4><p>NFS（Network File System）网络文件系统</p>
+<ul>
+<li>主要用于linux系统上实现文件共享的一种协议，其客户端主要是Linux</li>
+<li>没有用户认证机制，且数据在网络上传送的时候是明文传送，一般只能在局域网中使用</li>
+<li>支持多节点同时挂载及并发写入</li>
+</ul>
+<p><strong>企业应用：为集群中的web server提供后端存储</strong></p>
+<p><strong>该服务包括的组件：</strong></p>
+<p>RPC（Remote Procedure Call Protocol）：<br>远程过程调用协议，它是一种通过网络从远程计算机程序上请求服务，不需要了解底层网络技术的协议。</p>
+<p><strong>rpcbind</strong>                     //负责NFS的数据传输，远程过程调用  tcp协议 端口111</p>
+<p><strong>nfs-utils</strong>            //控制共享哪些文件,权限管理<br>
+        
+        </p><p class="article-more-link">
+            <a href="/2018/06/25/NFS服务/#more">
+                <span class="vm">阅读更多</span>
+                <i class="icon-arrow-double-right vm"></i>    
+            </a>
+        </p>
+        
+        
+    </section>
+</article>
+
+
+    <article class="article" itemscope="" itemprop="blogPost">
+    
+    <header class="article-header">
+        
+        <h1 itemprop="name">
             <a href="/2018/06/24/ftp服务-（2）实际应用/">ftp服务-（2）实际应用</a>
         </h1>
         
